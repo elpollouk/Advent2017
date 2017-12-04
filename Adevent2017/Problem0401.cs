@@ -66,7 +66,7 @@ namespace Adevent2017
         public void Solution01()
         {
             var count = 0;
-            FileIterator.EachLine("data/0401.txt", line =>
+            FileIterator.ForEachLine("data/0401.txt", line =>
             {
                 if (IsValid(line))
                     count++;
@@ -87,7 +87,7 @@ namespace Adevent2017
         public void Solution02()
         {
             var count = 0;
-            FileIterator.EachLine("data/0401.txt", line =>
+            FileIterator.ForEachLine("data/0401.txt", line =>
             {
                 if (IsValid2(line))
                     count++;
