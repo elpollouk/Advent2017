@@ -1,6 +1,6 @@
-﻿using FluentAssertions;
+﻿using Adevent2017.Utils;
+using FluentAssertions;
 using System.Collections.Generic;
-using System.IO;
 using Xunit;
 
 namespace Adevent2017
@@ -10,20 +10,15 @@ namespace Adevent2017
         bool IsValid(string phrase)
         {
             HashSet<string> wordSet = new HashSet<string>();
-            var words = phrase.Split(' ');
-
-            foreach (var word in words)
+            return phrase.ForEachLowerWord(word =>
             {
-                var lword = word.ToLowerInvariant();
-                if (wordSet.Contains(lword)) return false;
-                wordSet.Add(lword);
-            }
-            return true;
+                if (wordSet.Contains(word)) StopIteration.Now();
+                wordSet.Add(word);
+            });
         }
 
         int[] CreateSignature(string word)
         {
-            word = word.ToLowerInvariant();
             var signature = new int[26];
             for (var i = 0; i < word.Length; i++)
                 signature[word[i] - 'a']++;
@@ -50,18 +45,15 @@ namespace Adevent2017
         bool IsValid2(string phrase)
         {
             var signatureList = new List<int[]>();
-            var words = phrase.Split(' ');
 
-            foreach (var word in words)
+            return phrase.ForEachLowerWord(word =>
             {
                 var signature = CreateSignature(word);
                 if (HasSignature(signatureList, signature))
-                    return false;
+                    StopIteration.Now();
 
                 signatureList.Add(signature);
-            }
-
-            return true;
+            });
         }
 
         [Theory]
@@ -73,12 +65,12 @@ namespace Adevent2017
         [Fact]
         public void Solution01()
         {
-            var reader = new StreamReader("data/0401.txt");
-            string phrase;
             var count = 0;
-            while ((phrase = reader.ReadLine()) != null)
-                if (IsValid(phrase))
+            FileIterator.EachLine("data/0401.txt", line =>
+            {
+                if (IsValid(line))
                     count++;
+            });
 
             count.Should().Be(466);
         }
@@ -94,12 +86,12 @@ namespace Adevent2017
         [Fact]
         public void Solution02()
         {
-            var reader = new StreamReader("data/0401.txt");
-            string phrase;
             var count = 0;
-            while ((phrase = reader.ReadLine()) != null)
-                if (IsValid2(phrase))
+            FileIterator.EachLine("data/0401.txt", line =>
+            {
+                if (IsValid2(line))
                     count++;
+            });
 
             count.Should().Be(251);
 
