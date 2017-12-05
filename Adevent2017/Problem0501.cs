@@ -23,6 +23,27 @@ namespace Adevent2017
             return count;
         }
 
+        public int Solve2(int[] prog)
+        {
+            var count = 0;
+            var ip = 0;
+            Func<bool> IsDone = () => ip < 0 || ip >= prog.Length;
+
+            while (!IsDone())
+            {
+                var offset = prog[ip];
+                if (offset >= 3)
+                    prog[ip]--;
+                else
+                    prog[ip]++;
+
+                ip += offset;
+                count++;
+            }
+
+            return count;
+        }
+
         [Fact]
         public void Example1()
         {
@@ -40,6 +61,25 @@ namespace Adevent2017
             });
 
             Solve1(prog.ToArray()).Should().Be(373160);
+        }
+
+        [Fact]
+        public void Example2()
+        {
+            var prog = new int[] { 0, 3, 0, 1, -3 };
+            Solve2(prog).Should().Be(10);
+        }
+
+        [Fact]
+        public void Solution2()
+        {
+            var prog = new List<int>();
+            FileIterator.ForEachLine("Data/0501.txt", line =>
+            {
+                prog.Add(int.Parse(line));
+            });
+
+            Solve2(prog.ToArray()).Should().Be(26395586);
         }
     }
 }
