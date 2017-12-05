@@ -8,22 +8,11 @@ namespace Adevent2017
 {
     public class Problem0501
     {
-        public int Solve1(int[] prog)
-        {
-            var count = 0;
-            var ip = 0;
-            Func<bool> IsDone = () => ip < 0 || ip >= prog.Length;
+        int Problem1(int offset) => offset + 1;
 
-            while (!IsDone())
-            {
-                ip = ip += prog[ip]++;
-                count++;
-            }
+        int Problem2(int offset) => offset >= 3 ? offset - 1 : offset + 1;
 
-            return count;
-        }
-
-        public int Solve2(int[] prog)
+        public int Exec(int[] prog, Func<int, int> updateCell)
         {
             var count = 0;
             var ip = 0;
@@ -32,11 +21,7 @@ namespace Adevent2017
             while (!IsDone())
             {
                 var offset = prog[ip];
-                if (offset >= 3)
-                    prog[ip]--;
-                else
-                    prog[ip]++;
-
+                prog[ip] = updateCell(offset);
                 ip += offset;
                 count++;
             }
@@ -48,38 +33,38 @@ namespace Adevent2017
         public void Example1()
         {
             var prog = new int[] { 0, 3, 0, 1, -3 };
-            Solve1(prog).Should().Be(5);
+            Exec(prog, Problem1).Should().Be(5);
         }
 
         [Fact]
         public void Solution1()
         {
             var prog = new List<int>();
-            FileIterator.ForEachLine("Data/0501.txt", line =>
+            FileIterator.ForEachInt("Data/0501.txt", value =>
             {
-                prog.Add(int.Parse(line));
+                prog.Add(value);
             });
 
-            Solve1(prog.ToArray()).Should().Be(373160);
+            Exec(prog.ToArray(), Problem1).Should().Be(373160);
         }
 
         [Fact]
         public void Example2()
         {
             var prog = new int[] { 0, 3, 0, 1, -3 };
-            Solve2(prog).Should().Be(10);
+            Exec(prog, Problem2).Should().Be(10);
         }
 
         [Fact]
         public void Solution2()
         {
             var prog = new List<int>();
-            FileIterator.ForEachLine("Data/0501.txt", line =>
+            FileIterator.ForEachInt("Data/0501.txt", value =>
             {
-                prog.Add(int.Parse(line));
+                prog.Add(value);
             });
 
-            Solve2(prog.ToArray()).Should().Be(26395586);
+            Exec(prog.ToArray(), Problem2).Should().Be(26395586);
         }
     }
 }

@@ -12,5 +12,13 @@ namespace Adevent2017.Utils
             while ((line = reader.ReadLine()) != null)
                 onLine(line);
         }
+
+        public static void ForEachInt(string filename, Action<int> onInt)
+        {
+            ForEachLine(filename, line =>
+            {
+                onInt(int.Parse(line));
+            });
+        }
     }
 }
