@@ -39,13 +39,8 @@ namespace Adevent2017
         [Fact]
         public void Solution1()
         {
-            var prog = new List<int>();
-            FileIterator.ForEachInt("Data/0501.txt", value =>
-            {
-                prog.Add(value);
-            });
-
-            Exec(prog.ToArray(), Problem1).Should().Be(373160);
+            var prog = FileIterator.LoadLines<int>("Data/0501.txt");
+            Exec(prog, Problem1).Should().Be(373160);
         }
 
         [Fact]
@@ -58,13 +53,8 @@ namespace Adevent2017
         [Fact]
         public void Solution2()
         {
-            var prog = new List<int>();
-            FileIterator.ForEachInt("Data/0501.txt", value =>
-            {
-                prog.Add(value);
-            });
-
-            Exec(prog.ToArray(), Problem2).Should().Be(26395586);
+            var prog = FileIterator.LoadLines<int>("Data/0501.txt");
+            Exec(prog, Problem2).Should().Be(26395586);
         }
     }
 }

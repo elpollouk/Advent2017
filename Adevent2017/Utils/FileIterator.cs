@@ -1,24 +1,25 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Adevent2017.Utils
 {
     static class FileIterator
     {
-        public static void ForEachLine(string filename, Action<string> onLine)
+        public static void ForEachLine<T>(string filename, Action<T> onLine)
         {
             var reader = new StreamReader(filename);
             string line;
             while ((line = reader.ReadLine()) != null)
-                onLine(line);
+                onLine((T)Convert.ChangeType(line, typeof(T)));
         }
 
-        public static void ForEachInt(string filename, Action<int> onInt)
+        public static T[] LoadLines<T>(string filename)
         {
-            ForEachLine(filename, line =>
-            {
-                onInt(int.Parse(line));
-            });
+            var lines = new List<T>();
+            Action<T> handler = line => lines.Add(line);
+            ForEachLine(filename, handler);
+            return lines.ToArray();
         }
     }
 }
