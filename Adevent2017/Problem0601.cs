@@ -2,7 +2,6 @@
 using FluentAssertions;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using Xunit;
 
 namespace Adevent2017
@@ -73,7 +72,7 @@ namespace Adevent2017
         [Fact]
         public void Solution1()
         {
-            var data = FileIterator.LoadLines<int>("Data/0601.txt");
+            var data = FileIterator.LoadTSV<int>("Data/0601.txt");
             Solve(Part1, data).Should().Be(14029);
         }
 
@@ -83,7 +82,7 @@ namespace Adevent2017
         [Fact]
         public void Solution2()
         {
-            var data = FileIterator.LoadLines<int>("Data/0601.txt");
+            var data = FileIterator.LoadTSV<int>("Data/0601.txt");
             Solve(Part2, data).Should().Be(2765);
         }
     }

@@ -1,7 +1,6 @@
 ﻿using Adevent2017.Utils;
 using FluentAssertions;
 using System;
-using System.Collections.Generic;
 using Xunit;
 
 namespace Adevent2017

@@ -8,10 +8,12 @@ namespace Adevent2017.Utils
     {
         public static void ForEachLine<T>(string filename, Action<T> onLine)
         {
-            var reader = new StreamReader(filename);
-            string line;
-            while ((line = reader.ReadLine()) != null)
-                onLine((T)Convert.ChangeType(line, typeof(T)));
+            using (var reader = new StreamReader(filename))
+            {
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                    onLine((T)Convert.ChangeType(line, typeof(T)));
+            }
         }
 
         public static T[] LoadLines<T>(string filename)
@@ -20,6 +22,20 @@ namespace Adevent2017.Utils
             Action<T> handler = line => lines.Add(line);
             ForEachLine(filename, handler);
             return lines.ToArray();
+        }
+
+        public static T[] LoadTSV<T>(string filename)
+        {
+            using (var reader = new StreamReader(filename))
+            {
+                var line = reader.ReadLine();
+                var sValues = line.Split('\t');
+                var values = new T[sValues.Length];
+                for (var i = 0; i < sValues.Length; i++)
+                    values[i] = (T)Convert.ChangeType(sValues[i], typeof(T));
+
+                return values;
+            }
         }
     }
 }
