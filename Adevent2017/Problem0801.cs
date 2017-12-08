@@ -6,6 +6,9 @@ using Xunit;
 
 namespace Adevent2017
 {
+    using OpFunc = Func<int, int, int>;
+    using CondFunc = Func<int, int, bool>;
+
     class RuntimeStats
     {
         public int FinalMaxRegisterValue = int.MinValue;
@@ -17,69 +20,66 @@ namespace Adevent2017
         class Instruction
         {
             public string Register;
-            public Func<int, int, int> Op;
+            public OpFunc Op;
             public int Value;
             public string CondRegister;
-            public Func<int, int, bool> CondOp;
+            public CondFunc CondOp;
             public int CondValue;
+        }
+
+        OpFunc ParseOp(string op)
+        {
+            switch (op)
+            {
+                case "inc":
+                    return (r, v) => r + v;
+
+                case "dec":
+                    return (r, v) => r - v;
+
+                default:
+                    throw new Exception($"Invalid instruction {op}");
+            }
+        }
+
+        CondFunc ParseCondOp(string condOp)
+        {
+            switch (condOp)
+            {
+                case ">":
+                    return (r, v) => r > v;
+
+                case "<":
+                    return (r, v) => r < v;
+
+                case ">=":
+                    return (r, v) => r >= v;
+
+                case "<=":
+                    return (r, v) => r <= v;
+
+                case "==":
+                    return (r, v) => r == v;
+
+                case "!=":
+                    return (r, v) => r != v;
+
+                default:
+                    throw new Exception($"Invalid op {condOp}");
+            }
         }
 
         Instruction Parse(string instruction)
         {
             var parts = instruction.Split(' ');
-            Func<int, int, int> op;
-            switch (parts[1])
-            {
-                case "inc":
-                    op = (r, v) => r + v;
-                    break;
-
-                case "dec":
-                    op = (r, v) => r - v;
-                    break;
-
-                default:
-                    throw new Exception($"invalid instruction {parts[1]}");
-            }
-
-            Func<int, int, bool> condOp;
-            switch (parts[5])
-            {
-                case ">":
-                    condOp = (r, v) => r > v;
-                    break;
-
-                case "<":
-                    condOp = (r, v) => r < v;
-                    break;
-
-                case ">=":
-                    condOp = (r, v) => r >= v;
-                    break;
-
-                case "<=":
-                    condOp = (r, v) => r <= v;
-                    break;
-
-                case "==":
-                    condOp = (r, v) => r == v;
-                    break;
-
-                case "!=":
-                    condOp = (r, v) => r != v;
-                    break;
-
-                default:
-                    throw new Exception($"Invalid op {parts[5]}");
-            }
 
             return new Instruction()
             {
                 Register = parts[0],
-                Op = op,
+                Op = ParseOp(parts[1]),
                 Value = int.Parse(parts[2]),
                 CondRegister = parts[4],
-                CondOp = condOp,
+                CondOp = ParseCondOp(parts[5]),
                 CondValue = int.Parse(parts[6])
             };
         }
