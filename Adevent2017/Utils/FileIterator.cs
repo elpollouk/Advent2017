@@ -26,16 +26,14 @@ namespace Adevent2017.Utils
 
         public static T[] LoadTSV<T>(string filename)
         {
-            using (var reader = new StreamReader(filename))
+            var values = new List<T>();
+            ForEachLine<string>(filename, line =>
             {
-                var line = reader.ReadLine();
-                var sValues = line.Split('\t');
-                var values = new T[sValues.Length];
-                for (var i = 0; i < sValues.Length; i++)
-                    values[i] = (T)Convert.ChangeType(sValues[i], typeof(T));
-
-                return values;
-            }
+                var tsValues = line.Split(new char[] { '\t' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var v in tsValues)
+                    values.Add((T)Convert.ChangeType(v, typeof(T)));
+            });
+            return values.ToArray();
         }
     }
 }
