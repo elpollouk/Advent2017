@@ -1,5 +1,5 @@
-﻿using FluentAssertions;
-using System;
+﻿using Adevent2017.Utils;
+using FluentAssertions;
 using System.IO;
 using Xunit;
 
@@ -9,15 +9,13 @@ namespace Adevent2017
     {
         int removeCharacters = 0;
 
-        int IsGarbage(string input, int start)
+        int SkipGarbage(string input, int start)
         {
-            if (input[start] != '<') return 0;
-            var offset = start;
+            var offset = start + 1;
 
-            offset++;
             while (true)
             {
-                if (offset == input.Length) throw new Exception("Get tae fuck!!");
+                if (offset == input.Length) Oh.Bollocks();
                 switch(input[offset])
                 {
                     case '>':
@@ -58,7 +56,7 @@ namespace Adevent2017
                         break;
 
                     case '<':
-                        index += IsGarbage(input, index);
+                        index += SkipGarbage(input, index);
                         break;
 
                     default:
@@ -70,11 +68,6 @@ namespace Adevent2017
             return score;
         }
 
-        int Solve(string[] input)
-        {
-            return -1;
-        }
-
         [Theory]
         [InlineData("<>", 0)]
         [InlineData("<fhsdgahdfg>", 10)]
@@ -83,10 +76,10 @@ namespace Adevent2017
         [InlineData("<!!>", 0)]
         [InlineData("<!!!>>", 0)]
         [InlineData("<{o\"i!a,<{i<a>", 10)]
-        public void IsGarbageTest(string input, int removed)
+        public void SkipGarbageTest(string input, int removed)
         {
             removeCharacters = 0;
-            IsGarbage(input, 0).Should().Be(input.Length);
+            SkipGarbage(input, 0).Should().Be(input.Length);
             removeCharacters.Should().Be(removed);
         }
 
@@ -104,8 +97,7 @@ namespace Adevent2017
         [Fact]
         public void Solution()
         {
-            var reader = new StreamReader("Data/0901.txt");
-            var input = reader.ReadLine();
+            var input = File.ReadAllText("Data/0901.txt");
             ScoreGroup(input).Should().Be(16689);
             removeCharacters.Should().Be(7982);
         }
