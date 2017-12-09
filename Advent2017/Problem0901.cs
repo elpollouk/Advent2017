@@ -20,7 +20,7 @@ namespace Adevent2017
                 {
                     case '>':
                         removeCharacters += (offset - start) - 1;
-                        return (offset + 1) - start;
+                        return offset - start;
 
                     case '!':
                         removeCharacters -= 2;
@@ -36,33 +36,28 @@ namespace Adevent2017
 
         int ScoreGroup(string input)
         {
-            int index = 1;
+            int index = 0;
             int score = 0;
-            int scoreValue = 1;
+            int nextScoreValue = 0;
 
             while (index < input.Length)
             {
                 switch (input[index])
                 {
                     case '{':
-                        scoreValue++;
-                        index++;
+                        nextScoreValue++;
                         break;
 
                     case '}':
-                        score += scoreValue;
-                        scoreValue--;
-                        index++;
+                        score += nextScoreValue;
+                        nextScoreValue--;
                         break;
 
                     case '<':
                         index += SkipGarbage(input, index);
                         break;
-
-                    default:
-                        index++;
-                        break;
                 }
+                index++;
             }
 
             return score;
@@ -78,8 +73,7 @@ namespace Adevent2017
         [InlineData("<{o\"i!a,<{i<a>", 10)]
         public void SkipGarbageTest(string input, int removed)
         {
-            removeCharacters = 0;
-            SkipGarbage(input, 0).Should().Be(input.Length);
+            SkipGarbage(input, 0).Should().Be(input.Length - 1);
             removeCharacters.Should().Be(removed);
         }
 
