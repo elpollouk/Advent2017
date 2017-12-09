@@ -9,14 +9,14 @@ namespace Adevent2017
     using OpFunc = Func<int, int, int>;
     using CondFunc = Func<int, int, bool>;
 
-    class RuntimeStats
-    {
-        public int FinalMaxRegisterValue = int.MinValue;
-        public int LifetimeMaxGegisterValue = int.MinValue;
-    }
-
     public class Problem0801
     {
+        class RuntimeStats
+        {
+            public int FinalMaxRegisterValue = int.MinValue;
+            public int LifetimeMaxGegisterValue = int.MinValue;
+        }
+
         class Instruction
         {
             public string Register;
