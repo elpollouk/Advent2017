@@ -66,6 +66,7 @@ namespace Adevent2017
         int SumNeighbours(int[,] grid, int x, int y)
         {
             var sum = 0;
+            // Loops are for girls
             sum += grid[x - 1, y - 1];
             sum += grid[x    , y - 1];
             sum += grid[x + 1, y - 1];
@@ -74,6 +75,9 @@ namespace Adevent2017
             sum += grid[x    , y + 1];
             sum += grid[x - 1, y + 1];
             sum += grid[x - 1, y    ];
+
+            if (sum == 0) sum = 1;
+
             return sum;
         }
 
@@ -82,70 +86,42 @@ namespace Adevent2017
         {
             int target = 277678;
 
-            // Just brute force it so I can go back to drinking
-            int width = 25;
-            // Zero the grid
-            int[,] grid = new int[width, width];
-            for (var i = 0; i < width; i++)
-                for (var j = 0; j < width; j++)
-                    grid[i, j] = 0;
+            int gridWidth = 25;
+            int edgeLength = 1;
+            int dX = 1;
+            int dY = 0;
+            int[,] grid = new int[gridWidth, gridWidth];
 
             // Starting pos
-            int x = width / 2;
-            int y = width / 2;
+            int x = gridWidth / 2;
+            int y = gridWidth / 2;
 
-            // Explicitly set the initial position to seed everything
-            grid[x, y] = 1;
-
-            var quadrantLength = 0;
-
-            for (var ring = 1; ring < width / 2; ring++)
+            // If something goes wrong, we'll over shoot the edge of the array and get an bounds exception
+            while (true)
             {
-                var dX = 0;
-                var dY = -1;
-                // This is a fudge to move the current write position to a place that makes the first increment work
-                x++;
-                y++;
-                quadrantLength += 2;
-
-                for (var quadrant = 0; quadrant < 4; quadrant++)
+                for (var i = 0; i < 2; i++)
                 {
-                    for (var i = 0; i < quadrantLength; i++)
+                    for (var j = 0; j < edgeLength; j++)
                     {
-                        x += dX;
-                        y += dY;
-
-                        grid[x, y] = SumNeighbours(grid, x, y);
-                        if (grid[x, y] > target)
+                        var sum = SumNeighbours(grid, x, y);
+                        if (sum > target)
                         {
                             // And the problem was looking for the value not the cell number being written to (faceplam)
-                            grid[x, y].Should().Be(279138);
+                            sum.Should().Be(279138);
                             return;
                         }
+                        grid[x, y] = sum;
+                        x += dX;
+                        y += dY;
                     }
 
-                    // Update the deltas for the next quadrant
-                    if (dY == -1)
-                    {
-                        dX = -1;
-                        dY = 0;
-                    }
-                    else if (dX == -1)
-                    {
-                        dX = 0;
-                        dY = 1;
-                    }
-                    else if (dY == 1)
-                    {
-                        dX = 1;
-                        dY = 0;
-                    }
-                    
-                    // No need to do anything after the last quadrant as we explicitly set dX/dY at the start of the next ring
+                    var t = dX;
+                    dX = dY;
+                    dY = -t;
                 }
-            }
 
-            throw new Exception();
+                edgeLength++;
+            }
         }
     }
 }
