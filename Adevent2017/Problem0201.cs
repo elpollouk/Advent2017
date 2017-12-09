@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Adevent2017
 {
-    public static class Probelm0201
+    public static class Problem0201
     {
         static void AddRow(this List<int[]> sheet, params int[] data)
         {
