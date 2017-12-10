@@ -54,11 +54,11 @@ namespace Adevent2017
         }
 
         [Theory]
-        [InlineData("Data/1001-example.txt", 5, 12)]
-        [InlineData("Data/1001.txt", 256, 212)]
+        [InlineData("3,4,1,5", 5, 12)]
+        [InlineData("212,254,178,237,2,0,1,54,167,92,117,125,255,61,159,164", 256, 212)]
         public void Part1(string input, int stringLength, int answer)
         {
-            var values = FileIterator.LoadCSV<int>(input);
+            var values = input.ParseCSV<int>();
             var sparse = Solve(stringLength, new List<int>(values), 1);
             (sparse[0] * sparse[1]).Should().Be(answer);
         }

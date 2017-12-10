@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Adevent2017.Utils
 {
@@ -21,5 +22,15 @@ namespace Adevent2017.Utils
         }
 
         public static bool ForEachLowerWord(this string text, Action<string> onWord) => text.ToLowerInvariant().ForEachWord(onWord);
+
+        public static T[] ParseCSV<T>(this string s)
+        {
+            var values = new List<T>();
+            var tsValues = s.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var v in tsValues)
+                values.Add((T)Convert.ChangeType(v, typeof(T)));
+
+            return values.ToArray();
+        }
     }
 }
