@@ -35,5 +35,17 @@ namespace Adevent2017.Utils
             });
             return values.ToArray();
         }
+
+        public static T[] LoadCSV<T>(string filename)
+        {
+            var values = new List<T>();
+            ForEachLine<string>(filename, line =>
+            {
+                var tsValues = line.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var v in tsValues)
+                    values.Add((T)Convert.ChangeType(v, typeof(T)));
+            });
+            return values.ToArray();
+        }
     }
 }

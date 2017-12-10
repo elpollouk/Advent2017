@@ -1,4 +1,5 @@
 ﻿
+using System.Collections.Generic;
 using System.Text;
 
 namespace Adevent2017.Utils
@@ -17,6 +18,17 @@ namespace Adevent2017.Utils
                 builder.Append(a[i]);
             }
             return builder.ToString();
+        }
+
+        public static T GetAtMod<T>(this T[] a, int index) => a[index % a.Length];
+
+        public static void SetAtMod<T>(this T[] a, int index, T value) => a[index % a.Length] = value;
+
+        public static T Shift<T>(this IList<T> list)
+        {
+            var v = list[0];
+            list.RemoveAt(0);
+            return v;
         }
     }
 }
