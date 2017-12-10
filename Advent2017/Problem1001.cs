@@ -24,14 +24,12 @@ namespace Adevent2017
             while (start < end)
             {
                 var t = s.GetAtMod(end);
-                s.SetAtMod(end, s.GetAtMod(start));
-                s.SetAtMod(start, t);
-                start++;
-                end--;
+                s.SetAtMod(end--, s.GetAtMod(start));
+                s.SetAtMod(start++, t);
             }
         }
 
-        int[] Solve(int stringlength, List<int> input, int numRounds)
+        int[] Solve(int stringlength, int numRounds, List<int> input)
         {
             var s = BuildString(stringlength);
             var currentPosition = 0;
@@ -58,8 +56,8 @@ namespace Adevent2017
         [InlineData("212,254,178,237,2,0,1,54,167,92,117,125,255,61,159,164", 256, 212)]
         public void Part1(string input, int stringLength, int answer)
         {
-            var values = input.ParseCSV<int>();
-            var sparse = Solve(stringLength, new List<int>(values), 1);
+            var values = input.SplitAndConvert<int>();
+            var sparse = Solve(stringLength, 1, new List<int>(values));
             (sparse[0] * sparse[1]).Should().Be(answer);
         }
 
@@ -78,13 +76,8 @@ namespace Adevent2017
             var reduced = new byte[16];
 
             for (var i = 0; i < 16; i++)
-            {
-                reduced[i] = (byte)input[i * 16];
-                for (var j = 1; j < 16; j++)
-                {
+                for (var j = 0; j < 16; j++)
                     reduced[i] ^= (byte)input[(i * 16) + j];
-                }
-            }
 
             return BitConverter.ToString(reduced).Replace("-", "").ToLower();
         }
@@ -104,7 +97,7 @@ namespace Adevent2017
             values.Add(47);
             values.Add(23);
 
-            var sparse = Solve(256, values, 64);
+            var sparse = Solve(256, 64, values);
             Reduce(sparse).Should().Be(answer);
         }
     }

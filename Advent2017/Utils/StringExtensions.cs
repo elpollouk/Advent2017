@@ -23,14 +23,17 @@ namespace Adevent2017.Utils
 
         public static bool ForEachLowerWord(this string text, Action<string> onWord) => text.ToLowerInvariant().ForEachWord(onWord);
 
-        public static T[] ParseCSV<T>(this string s)
+        public static T[] SplitAndConvert<T>(this string s, params char[] splitChars)
         {
             var values = new List<T>();
-            var tsValues = s.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            var tsValues = s.Split(splitChars, StringSplitOptions.RemoveEmptyEntries);
             foreach (var v in tsValues)
                 values.Add((T)Convert.ChangeType(v, typeof(T)));
 
             return values.ToArray();
         }
+
+        public static T[] SplitAndConvert<T>(this string s) => s.SplitAndConvert<T>(new char[] { ',' });
+
     }
 }
