@@ -30,5 +30,14 @@ namespace Adevent2017.Utils
             list.RemoveAt(0);
             return v;
         }
+
+        public static IList<T> Clone<T>(this IList<T> list)
+        {
+            var clone = new List<T>();
+            foreach (var v in list)
+                clone.Add(v);
+
+            return clone;
+        }
     }
 }
