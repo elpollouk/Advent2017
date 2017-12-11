@@ -1,5 +1,6 @@
 ﻿using Adevent2017.Utils;
 using FluentAssertions;
+using System;
 using System.IO;
 using Xunit;
 
@@ -7,17 +8,102 @@ namespace Adevent2017
 {
     public class Problem1101
     {
-        int Solve(string intput)
+        int maxX = 0;
+        int maxY = 0;
+
+        int WalkBack(int x, int y)
         {
-            return -1;
+            x = Math.Abs(x);
+            // Walk back
+            var dist = 0;
+            while (x != 0)
+            {
+                dist++;
+                if ((y > 0) && ((x & 1) == 0))
+                    y--;
+                else if ((y < 0) && ((x & 1) == 1))
+                    y++;
+
+                if (x != 0)
+                    x--;
+            }
+            return dist + Math.Abs(y);
+        }
+
+        int Solve(string[] steps)
+        {
+            var x = 0;
+            var y = 0;
+
+            // Follow path
+            for (var i = 0; i < steps.Length; i++)
+            {
+                switch (steps[i])
+                {
+                    case "nw":
+                        if ((x & 1) == 0) y--;
+                        x--;
+                        break;
+
+                    case "n":
+                        y--;
+                        break;
+
+                    case "ne":
+                        if ((x & 1) == 0) y--;
+                        x++;
+                        break;
+
+                    case "sw":
+                        if ((x & 1) == 1) y++;
+                        x--;
+                        break;
+
+                    case "s":
+                        y++;
+                        break;
+
+                    case "se":
+                        if ((x & 1) == 1) y++;
+                        x++;
+                        break;
+
+                    default:
+                        Oh.PissingNora();
+                        break;
+                }
+
+                if (Math.Abs(maxX) < Math.Abs(x)) maxX = x;
+                if (Math.Abs(maxY) < Math.Abs(y)) maxY = y;
+            }
+
+            return WalkBack(x, y);
         }
 
         [Theory]
-        [InlineData("Data/1101-example.txt", 0)]
-        [InlineData("Data/1101.txt", 0)]
-        public void Solution(string input, int answer)
+        [InlineData("ne,ne,ne", 3, 3)]
+        [InlineData("ne,ne,ne,n", 4, 4)]
+        [InlineData("ne,ne,ne,ne", 4, 4)]
+        [InlineData("ne,ne,ne,s", 3, 3)]
+        [InlineData("ne,ne,sw,sw", 0, 2)]
+        [InlineData("ne,ne,s,s", 2, 2)]
+        [InlineData("se,sw,se,sw,sw", 3, 3)]
+        [InlineData("sw,sw,sw,sw,sw,s,s", 7, 7)]
+        [InlineData("sw,sw,sw,sw,sw,sw,s", 7, 7)]
+        [InlineData("s,s,s,n,n,n,n,n,n,n,s", 3, 4)]
+        public void Examples(string input, int answer, int maxDistance)
         {
-            Solve(input).Should().Be(answer);
+            var steps = input.Split(',');
+            Solve(steps).Should().Be(answer);
+            WalkBack(maxX, maxY).Should().Be(maxDistance);
+        }
+
+        [Fact]
+        public void Solution()
+        {
+            var steps = File.ReadAllText("Data/1101.txt").Split(',');
+            Solve(steps).Should().Be(812);
+            WalkBack(maxX, maxY).Should().Be(1603);
         }
     }
 }
