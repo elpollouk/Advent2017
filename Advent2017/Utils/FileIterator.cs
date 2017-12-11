@@ -29,9 +29,9 @@ namespace Adevent2017.Utils
             var values = new List<T>();
             ForEachLine<string>(filename, line =>
             {
-                var tsValues = line.Split(new char[] { '\t' }, StringSplitOptions.RemoveEmptyEntries);
+                var tsValues = line.SplitAndConvert<T>('\t');
                 foreach (var v in tsValues)
-                    values.Add((T)Convert.ChangeType(v, typeof(T)));
+                    values.Add(v);
             });
             return values.ToArray();
         }
@@ -41,9 +41,9 @@ namespace Adevent2017.Utils
             var values = new List<T>();
             ForEachLine<string>(filename, line =>
             {
-                var tsValues = line.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                var tsValues = line.SplitAndConvert<T>();
                 foreach (var v in tsValues)
-                    values.Add((T)Convert.ChangeType(v, typeof(T)));
+                    values.Add(v);
             });
             return values.ToArray();
         }
