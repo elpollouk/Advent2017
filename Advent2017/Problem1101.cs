@@ -14,20 +14,18 @@ namespace Adevent2017
         int WalkBack(int x, int y)
         {
             x = Math.Abs(x);
-            // Walk back
-            var dist = 0;
-            while (x != 0)
-            {
-                dist++;
-                if ((y > 0) && ((x & 1) == 0))
-                    y--;
-                else if ((y < 0) && ((x & 1) == 1))
-                    y++;
+            var halfX = x / 2;
 
-                if (x != 0)
-                    x--;
-            }
-            return dist + Math.Abs(y);
+            if ((y < 0) && ((x & 1) == 1))
+                y++;
+
+            y = Math.Abs(y);
+            if (halfX < y)
+                y -= halfX;
+            else
+                y = 0;
+
+            return x + y;
         }
 
         int Solve(string[] steps)
