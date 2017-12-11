@@ -37,11 +37,8 @@ namespace Adevent2017
 
             for (var i = 0; i < numRounds; i++)
             {
-                var roundInput = input.Clone();
-
-                while (roundInput.Count != 0)
+                foreach (var length in input)
                 {
-                    var length = roundInput.Shift();
                     Reverse(s, currentPosition, length);
                     currentPosition += length + skipSize;
                     skipSize++;
