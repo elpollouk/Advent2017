@@ -24,6 +24,7 @@ namespace Adevent2017.Utils
 
         public static void SetAtMod<T>(this T[] a, int index, T value) => a[index % a.Length] = value;
 
+        // I know IList isn't an array. Fuck you.
         public static T Shift<T>(this IList<T> list)
         {
             var v = list[0];
