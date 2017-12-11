@@ -89,6 +89,11 @@ namespace Adevent2017
         [InlineData("sw,sw,sw,sw,sw,s,s", 7, 7)]
         [InlineData("sw,sw,sw,sw,sw,sw,s", 7, 7)]
         [InlineData("s,s,s,n,n,n,n,n,n,n,s", 3, 4)]
+        [InlineData("se,se,se", 3, 3)]
+        [InlineData("se,se,se,se", 4, 4)]
+        [InlineData("se,se,se,s", 4, 4)]
+        [InlineData("se,se,se,n", 3, 3)]
+        [InlineData("se,se,se,n,nw", 2, 3)]
         public void Examples(string input, int answer, int maxDistance)
         {
             var steps = input.Split(',');
