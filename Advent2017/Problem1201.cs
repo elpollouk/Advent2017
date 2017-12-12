@@ -1,8 +1,6 @@
 ﻿using Adevent2017.Utils;
 using FluentAssertions;
-using System;
 using System.Collections.Generic;
-using System.IO;
 using Xunit;
 
 namespace Adevent2017
@@ -11,6 +9,7 @@ namespace Adevent2017
     {
         class Node
         {
+            public Node(int id) { Id = id; }
             public int Id;
             public bool Seen = false;
             public List<int> Links = new List<int>();
@@ -36,10 +35,7 @@ namespace Adevent2017
             {
                 var tokens = line.Replace(",", "").Split(' ');
                 var id = int.Parse(tokens[0]);
-                var node = new Node()
-                {
-                    Id = id
-                };
+                var node = new Node(id);
 
                 for (var i = 2; i < tokens.Length; i++)
                 {
@@ -50,10 +46,8 @@ namespace Adevent2017
                     // Reciprical link
                     Node linkedNode;
                     if (nodes.TryGetValue(linkId, out linkedNode))
-                    {
                         if (!linkedNode.Links.Contains(id))
                             linkedNode.Links.Add(id);
-                    }
 
                     nodes[id] = node;
                 }
