@@ -92,6 +92,7 @@
     <Compile Include="Problem0901.cs" />
     <Compile Include="Problem1001.cs" />
     <Compile Include="Problem1101.cs" />
+    <Compile Include="Problem1201.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\ArrayExtensions.cs" />
     <Compile Include="Utils\DictionaryExtensions.cs" />
@@ -132,6 +133,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Data\1101.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\1201-example.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\1201.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
