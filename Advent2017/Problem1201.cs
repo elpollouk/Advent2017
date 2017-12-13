@@ -65,25 +65,17 @@ namespace Adevent2017
         int Solve2(string datafile)
         {
             var nodes = BuildGraph(datafile);
-
             int groupCount = 0;
-            while (true)
+
+            foreach (var node in nodes.Values)
             {
-                Node foundNode = null;
-                foreach (var node in nodes.Values)
+                if (!node.Seen)
                 {
-                    if (!node.Seen)
-                    {
-                        foundNode = node;
-                        break;
-                    }
+                    groupCount++;
+                    WalkGraph(nodes, node.Id);
                 }
-
-                if (foundNode == null) break;
-
-                groupCount++;
-                WalkGraph(nodes, foundNode.Id);
             }
+
             return groupCount;
         }
 
