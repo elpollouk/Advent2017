@@ -1,83 +1,36 @@
-﻿using Adevent2017.Utils;
+﻿using Adevent2017.DataStructures;
+using Adevent2017.Utils;
 using FluentAssertions;
-using System.Collections.Generic;
 using Xunit;
 
 namespace Adevent2017
 {
     public class Problem1201
     {
-        public class Node
-        {
-            public Node(int id) { Id = id; }
-            public int Id;
-            public bool Seen = false;
-            public List<int> Links = new List<int>();
-        }
-
-        public class Graph : Dictionary<int, Node> { }
-
-        public static int WalkGraph(Graph graph, int currentNodeId)
-        {
-            var currentNode = graph[currentNodeId];
-            if (currentNode.Seen) return 0;
-            currentNode.Seen = true;
-
-            var count = 1;
-            foreach (var linkId in currentNode.Links)
-                count += WalkGraph(graph, linkId);
-
-            return count;
-        }
-
         static Graph BuildGraph(string datafile)
         {
-            var nodes = new Graph();
+            var graph = new Graph();
             FileIterator.ForEachLine<string>(datafile, line =>
             {
                 var tokens = line.Replace(",", "").Split(' ');
                 var id = int.Parse(tokens[0]);
-                var node = new Node(id);
+                graph.GetOrCreateNode(id);
 
                 for (var i = 2; i < tokens.Length; i++)
                 {
                     var linkId = int.Parse(tokens[i]);
-
-                    node.Links.Add(linkId);
-
-                    // Reciprical link
-                    Node linkedNode;
-                    if (nodes.TryGetValue(linkId, out linkedNode))
-                        if (!linkedNode.Links.Contains(id))
-                            linkedNode.Links.Add(id);
-
-                    nodes[id] = node;
+                    graph.GetOrCreateNode(linkId);
+                    graph.AddTwoWayLink(id, linkId);
                 }
             });
 
-            return nodes;
+            return graph;
         }
 
         int Solve1(string datafile)
         {
-            var nodes = BuildGraph(datafile);
-            return WalkGraph(nodes, 0);
-        }
-
-        public static int CountGroups(Graph nodes)
-        {
-            int groupCount = 0;
-
-            foreach (var node in nodes.Values)
-            {
-                if (!node.Seen)
-                {
-                    groupCount++;
-                    WalkGraph(nodes, node.Id);
-                }
-            }
-
-            return groupCount;
+            var graph = BuildGraph(datafile);
+            return graph.CountGroupSize(0);
         }
 
         [Theory]
@@ -90,8 +43,8 @@ namespace Adevent2017
         [InlineData("Data/1201.txt", 181)]
         public void Part2(string datafile, int answer)
         {
-            var nodes = BuildGraph(datafile);
-            CountGroups(nodes).Should().Be(answer);
+            var graph = BuildGraph(datafile);
+            graph.NumberOfGroups.Should().Be(answer);
         }
     }
 }
