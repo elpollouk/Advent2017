@@ -75,7 +75,7 @@ namespace Adevent2017
                         if ((c & 8) == 8)
                         {
                             var id = GetNodeId(x, y);
-                            graph.AddNode(id);
+                            graph.CreateNode(id);
 
                             var children = GetChildren(x, y, graph);
                             foreach (var linkId in children)

@@ -27,24 +27,14 @@ namespace Adevent2017
             return graph;
         }
 
-        int Solve1(string datafile)
-        {
-            var graph = BuildGraph(datafile);
-            return graph.CountGroupSize(0);
-        }
-
         [Theory]
         [InlineData("Data/1201-example.txt", 6)]
         [InlineData("Data/1201.txt", 380)]
-        public void Part1(string datafile, int answer) => Solve1(datafile).Should().Be(answer);
+        public void Part1(string datafile, int answer) => BuildGraph(datafile).CountGroupSize(0).Should().Be(answer);
 
         [Theory]
         [InlineData("Data/1201-example.txt", 2)]
         [InlineData("Data/1201.txt", 181)]
-        public void Part2(string datafile, int answer)
-        {
-            var graph = BuildGraph(datafile);
-            graph.NumberOfGroups.Should().Be(answer);
-        }
+        public void Part2(string datafile, int answer) => BuildGraph(datafile).NumberOfGroups.Should().Be(answer);
     }
 }

@@ -18,7 +18,7 @@ namespace Adevent2017.DataStructures
         public bool Contains(int id) => _nodes.ContainsKey(id);
         public bool TryGetNode(int id, out GraphNode<T> node) =>_nodes.TryGetValue(id, out node);
 
-        public GraphNode<T> AddNode(int id)
+        public GraphNode<T> CreateNode(int id)
         {
             if (_nodes.ContainsKey(id)) throw new InvalidOperationException($"Node {id} is already in the graph");
             var node = new GraphNode<T>(id);
@@ -37,7 +37,7 @@ namespace Adevent2017.DataStructures
             if (_nodes.TryGetValue(id, out node))
                 return node;
 
-            return AddNode(id);
+            return CreateNode(id);
         }
 
         public GraphNode<T> RemoveNode(int id)
