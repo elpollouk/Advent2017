@@ -80,6 +80,8 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="DataStructures\Graph.cs" />
+    <Compile Include="DataStructures\GraphNode.cs" />
     <Compile Include="Problem0201.cs" />
     <Compile Include="Problem0101.cs" />
     <Compile Include="Problem0102.cs" />

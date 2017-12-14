@@ -1,21 +1,17 @@
-﻿using Adevent2017.Utils;
+﻿using Adevent2017.DataStructures;
+using Adevent2017.Utils;
 using FluentAssertions;
-using System;
 using System.Collections.Generic;
 using Xunit;
 
 namespace Adevent2017
 {
-    using Node = Problem1201.Node;
-    using Graph = Problem1201.Graph;
 
     public class Problem1401
     {
         private const int GridSize = 128;
 
-        string Hash(String input) => Problem1001.Hash(input);
-
-        int CountGroups(Graph graph) => Problem1201.CountGroups(graph);
+        string Hash(string input) => Problem1001.Hash(input);
 
         int GetNodeId(int x, int y) => (y * GridSize) + x;
 
@@ -48,14 +44,14 @@ namespace Adevent2017
             return -1;
         }
 
-        List<int> GetChildren(int x, int y, Dictionary<int, Node> graph)
+        List<int> GetChildren(int x, int y, Graph graph)
         {
             var children = new List<int>();
 
-            if (x > 0 && graph.ContainsKey(GetNodeId(x - 1, y)))
+            if (x > 0 && graph.Contains(GetNodeId(x - 1, y)))
                 children.Add(GetNodeId(x - 1, y));
 
-            if (y > 0 && graph.ContainsKey(GetNodeId(x, y - 1)))
+            if (y > 0 && graph.Contains(GetNodeId(x, y - 1)))
                 children.Add(GetNodeId(x, y - 1));
 
             return children;
@@ -79,20 +75,11 @@ namespace Adevent2017
                         if ((c & 8) == 8)
                         {
                             var id = GetNodeId(x, y);
-                            var node = new Node(id);
-                            graph[id] = node;
+                            graph.AddNode(id);
 
                             var children = GetChildren(x, y, graph);
                             foreach (var linkId in children)
-                            {
-                                node.Links.Add(linkId);
-
-                                // Reciprical link
-                                Node linkedNode;
-                                if (graph.TryGetValue(linkId, out linkedNode))
-                                    if (!linkedNode.Links.Contains(id))
-                                        linkedNode.Links.Add(id);
-                            }
+                                graph.AddTwoWayLink(id, linkId);
                         }
                         c <<= 1;
                         x++;
@@ -106,13 +93,13 @@ namespace Adevent2017
         int CountUsed(string key)
         {
             var graph = BuildGraph(key);
-            return graph.Count;
+            return graph.Size;
         }
 
         int CountRegions(string key)
         {
             var graph = BuildGraph(key);
-            return CountGroups(graph);
+            return graph.NumberOfGroups;
         }
 
         [Theory]
