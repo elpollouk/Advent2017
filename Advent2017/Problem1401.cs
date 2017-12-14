@@ -6,9 +6,17 @@ using Xunit;
 
 namespace Adevent2017
 {
+    using Node = Problem1201.Node;
+
     public class Problem1401
     {
+        private const int GridSize = 128;
+
         string Hash(String input) => Problem1001.Hash(input);
+
+        int CountGroups(Dictionary<int, Node> graph) => Problem1201.CountGroups(graph);
+
+        int GetNodeId(int x, int y) => (y * GridSize) + x;
 
         int CharToInt(char c)
         {
@@ -39,10 +47,29 @@ namespace Adevent2017
             return -1;
         }
 
+        List<int> GetChildren(int x, int y, bool[,] grid)
+        {
+            var children = new List<int>();
+
+            if (x > 0 && grid[x - 1, y])
+                children.Add(GetNodeId(x - 1, y));
+
+            if (x < (GridSize-1) && grid[x + 1, y])
+                children.Add(GetNodeId(x + 1, y));
+
+            if (y > 0 && grid[x, y - 1])
+                children.Add(GetNodeId(x, y - 1));
+
+            if (y < (GridSize-1) && grid[x, y + 1])
+                children.Add(GetNodeId(x, y + 1));
+
+            return children;
+        }
+
         bool[,] BuildGrid(string key)
         {
-            var grid = new bool[128, 128];
-            for (var row = 0; row < 128; row++)
+            var grid = new bool[GridSize, GridSize];
+            for (var row = 0; row < GridSize; row++)
             {
                 var rowKey = $"{key}-{row}";
                 var hash = Hash(rowKey);
@@ -54,7 +81,6 @@ namespace Adevent2017
                     var c = CharToInt(ic);
                     for (var bit = 0; bit < 4; bit++)
                     {
-                        if (cell == 128) Oh.WhatTheFuck();
                         var value = (c & 8) == 8;
                         grid[row, cell] = value;
                         c <<= 1;
@@ -66,66 +92,20 @@ namespace Adevent2017
             return grid;
         }
 
-        class Node
-        {
-            public Node(int id) { Id = id; }
-            public int Id;
-            public bool Seen = false;
-            public List<int> Links = new List<int>();
-        }
-
-        int GetNodeId(int x, int y) => (y * 128) + x;
-
-        List<int> GetChildren(int x, int y, bool[,] grid)
-        {
-            var children = new List<int>();
-
-            if (x > 0 && grid[x - 1, y])
-                children.Add(GetNodeId(x - 1, y));
-
-            if (x < 127 && grid[x + 1, y])
-                children.Add(GetNodeId(x + 1, y));
-
-            if (y > 0 && grid[x, y - 1])
-                children.Add(GetNodeId(x, y - 1));
-
-            if (y < 127 && grid[x, y + 1])
-                children.Add(GetNodeId(x, y + 1));
-
-            return children;
-        }
-
-        int WalkGraph(Dictionary<int, Node> graph, int currentNodeId)
-        {
-            var currentNode = graph[currentNodeId];
-            if (currentNode.Seen) return 0;
-            currentNode.Seen = true;
-
-            var count = 1;
-            foreach (var linkId in currentNode.Links)
-                count += WalkGraph(graph, linkId);
-
-            return count;
-        }
-
         Dictionary<int, Node> BuildGraph(bool[,] grid)
         {
             var nodes = new Dictionary<int, Node>();
-            for (var x = 0; x < 128; x++)
+            for (var x = 0; x < GridSize; x++)
             {
-                for (var y = 0; y < 128; y++)
+                for (var y = 0; y < GridSize; y++)
                 {
                     if (!grid[x, y]) continue;
 
                     var id = GetNodeId(x, y);
                     var children = GetChildren(x, y, grid);
 
-                    Node node;
-                    if (!nodes.TryGetValue(id, out node))
-                    {
-                        node = new Node(id);
-                        nodes[id] = node;
-                    }
+                    Node node = new Node(id);
+                    nodes[id] = node;
 
                     foreach (var linkId in children)
                     {
@@ -146,33 +126,15 @@ namespace Adevent2017
         int CountUsed(string key)
         {
             var grid = BuildGrid(key);
-            var count = 0;
-            for (var y = 0; y < 128; y++)
-            {
-                for (var x = 0; x < 128; x++)
-                {
-                    count += grid[x, y] ? 1 : 0;
-                }
-            }
-            return count;
+            var graph = BuildGraph(grid);
+            return graph.Count;
         }
 
         int CountRegions(string key)
         {
             var grid = BuildGrid(key);
-            var nodes = BuildGraph(grid);
-            int groupCount = 0;
-
-            foreach (var node in nodes.Values)
-            {
-                if (!node.Seen)
-                {
-                    groupCount++;
-                    WalkGraph(nodes, node.Id);
-                }
-            }
-
-            return groupCount;
+            var graph = BuildGraph(grid);
+            return CountGroups(graph);
         }
 
         [Theory]
