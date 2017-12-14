@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using Xunit;
 
-namespace Adevent2017.Alogrithms
+namespace Adevent2017.DataStructures
 {
     public class PriorityQueueTests
     {

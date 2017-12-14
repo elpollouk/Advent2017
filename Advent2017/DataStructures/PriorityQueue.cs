@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Adevent2017.Alogrithms
+namespace Adevent2017.DataStructures
 {
     class PriorityQueue<T, PriorityType> where PriorityType : IComparable<PriorityType>
     {

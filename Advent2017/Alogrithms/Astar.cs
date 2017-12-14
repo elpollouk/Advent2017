@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Adevent2017.DataStructures;
+using System.Collections.Generic;
 
 namespace Adevent2017.Alogrithms
 {
