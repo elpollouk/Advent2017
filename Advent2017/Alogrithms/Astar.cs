@@ -4,14 +4,14 @@ namespace Adevent2017.Alogrithms
 {
     static class Astar
     {
-        public interface IGraph<Node> where Node : class
+        public interface IGraphAdapter<Node> where Node : class
         {
-            IEnumerable<Node> GetChildrean(Node node);
+            IEnumerable<Node> GetChildren(Node node);
             int GetMoveCost(Node from, Node to);
             int GetScore(Node from, Node to);
         }
 
-        public static IEnumerable<Node> FindPath<Node>(IGraph<Node> graph, Node start, Node goal) where Node : class
+        public static IEnumerable<Node> FindPath<Node>(IGraphAdapter<Node> graph, Node start, Node goal) where Node : class
         {
             var searchSpace = new PriorityQueue<Node>();
             var pathMap = new Dictionary<Node, Node>();
@@ -25,7 +25,7 @@ namespace Adevent2017.Alogrithms
                 var current = searchSpace.Dequeue();
                 if (current == goal) break;
 
-                var children = graph.GetChildrean(current);
+                var children = graph.GetChildren(current);
                 foreach (var child in children)
                 {
                     var newCost = costSoFar[current] + graph.GetMoveCost(current, child);
