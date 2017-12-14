@@ -8,7 +8,7 @@ namespace Adevent2017
 {
     public class Problem1001
     {
-        int[] BuildString(int length)
+        static int[] BuildString(int length)
         {
             var s = new int[length];
             for (var i = 0; i < length; i++)
@@ -17,7 +17,7 @@ namespace Adevent2017
             return s;
         }
 
-        void Reverse(int[] s, int start, int length)
+        static void Reverse(int[] s, int start, int length)
         {
             var end = (start + length) - 1;
 
@@ -29,7 +29,7 @@ namespace Adevent2017
             }
         }
 
-        int[] Solve(int stringlength, int numRounds, List<int> input)
+        static int[] Solve(int stringlength, int numRounds, List<int> input)
         {
             var s = BuildString(stringlength);
             var currentPosition = 0;
@@ -58,7 +58,7 @@ namespace Adevent2017
             (sparse[0] * sparse[1]).Should().Be(answer);
         }
 
-        List<int> StringToAscii(string input)
+        static List<int> StringToAscii(string input)
         {
             var ascii = new List<int>();
             for (var i = 0; i < input.Length; i++)
@@ -67,7 +67,7 @@ namespace Adevent2017
             return ascii;
         }
 
-        string Reduce(int[] input)
+        static string Reduce(int[] input)
         {
             if (input.Length != 256) Oh.ForFucksSake();
             var reduced = new byte[16];
@@ -85,7 +85,9 @@ namespace Adevent2017
         [InlineData("1,2,3", "3efbe78a8d82f29979031a4aa0b16a9d")]
         [InlineData("1,2,4", "63960835bcdc130f0b66d7ff4f6a5a8e")]
         [InlineData("212,254,178,237,2,0,1,54,167,92,117,125,255,61,159,164", "96de9657665675b51cd03f0b3528ba26")]
-        public void Part2(string input, string answer)
+        public void Part2(string input, string answer) => Hash(input).Should().Be(answer);
+
+        public static string Hash(string input)
         {
             var values = StringToAscii(input);
             values.Add(17);
@@ -95,7 +97,7 @@ namespace Adevent2017
             values.Add(23);
 
             var sparse = Solve(256, 64, values);
-            Reduce(sparse).Should().Be(answer);
+            return Reduce(sparse);
         }
     }
 }
