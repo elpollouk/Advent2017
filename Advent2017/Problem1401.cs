@@ -66,54 +66,6 @@ namespace Adevent2017
             return grid;
         }
 
-        int CountUsed(string key)
-        {
-            var grid = BuildGrid(key);
-            var count = 0;
-            for (var y = 0; y < 128; y++)
-            {
-                for (var x = 0; x < 128; x++)
-                {
-                    count += grid[x, y] ? 1 : 0;
-                }
-            }
-            return count;
-        }
-
-        int CountRegions(string key)
-        {
-            var grid = BuildGrid(key);
-            var nodes = BuildGraph(grid);
-            nodes.Count.Should().Be(CountUsed(key));
-
-            for (var x = 0; x < 128; x++)
-                for (var y = 0; y < 128; y++)
-                    nodes.ContainsKey(GetNodeId(x, y)).Should().Be(grid[x, y]);
-
-            int groupCount = 0;
-
-            foreach (var node in nodes.Values)
-            {
-                node.Links.Count.Should().BeLessThan(5);
-                if (!node.Seen)
-                {
-                    groupCount++;
-                    WalkGraph(nodes, node.Id);
-                }
-            }
-
-            var seenCount = 0;
-            foreach (var node in nodes.Values)
-                if (node.Seen)
-                    seenCount++;
-
-
-            seenCount.Should().Be(nodes.Count);
-
-            return groupCount;
-        }
-
-
         class Node
         {
             public Node(int id) { Id = id; }
@@ -177,29 +129,50 @@ namespace Adevent2017
 
                     foreach (var linkId in children)
                     {
-                        if (!node.Links.Contains(linkId))
-                            node.Links.Add(linkId);
+                        node.Links.Add(linkId);
 
                         // Reciprical link
                         Node linkedNode;
                         if (nodes.TryGetValue(linkId, out linkedNode))
-                        {
                             if (!linkedNode.Links.Contains(id))
                                 linkedNode.Links.Add(id);
-
-                            linkedNode.Links.Count.Should().BeLessThan(5);
-                        }
-                        else
-                        {
-                            linkedNode = new Node(linkId);
-                            linkedNode.Links.Add(id);
-                            nodes[linkId] = linkedNode;
-                        }
                     }
                 }
             }
 
             return nodes;
+        }
+
+        int CountUsed(string key)
+        {
+            var grid = BuildGrid(key);
+            var count = 0;
+            for (var y = 0; y < 128; y++)
+            {
+                for (var x = 0; x < 128; x++)
+                {
+                    count += grid[x, y] ? 1 : 0;
+                }
+            }
+            return count;
+        }
+
+        int CountRegions(string key)
+        {
+            var grid = BuildGrid(key);
+            var nodes = BuildGraph(grid);
+            int groupCount = 0;
+
+            foreach (var node in nodes.Values)
+            {
+                if (!node.Seen)
+                {
+                    groupCount++;
+                    WalkGraph(nodes, node.Id);
+                }
+            }
+
+            return groupCount;
         }
 
         [Theory]
