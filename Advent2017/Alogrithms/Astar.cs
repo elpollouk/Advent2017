@@ -6,7 +6,7 @@ namespace Adevent2017.Alogrithms
     {
         public interface IGraphAdapter<Node> where Node : class
         {
-            IEnumerable<Node> GetChildren(Node node);
+            IEnumerable<Node> GetLinked(Node node);
             int GetMoveCost(Node from, Node to);
             int GetScore(Node from, Node to);
         }
@@ -25,12 +25,16 @@ namespace Adevent2017.Alogrithms
                 var current = searchSpace.Dequeue();
                 if (current == goal) break;
 
-                var children = graph.GetChildren(current);
-                foreach (var child in children)
+                var linked = graph.GetLinked(current);
+                foreach (var linkedNode in linked)
                 {
-                    var newCost = costSoFar[current] + graph.GetMoveCost(current, child);
-                    searchSpace.Enqueue(child, newCost + graph.GetScore(child, goal));
-                    pathMap[child] = current;
+                    var newCost = costSoFar[current] + graph.GetMoveCost(current, linkedNode);
+                    if (!costSoFar.ContainsKey(linkedNode) || newCost < costSoFar[linkedNode])
+                    {
+                        costSoFar[linkedNode] = newCost;
+                        searchSpace.Enqueue(linkedNode, newCost + graph.GetScore(linkedNode, goal));
+                        pathMap[linkedNode] = current;
+                    }
                 }
             }
 
