@@ -15,7 +15,9 @@ namespace Adevent2017
             public List<int> Links = new List<int>();
         }
 
-        public static int WalkGraph(Dictionary<int, Node> graph, int currentNodeId)
+        public class Graph : Dictionary<int, Node> { }
+
+        public static int WalkGraph(Graph graph, int currentNodeId)
         {
             var currentNode = graph[currentNodeId];
             if (currentNode.Seen) return 0;
@@ -28,9 +30,9 @@ namespace Adevent2017
             return count;
         }
 
-        static Dictionary<int, Node> BuildGraph(string datafile)
+        static Graph BuildGraph(string datafile)
         {
-            var nodes = new Dictionary<int, Node>();
+            var nodes = new Graph();
             FileIterator.ForEachLine<string>(datafile, line =>
             {
                 var tokens = line.Replace(",", "").Split(' ');
@@ -62,7 +64,7 @@ namespace Adevent2017
             return WalkGraph(nodes, 0);
         }
 
-        public static int CountGroups(Dictionary<int, Node> nodes)
+        public static int CountGroups(Graph nodes)
         {
             int groupCount = 0;
 

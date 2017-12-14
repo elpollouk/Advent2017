@@ -7,6 +7,7 @@ using Xunit;
 namespace Adevent2017
 {
     using Node = Problem1201.Node;
+    using Graph = Problem1201.Graph;
 
     public class Problem1401
     {
@@ -14,7 +15,7 @@ namespace Adevent2017
 
         string Hash(String input) => Problem1001.Hash(input);
 
-        int CountGroups(Dictionary<int, Node> graph) => Problem1201.CountGroups(graph);
+        int CountGroups(Graph graph) => Problem1201.CountGroups(graph);
 
         int GetNodeId(int x, int y) => (y * GridSize) + x;
 
@@ -60,9 +61,9 @@ namespace Adevent2017
             return children;
         }
 
-        Dictionary<int, Node> BuildGraph(string key)
+        Graph BuildGraph(string key)
         {
-            var graph = new Dictionary<int, Node>();
+            var graph = new Graph();
             for (var y = 0; y < GridSize; y++)
             {
                 var rowKey = $"{key}-{y}";
