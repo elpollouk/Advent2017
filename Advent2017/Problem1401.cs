@@ -117,11 +117,11 @@ namespace Adevent2017
         [Theory]
         [InlineData("flqrgnkx", 8108)]
         [InlineData("jzgqcdpd", 8074)]
-        public void Part1(string datafile, int answer) => CountUsed(datafile).Should().Be(answer);
+        public void Part1(string key, int answer) => CountUsed(key).Should().Be(answer);
 
         [Theory]
         [InlineData("flqrgnkx", 1242)]
         [InlineData("jzgqcdpd", 1212)]
-        public void Part2(string datafile, int answer) => CountRegions(datafile).Should().Be(answer);
+        public void Part2(string key, int answer) => CountRegions(key).Should().Be(answer);
     }
 }
