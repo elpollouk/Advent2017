@@ -47,93 +47,70 @@ namespace Adevent2017
             return -1;
         }
 
-        List<int> GetChildren(int x, int y, bool[,] grid)
+        List<int> GetChildren(int x, int y, Dictionary<int, Node> graph)
         {
             var children = new List<int>();
 
-            if (x > 0 && grid[x - 1, y])
+            if (x > 0 && graph.ContainsKey(GetNodeId(x - 1, y)))
                 children.Add(GetNodeId(x - 1, y));
 
-            if (x < (GridSize-1) && grid[x + 1, y])
-                children.Add(GetNodeId(x + 1, y));
-
-            if (y > 0 && grid[x, y - 1])
+            if (y > 0 && graph.ContainsKey(GetNodeId(x, y - 1)))
                 children.Add(GetNodeId(x, y - 1));
-
-            if (y < (GridSize-1) && grid[x, y + 1])
-                children.Add(GetNodeId(x, y + 1));
 
             return children;
         }
 
-        bool[,] BuildGrid(string key)
+        Dictionary<int, Node> BuildGraph(string key)
         {
-            var grid = new bool[GridSize, GridSize];
-            for (var row = 0; row < GridSize; row++)
+            var graph = new Dictionary<int, Node>();
+            for (var y = 0; y < GridSize; y++)
             {
-                var rowKey = $"{key}-{row}";
+                var rowKey = $"{key}-{y}";
                 var hash = Hash(rowKey);
                 if (hash.Length != 32) Oh.ShttingHell();
 
-                var cell = 0;
+                var x = 0;
                 foreach (var ic in hash)
                 {
                     var c = CharToInt(ic);
                     for (var bit = 0; bit < 4; bit++)
                     {
-                        var value = (c & 8) == 8;
-                        grid[row, cell] = value;
+                        if ((c & 8) == 8)
+                        {
+                            var id = GetNodeId(x, y);
+                            var node = new Node(id);
+                            graph[id] = node;
+
+                            var children = GetChildren(x, y, graph);
+                            foreach (var linkId in children)
+                            {
+                                node.Links.Add(linkId);
+
+                                // Reciprical link
+                                Node linkedNode;
+                                if (graph.TryGetValue(linkId, out linkedNode))
+                                    if (!linkedNode.Links.Contains(id))
+                                        linkedNode.Links.Add(id);
+                            }
+                        }
                         c <<= 1;
-                        cell++;
+                        x++;
                     }
                 }
             }
 
-            return grid;
-        }
-
-        Dictionary<int, Node> BuildGraph(bool[,] grid)
-        {
-            var nodes = new Dictionary<int, Node>();
-            for (var x = 0; x < GridSize; x++)
-            {
-                for (var y = 0; y < GridSize; y++)
-                {
-                    if (!grid[x, y]) continue;
-
-                    var id = GetNodeId(x, y);
-                    var children = GetChildren(x, y, grid);
-
-                    Node node = new Node(id);
-                    nodes[id] = node;
-
-                    foreach (var linkId in children)
-                    {
-                        node.Links.Add(linkId);
-
-                        // Reciprical link
-                        Node linkedNode;
-                        if (nodes.TryGetValue(linkId, out linkedNode))
-                            if (!linkedNode.Links.Contains(id))
-                                linkedNode.Links.Add(id);
-                    }
-                }
-            }
-
-            return nodes;
+            return graph;
         }
 
         int CountUsed(string key)
         {
-            var grid = BuildGrid(key);
-            var graph = BuildGraph(grid);
+            var graph = BuildGraph(key);
             return graph.Count;
         }
 
         int CountRegions(string key)
         {
-            var grid = BuildGrid(key);
-            var graph = BuildGraph(grid);
+            var graph = BuildGraph(key);
             return CountGroups(graph);
         }
 
