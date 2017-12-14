@@ -1,30 +1,43 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace Adevent2017.Alogrithms
 {
-    static class Astar<Node, Graph>
+    static class Astar
     {
-        public interface IGraph
+        public interface IGraph<Node> where Node : class
         {
-            IList<Node> GetChildrean(Node node);
-            int GetMoveCost(Node node1, Node node2);
-            int GetScore(Node node);
+            IEnumerable<Node> GetChildrean(Node node);
+            int GetMoveCost(Node from, Node to);
+            int GetScore(Node from, Node to);
         }
 
-        public static IList<Node> FindPath(Graph graph, Node start, Node goal, Func<Graph, Node, IList<Node>> getChildren, )
+        public static IEnumerable<Node> FindPath<Node>(IGraph<Node> graph, Node start, Node goal) where Node : class
         {
             var searchSpace = new PriorityQueue<Node>();
             var pathMap = new Dictionary<Node, Node>();
-            var costSoFat = new Dictionary<Node, int>();
+            var costSoFar = new Dictionary<Node, int>();
+
+            searchSpace.Enqueue(start, 0);
+            costSoFar[start] = 0;
+
+            while (searchSpace.Count != 0)
+            {
+                var current = searchSpace.Dequeue();
+                if (current == goal) break;
+
+                var children = graph.GetChildrean(current);
+                foreach (var child in children)
+                {
+                    var newCost = costSoFar[current] + graph.GetMoveCost(current, child);
+                    searchSpace.Enqueue(child, newCost + graph.GetScore(child, goal));
+                    pathMap[child] = current;
+                }
+            }
 
             return ResolvePath(pathMap, start, goal);
         }
 
-        private static IList<Node> ResolvePath(Dictionary<Node, Node> pathMap, Node start, Node goal)
+        private static IEnumerable<Node> ResolvePath<Node>(Dictionary<Node, Node> pathMap, Node start, Node goal) where Node : class
         {
             var path = new LinkedList<Node>();
             if (!pathMap.ContainsKey(goal)) return null;
@@ -32,9 +45,13 @@ namespace Adevent2017.Alogrithms
             var node = goal;
             do
             {
+                path.AddFirst(node);
                 node = pathMap[node];
             }
             while (node != start);
+            path.AddFirst(node);
+
+            return path;
         }
     }
 }

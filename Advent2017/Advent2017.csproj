@@ -80,6 +80,9 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Alogrithms\Astar.cs" />
+    <Compile Include="Alogrithms\PriorityQueueTests.cs" />
+    <Compile Include="Alogrithms\PriorityQueue.cs" />
     <Compile Include="DataStructures\Graph.cs" />
     <Compile Include="DataStructures\GraphNode.cs" />
     <Compile Include="Problem0201.cs" />

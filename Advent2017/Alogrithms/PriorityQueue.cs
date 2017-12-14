@@ -24,7 +24,7 @@ namespace Adevent2017.Alogrithms
 
         public int Count => _queue.Count;
 
-        void Enqueue(T item, PriorityType priority)
+        public void Enqueue(T item, PriorityType priority)
         {
             for (var i = 0; i < _queue.Count; i++)
             {
@@ -38,7 +38,7 @@ namespace Adevent2017.Alogrithms
             _queue.Add(new QueueElement(priority, item));
         }
 
-        T Dequeue()
+        public T Dequeue()
         {
             var el = _queue.First();
             _queue.RemoveAt(0);
