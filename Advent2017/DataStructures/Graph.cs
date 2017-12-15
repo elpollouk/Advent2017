@@ -1,178 +1,190 @@
 ﻿using Adevent2017.Utils;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Adevent2017.DataStructures
 {
     public class Graph<T>
     {
-        readonly Dictionary<int, GraphNode<T>> _nodes = new Dictionary<int, GraphNode<T>>();
+        private class GraphNode
+        {
+            public GraphNode(T item) { Item = item; }
+
+            public GraphNode Parent = null;
+            public readonly List<T> Links = new List<T>();
+            public readonly T Item;
+        }
+
+        readonly Dictionary<T, GraphNode> _nodes = new Dictionary<T, GraphNode>();
 
         public Graph()
         {
 
         }
 
-        public IEnumerable<GraphNode<T>> Nodes => _nodes.Values;
+        public IEnumerable<T> Items => _nodes.Values.Select(n => n.Item);
         public int Size => _nodes.Count;
-        public bool Contains(int id) => _nodes.ContainsKey(id);
-        public bool TryGetNode(int id, out GraphNode<T> node) =>_nodes.TryGetValue(id, out node);
+        public bool Contains(T item) => _nodes.ContainsKey(item);
 
-        public GraphNode<T> CreateNode(int id)
+        public void AddNode(T item)
         {
-            if (_nodes.ContainsKey(id)) throw new InvalidOperationException($"Node {id} is already in the graph");
-            var node = new GraphNode<T>(id);
-            _nodes[id] = node;
-            return node;
+            if (_nodes.ContainsKey(item)) throw new InvalidOperationException($"Node {item} is already in the graph");
+            var node = new GraphNode(item);
+            _nodes[item] = node;
         }
 
-        public GraphNode<T> GetNode(int id)
+        public bool AddNodeIfNotInGraph(T item)
         {
-            return _nodes[id];
+            if (_nodes.ContainsKey(item))
+                return false;
+
+            AddNode(item);
+            return true;
         }
 
-        public GraphNode<T> GetOrCreateNode(int id)
+        private GraphNode GetNode(T item)
         {
-            GraphNode<T> node;
-            if (_nodes.TryGetValue(id, out node))
-                return node;
-
-            return CreateNode(id);
+            return _nodes[item];
         }
 
-        public GraphNode<T> RemoveNode(int id)
+        public void RemoveNode(T item)
         {
-            var node = GetNode(id);
+            var node = GetNode(item);
 
             foreach (var link in node.Links)
             {
                 var linkedNode = GetNode(link);
-                linkedNode.Links.Remove(id);
+                linkedNode.Links.Remove(item);
                 if (linkedNode.Parent == node)
                     linkedNode.Parent = null;
             }
 
-            _nodes.Remove(id);
-
-            return node;
+            _nodes.Remove(item);
         }
 
-        public void RemoveOneWayLink(int fromId, int toId)
+        public void RemoveOneWayLink(T fromItem, T toItem)
         {
-            var from = GetNode(fromId);
-            from.Links.Remove(toId);
+            var from = GetNode(fromItem);
+            if (!Contains(toItem)) throw new InvalidOperationException($"Item {toItem} is not in the graph");
+            from.Links.Remove(toItem);
         }
 
-        public void RemoveTwoWayLink(int fromId, int toId)
+        public void RemoveTwoWayLink(T fromItem, T toItem)
         {
-            RemoveOneWayLink(fromId, toId);
-            RemoveOneWayLink(toId, fromId);
+            RemoveOneWayLink(fromItem, toItem);
+            RemoveOneWayLink(toItem, fromItem);
         }
 
-        public void AddOneWayLink(int fromId, int toId)
+        public void AddOneWayLink(T fromItem, T toItem)
         {
-            var fromNode = GetNode(fromId);
-            if (!fromNode.Links.Contains(toId))
-                fromNode.Links.Add(toId);
+            var fromNode = GetNode(fromItem);
+            if (!Contains(toItem)) throw new InvalidOperationException($"Item {toItem} is not in the graph");
+            if (!fromNode.Links.Contains(toItem))
+                fromNode.Links.Add(toItem);
         }
 
-        public void AddTwoWayLink(int fromId, int toId)
+        public void AddTwoWayLink(T fromItem, T toItem)
         {
-            AddOneWayLink(fromId, toId);
-            AddOneWayLink(toId, fromId);
+            AddOneWayLink(fromItem, toItem);
+            AddOneWayLink(toItem, fromItem);
         }
 
-        public void AddParentChildLink(int parentId, int childId)
+        public void AddParentChildLink(T parentItem, T childItem)
         {
-            AddOneWayLink(parentId, childId);
-            var parentNode = GetNode(parentId);
-            var childNode = GetNode(childId);
+            AddOneWayLink(parentItem, childItem);
+            var parentNode = GetNode(parentItem);
+            var childNode = GetNode(childItem);
             childNode.Parent = parentNode;
         }
 
-        public bool IsLinked(int fromId, int toId)
+        public bool IsLinked(T fromItem, T toItem)
         {
-            var node = GetNode(fromId);
-            return node.Links.Contains(toId);
+            var node = GetNode(fromItem);
+            return node.Links.Contains(toItem);
         }
 
-        public IEnumerable<GraphNode<T>> GetLinked(int fromId)
+        public IEnumerable<T> GetLinked(T fromItem)
         {
-            var linked = new List<GraphNode<T>>();
-            var node = GetNode(fromId);
-            foreach (var linkId in node.Links)
-                linked.Add(GetNode(linkId));
+            var linked = new List<T>();
+            var node = GetNode(fromItem);
+            foreach (var linkItem in node.Links)
+                linked.Add(linkItem);
             
             return linked;
         }
 
-        public IEnumerable<GraphNode<T>> GetChildren(int parentId)
+        public IEnumerable<T> GetChildren(T parentItem)
         {
-            var children = new List<GraphNode<T>>();
-            var parent = GetNode(parentId);
-            foreach (var childId in parent.Links)
+            var children = new List<T>();
+            var parentNode = GetNode(parentItem);
+            foreach (var childItem in parentNode.Links)
             {
-                var child = GetNode(childId);
-                if (child.Parent == parent)
-                    children.Add(child);
+                var childNode = GetNode(childItem);
+                if (childNode.Parent == parentNode)
+                    children.Add(childItem);
             }
             return children;
         }
 
-        public GraphNode<T> GetParent(int childId)
+        public T GetParent(T childItem)
         {
-            return GetNode(childId).Parent;
+            var parentNode = GetNode(childItem).Parent;
+            if (parentNode == null)
+                return default(T);
+            else
+                return parentNode.Item;
         }
 
-        public void DepthFirstWalk(int fromId, Action<GraphNode<T>> onNode)
+        public void DepthFirstWalk(T fromItem, Action<T> onItem)
         {
-            var seen = new HashSet<int>();
+            var seen = new HashSet<T>();
             try
             {
-                InternalDepthFirstWalk(fromId, onNode, seen);
+                InternalDepthFirstWalk(fromItem, onItem, seen);
             }
             catch (StopIteration) { }
         }
 
-        private void InternalDepthFirstWalk(int fromId, Action<GraphNode<T>> onNode, HashSet<int> seen)
+        private void InternalDepthFirstWalk(T fromItem, Action<T> onItem, HashSet<T> seen)
         {
-            if (seen.Contains(fromId)) return;
-            seen.Add(fromId);
+            if (seen.Contains(fromItem)) return;
+            seen.Add(fromItem);
 
-            var node = GetNode(fromId);
-            onNode(node);
+            var node = GetNode(fromItem);
+            onItem(node.Item);
 
             foreach (var linkId in node.Links)
-                InternalDepthFirstWalk(linkId, onNode, seen);
+                InternalDepthFirstWalk(linkId, onItem, seen);
         }
 
-        private void BreadthFirstWalk(int fromId, Action<GraphNode<T>> onNode)
+        private void BreadthFirstWalk(T fromItem, Action<T> onNode)
         {
-            var seen = new HashSet<int>();
-            var walkQueue = new Queue<int>();
-            walkQueue.Enqueue(fromId);
+            var seen = new HashSet<T>();
+            var walkQueue = new Queue<T>();
+            walkQueue.Enqueue(fromItem);
 
             try
             {
                 while (walkQueue.Count != 0)
                 {
-                    var nodeId = walkQueue.Dequeue();
-                    if (seen.Contains(nodeId)) continue;
+                    var nodeItem = walkQueue.Dequeue();
+                    if (seen.Contains(nodeItem)) continue;
 
-                    var node = GetNode(nodeId);
-                    onNode(node);
+                    onNode(nodeItem);
+                    var node = GetNode(nodeItem);
 
-                    foreach (var linkId in node.Links)
-                        walkQueue.Enqueue(linkId);
+                    foreach (var linked in node.Links)
+                        walkQueue.Enqueue(linked);
                 }
             }
             catch (StopIteration) { }
         }
 
-        public int CountGroupSize(int fromId)
+        public int CountGroupSize(T fromItem)
         {
             var total = 0;
-            DepthFirstWalk(fromId, node => total++);
+            DepthFirstWalk(fromItem, node => total++);
             return total;
         }
 
@@ -181,13 +193,13 @@ namespace Adevent2017.DataStructures
             get
             {
                 var total = 0;
-                var seen = new HashSet<int>();
-                foreach (var node in Nodes)
+                var seen = new HashSet<T>();
+                foreach (var item in Items)
                 {
-                    if (!seen.Contains(node.Id))
+                    if (!seen.Contains(item))
                     {
                         total++;
-                        InternalDepthFirstWalk(node.Id, n => { }, seen);
+                        InternalDepthFirstWalk(item, n => { }, seen);
                     }
                 }
 
@@ -195,6 +207,4 @@ namespace Adevent2017.DataStructures
             }
         }
     }
-
-    public class Graph : Graph<object> { }
 }

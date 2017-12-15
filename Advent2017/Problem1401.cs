@@ -44,7 +44,7 @@ namespace Adevent2017
             return -1;
         }
 
-        List<int> GetChildren(int x, int y, Graph graph)
+        List<int> GetChildren(int x, int y, Graph<int> graph)
         {
             var children = new List<int>();
 
@@ -57,9 +57,9 @@ namespace Adevent2017
             return children;
         }
 
-        Graph BuildGraph(string key)
+        Graph<int> BuildGraph(string key)
         {
-            var graph = new Graph();
+            var graph = new Graph<int>();
             for (var y = 0; y < GridSize; y++)
             {
                 var rowKey = $"{key}-{y}";
@@ -75,7 +75,7 @@ namespace Adevent2017
                         if ((c & 8) == 8)
                         {
                             var id = GetNodeId(x, y);
-                            graph.CreateNode(id);
+                            graph.AddNode(id);
 
                             var children = GetChildren(x, y, graph);
                             foreach (var linkId in children)

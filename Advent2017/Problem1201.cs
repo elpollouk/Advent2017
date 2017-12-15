@@ -7,19 +7,19 @@ namespace Adevent2017
 {
     public class Problem1201
     {
-        static Graph BuildGraph(string datafile)
+        static Graph<int> BuildGraph(string datafile)
         {
-            var graph = new Graph();
+            var graph = new Graph<int>();
             FileIterator.ForEachLine<string>(datafile, line =>
             {
                 var tokens = line.Replace(",", "").Split(' ');
                 var id = int.Parse(tokens[0]);
-                graph.GetOrCreateNode(id);
+                graph.AddNodeIfNotInGraph(id);
 
                 for (var i = 2; i < tokens.Length; i++)
                 {
                     var linkId = int.Parse(tokens[i]);
-                    graph.GetOrCreateNode(linkId);
+                    graph.AddNodeIfNotInGraph(linkId);
                     graph.AddTwoWayLink(id, linkId);
                 }
             });

@@ -22,35 +22,41 @@ namespace Adevent2017.Alogrithms
 
             private readonly int _height;
 
-            public TestGraphAdapter(Graph<Position> graph, int width, int height) : base(graph)
+            private readonly Position[] _cells;
+
+            public TestGraphAdapter(Graph<Position> graph, int width, int height, Position[] cells) : base(graph)
             {
                 Graph = graph;
                 _width = width;
                 _height = height;
+                _cells = cells;
             }
 
-            public override int GetScore(GraphNode<Position> from, GraphNode<Position> to)
+            public override int GetScore(Position from, Position to)
             {
-                return Math.Abs(to.Item.x - from.Item.x) + Math.Abs(to.Item.y - from.Item.y);
+                return Math.Abs(to.x - from.x) + Math.Abs(to.y - from.y);
             }
 
-            public GraphNode<Position> GetNode(int x, int y)
+            public Position GetNode(int x, int y)
             {
-                var id = (y * _width) + x;
-                return Graph.GetNode(id);
+                var index = (y * _width) + x;
+                return _cells[index];
             }
         }
 
         TestGraphAdapter BuildGraph(int width, int height)
         {
-            var graph = GraphBuilder.BuildGrid<Position>(width, height, (x, y, node) =>
+            var cells = new Position[width * height];
+            var graph = GraphBuilder.BuildGrid<Position>(width, height, (x, y) =>
             {
-                node.Item = new Position();
-                node.Item.x = x;
-                node.Item.y = y;
+                var cell = new Position();
+                cell.x = x;
+                cell.y = y;
+                cells[(y * width) + x] = cell;
+                return cell;
             });
 
-            return new TestGraphAdapter(graph, width, height);
+            return new TestGraphAdapter(graph, width, height, cells);
         }
 
         [Fact]
@@ -65,8 +71,8 @@ namespace Adevent2017.Alogrithms
             path.Count.Should().Be(5);
             for (var i = 0; i < 5; i++)
             {
-                path[i].Item.x.Should().Be(i + 1);
-                path[i].Item.y.Should().Be(3);
+                path[i].x.Should().Be(i + 1);
+                path[i].y.Should().Be(3);
             }
         }
 
@@ -82,8 +88,8 @@ namespace Adevent2017.Alogrithms
             path.Count.Should().Be(5);
             for (var i = 0; i < 5; i++)
             {
-                path[i].Item.x.Should().Be(3);
-                path[i].Item.y.Should().Be(5 - i);
+                path[i].x.Should().Be(3);
+                path[i].y.Should().Be(5 - i);
             }
         }
 
@@ -99,13 +105,13 @@ namespace Adevent2017.Alogrithms
             path.Count.Should().Be(7);
             for (var i = 0; i < 4; i++)
             {
-                path[i].Item.x.Should().Be(i);
-                path[i].Item.y.Should().Be(0);
+                path[i].x.Should().Be(i);
+                path[i].y.Should().Be(0);
             }
             for (var i = 1; i < 4; i++)
             {
-                path[i + 3].Item.x.Should().Be(3);
-                path[i + 3].Item.y.Should().Be(i);
+                path[i + 3].x.Should().Be(3);
+                path[i + 3].y.Should().Be(i);
             }
         }
 
@@ -113,9 +119,9 @@ namespace Adevent2017.Alogrithms
         public void ObstructedPath()
         {
             var adapter = BuildGraph(3, 2);
-            var leftId = adapter.GetNode(1, 1).Id;
-            var rightId = adapter.GetNode(2, 1).Id;
-            adapter.Graph.RemoveTwoWayLink(leftId, rightId);
+            var left = adapter.GetNode(1, 1);
+            var right = adapter.GetNode(2, 1);
+            adapter.Graph.RemoveTwoWayLink(left, right);
 
             var start = adapter.GetNode(0, 1);
             var goal = adapter.GetNode(2, 1);
@@ -123,16 +129,16 @@ namespace Adevent2017.Alogrithms
             var path = Astar.FindPath(adapter, start, goal);
 
             path.Count.Should().Be(5);
-            path[0].Item.x.Should().Be(0);
-            path[0].Item.y.Should().Be(1);
-            path[1].Item.x.Should().Be(1);
-            path[1].Item.y.Should().Be(1);
-            path[2].Item.x.Should().Be(1);
-            path[2].Item.y.Should().Be(0);
-            path[3].Item.x.Should().Be(2);
-            path[3].Item.y.Should().Be(0);
-            path[4].Item.x.Should().Be(2);
-            path[4].Item.y.Should().Be(1);
+            path[0].x.Should().Be(0);
+            path[0].y.Should().Be(1);
+            path[1].x.Should().Be(1);
+            path[1].y.Should().Be(1);
+            path[2].x.Should().Be(1);
+            path[2].y.Should().Be(0);
+            path[3].x.Should().Be(2);
+            path[3].y.Should().Be(0);
+            path[4].x.Should().Be(2);
+            path[4].y.Should().Be(1);
         }
     }
 }
