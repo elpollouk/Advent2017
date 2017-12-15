@@ -12,7 +12,7 @@ namespace Adevent2017.Alogrithms
             int GetScore(Node from, Node to);
         }
 
-        public static IEnumerable<Node> FindPath<Node>(IGraphAdapter<Node> graph, Node start, Node goal) where Node : class
+        public static IList<Node> FindPath<Node>(IGraphAdapter<Node> graph, Node start, Node goal) where Node : class
         {
             var searchSpace = new PriorityQueue<Node>();
             var pathMap = new Dictionary<Node, Node>();
@@ -42,19 +42,20 @@ namespace Adevent2017.Alogrithms
             return ResolvePath(pathMap, start, goal);
         }
 
-        private static IEnumerable<Node> ResolvePath<Node>(Dictionary<Node, Node> pathMap, Node start, Node goal) where Node : class
+        private static IList<Node> ResolvePath<Node>(Dictionary<Node, Node> pathMap, Node start, Node goal) where Node : class
         {
-            var path = new LinkedList<Node>();
+            var path = new List<Node>();
             if (!pathMap.ContainsKey(goal)) return null;
 
             var node = goal;
             do
             {
-                path.AddFirst(node);
+                path.Add(node);
                 node = pathMap[node];
             }
             while (node != start);
-            path.AddFirst(node);
+            path.Add(node);
+            path.Reverse();
 
             return path;
         }

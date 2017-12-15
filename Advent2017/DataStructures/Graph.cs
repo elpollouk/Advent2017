@@ -57,6 +57,18 @@ namespace Adevent2017.DataStructures
             return node;
         }
 
+        public void RemoveOneWayLink(int fromId, int toId)
+        {
+            var from = GetNode(fromId);
+            from.Links.Remove(toId);
+        }
+
+        public void RemoveTwoWayLink(int fromId, int toId)
+        {
+            RemoveOneWayLink(fromId, toId);
+            RemoveOneWayLink(toId, fromId);
+        }
+
         public void AddOneWayLink(int fromId, int toId)
         {
             var fromNode = GetNode(fromId);

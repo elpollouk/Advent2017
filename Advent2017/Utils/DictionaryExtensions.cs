@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Adevent2017.Utils
 {
@@ -10,6 +11,17 @@ namespace Adevent2017.Utils
             if (dic.TryGetValue(key, out v))
                 return v;
             return def;
+        }
+
+        public static V GetOrCreate<K, V>(this Dictionary<K, V> dic, K key, Func<V> creator)
+        {
+            V value;
+            if (!dic.TryGetValue(key, out value))
+            {
+                value = creator();
+                dic[key] = value;
+            }
+            return value;
         }
     }
 }
