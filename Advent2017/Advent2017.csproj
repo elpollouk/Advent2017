@@ -81,6 +81,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Alogrithms\Astar.cs" />
+    <Compile Include="Alogrithms\StandardGraphAdapterBase.cs" />
     <Compile Include="DataStructures\PriorityQueueTests.cs" />
     <Compile Include="DataStructures\PriorityQueue.cs" />
     <Compile Include="DataStructures\Graph.cs" />
