@@ -6,14 +6,14 @@ namespace Adevent2017.Utils
 {
     abstract class StandardGraphAdapterBase<T> : Astar.IGraphAdapter<T> where T : class
     {
-        private readonly Graph<T> _graph;
+        public readonly Graph<T> Graph;
 
         public StandardGraphAdapterBase(Graph<T> graph)
         {
-            _graph = graph;
+            Graph = graph;
         }
 
-        public IEnumerable<T> GetLinked(T node) => _graph.GetLinked(node);
+        public IEnumerable<T> GetLinked(T node) => Graph.GetLinked(node);
 
         public virtual int GetMoveCost(T from, T to) => 1;
 

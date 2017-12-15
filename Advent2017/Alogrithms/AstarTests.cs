@@ -16,8 +16,6 @@ namespace Adevent2017.Alogrithms
 
         class TestGraphAdapter : StandardGraphAdapterBase<Position>
         {
-            public readonly Graph<Position> Graph;
-
             private readonly int _width;
 
             private readonly int _height;
@@ -26,7 +24,6 @@ namespace Adevent2017.Alogrithms
 
             public TestGraphAdapter(Graph<Position> graph, int width, int height, Position[] cells) : base(graph)
             {
-                Graph = graph;
                 _width = width;
                 _height = height;
                 _cells = cells;
