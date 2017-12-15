@@ -7,7 +7,7 @@ namespace Adevent2017
 {
     public class Problem1201
     {
-        static Graph<int> BuildGraph(string datafile)
+        Graph<int> BuildGraph(string datafile)
         {
             var graph = new Graph<int>();
             FileIterator.ForEachLine<string>(datafile, line =>

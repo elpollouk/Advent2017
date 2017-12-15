@@ -1,7 +1,8 @@
-﻿using Adevent2017.DataStructures;
+﻿using Adevent2017.Alogrithms;
+using Adevent2017.DataStructures;
 using System.Collections.Generic;
 
-namespace Adevent2017.Alogrithms
+namespace Adevent2017.Utils
 {
     abstract class StandardGraphAdapterBase<T> : Astar.IGraphAdapter<T> where T : class
     {
