@@ -23,7 +23,7 @@ namespace Adevent2017.DataStructures
 
         }
 
-        public IEnumerable<T> Items => _nodes.Values.Select(n => n.Item);
+        public IEnumerable<T> Items => _nodes.Keys;
         public int Size => _nodes.Count;
         public bool Contains(T item) => _nodes.ContainsKey(item);
 

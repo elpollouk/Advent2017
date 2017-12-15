@@ -23,5 +23,11 @@ namespace Adevent2017.Utils
             }
             return value;
         }
+
+        public static void Index<K, V>(this Dictionary<K, V> dic, IEnumerable<V> collection, Func<V, K> getKey)
+        {
+            foreach (var item in collection)
+                dic[getKey(item)] = item;
+        }
     }
 }
