@@ -44,7 +44,7 @@ namespace Adevent2017.Alogrithms
         TestGraphAdapter BuildGraph(int width, int height)
         {
             var cells = new Position[width * height];
-            var graph = GraphBuilder.BuildGrid<Position>(width, height, (x, y) =>
+            var graph = GraphBuilder.BuildGrid(width, height, (x, y) =>
             {
                 var cell = new Position();
                 cell.x = x;

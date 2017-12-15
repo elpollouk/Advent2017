@@ -5,7 +5,7 @@ namespace Adevent2017.Utils
 {
     static class DictionaryExtentions
     {
-        public static V GetOrDefault<K, V>(this Dictionary<K, V> dic, K key, V def = default(V))
+        public static V GetOrDefault<K, V>(this IDictionary<K, V> dic, K key, V def = default(V))
         {
             V v;
             if (dic.TryGetValue(key, out v))
@@ -13,7 +13,7 @@ namespace Adevent2017.Utils
             return def;
         }
 
-        public static V GetOrCreate<K, V>(this Dictionary<K, V> dic, K key, Func<V> creator)
+        public static V GetOrCreate<K, V>(this IDictionary<K, V> dic, K key, Func<V> creator)
         {
             V value;
             if (!dic.TryGetValue(key, out value))
@@ -24,7 +24,7 @@ namespace Adevent2017.Utils
             return value;
         }
 
-        public static void Index<K, V>(this Dictionary<K, V> dic, IEnumerable<V> collection, Func<V, K> getKey)
+        public static void Index<K, V>(this IDictionary<K, V> dic, IEnumerable<V> collection, Func<V, K> getKey)
         {
             foreach (var item in collection)
                 dic[getKey(item)] = item;
