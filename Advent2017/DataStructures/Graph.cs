@@ -106,25 +106,20 @@ namespace Adevent2017.DataStructures
 
         public IEnumerable<T> GetLinked(T fromItem)
         {
-            var linked = new List<T>();
             var node = GetNode(fromItem);
             foreach (var linkItem in node.Links)
-                linked.Add(linkItem);
-            
-            return linked;
+                yield return linkItem;
         }
 
         public IEnumerable<T> GetChildren(T parentItem)
         {
-            var children = new List<T>();
             var parentNode = GetNode(parentItem);
             foreach (var childItem in parentNode.Links)
             {
                 var childNode = GetNode(childItem);
                 if (childNode.Parent == parentNode)
-                    children.Add(childItem);
+                    yield return childItem;
             }
-            return children;
         }
 
         public T GetParent(T childItem)
