@@ -16,15 +16,25 @@ namespace Adevent2017.DataStructures
         }
 
         readonly Dictionary<T, GraphNode> _nodes = new Dictionary<T, GraphNode>();
+        readonly EqualityComparer<T> _comparer = EqualityComparer<T>.Default;
+
+        public IEnumerable<T> Items => _nodes.Keys;
+        public int Size => _nodes.Count;
+        public bool Contains(T item) => _nodes.ContainsKey(item);
+        public T Root
+        {
+            get;
+            set;
+        }
 
         public Graph()
         {
 
         }
 
-        public IEnumerable<T> Items => _nodes.Keys;
-        public int Size => _nodes.Count;
-        public bool Contains(T item) => _nodes.ContainsKey(item);
+        private bool ItemEquals(T a, T b) => _comparer.Equals(a, b);
+
+        private GraphNode GetNode(T item) => _nodes[item];
 
         public void AddNode(T item)
         {
@@ -40,11 +50,6 @@ namespace Adevent2017.DataStructures
 
             AddNode(item);
             return true;
-        }
-
-        private GraphNode GetNode(T item)
-        {
-            return _nodes[item];
         }
 
         public void RemoveNode(T item)
@@ -97,6 +102,14 @@ namespace Adevent2017.DataStructures
             childNode.Parent = parentNode;
         }
 
+        public void RemoveParentChildLink(T parentItem, T childItem)
+        {
+            var childNode = GetNode(childItem);
+            if (childNode.Parent == null || !ItemEquals(parentItem, childNode.Parent.Item)) throw new InvalidOperationException($"{parentItem} is not the parent of {childItem}");
+            RemoveOneWayLink(parentItem, childItem);
+            childNode.Parent = null;
+        }
+
         public bool IsLinked(T fromItem, T toItem)
         {
             var node = GetNode(fromItem);
@@ -145,6 +158,8 @@ namespace Adevent2017.DataStructures
             return root;
         }
 
+        public void DepthFirstWalk(Action<T> onItem) => DepthFirstWalk(Root, onItem);
+
         public void DepthFirstWalk(T fromItem, Action<T> onItem)
         {
             var seen = new HashSet<T>();
@@ -167,7 +182,9 @@ namespace Adevent2017.DataStructures
                 InternalDepthFirstWalk(linkId, onItem, seen);
         }
 
-        private void BreadthFirstWalk(T fromItem, Action<T> onNode)
+        public void BreadthFirstWalk(Action<T> onItem) => BreadthFirstWalk(Root, onItem);
+
+        public void BreadthFirstWalk(T fromItem, Action<T> onItem)
         {
             var seen = new HashSet<T>();
             var walkQueue = new Queue<T>();
@@ -180,7 +197,7 @@ namespace Adevent2017.DataStructures
                     var nodeItem = walkQueue.Dequeue();
                     if (seen.Contains(nodeItem)) continue;
 
-                    onNode(nodeItem);
+                    onItem(nodeItem);
                     var node = GetNode(nodeItem);
 
                     foreach (var linked in node.Links)
