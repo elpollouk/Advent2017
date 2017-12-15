@@ -5,15 +5,16 @@ namespace Adevent2017.Alogrithms
 {
     static class Astar
     {
-        public interface IGraphAdapter<Node> where Node : class
+        public interface IGraphAdapter<Node>
         {
             IEnumerable<Node> GetLinked(Node node);
             int GetMoveCost(Node from, Node to);
             int GetScore(Node from, Node to);
         }
 
-        public static IList<Node> FindPath<Node>(IGraphAdapter<Node> graph, Node start, Node goal) where Node : class
+        public static IList<Node> FindPath<Node>(IGraphAdapter<Node> graph, Node start, Node goal)
         {
+            var comparer = EqualityComparer<Node>.Default;
             var searchSpace = new PriorityQueue<Node>();
             var pathMap = new Dictionary<Node, Node>();
             var costSoFar = new Dictionary<Node, int>();
@@ -24,7 +25,7 @@ namespace Adevent2017.Alogrithms
             while (searchSpace.Count != 0)
             {
                 var current = searchSpace.Dequeue();
-                if (current == goal) break;
+                if (comparer.Equals(current, goal)) break;
 
                 var linked = graph.GetLinked(current);
                 foreach (var linkedNode in linked)
@@ -42,8 +43,9 @@ namespace Adevent2017.Alogrithms
             return ResolvePath(pathMap, start, goal);
         }
 
-        private static IList<Node> ResolvePath<Node>(Dictionary<Node, Node> pathMap, Node start, Node goal) where Node : class
+        private static IList<Node> ResolvePath<Node>(Dictionary<Node, Node> pathMap, Node start, Node goal)
         {
+            var comparer = EqualityComparer<Node>.Default;
             var path = new List<Node>();
             if (!pathMap.ContainsKey(goal)) return null;
 
@@ -53,7 +55,7 @@ namespace Adevent2017.Alogrithms
                 path.Add(node);
                 node = pathMap[node];
             }
-            while (node != start);
+            while (!comparer.Equals(node, start));
             path.Add(node);
             path.Reverse();
 

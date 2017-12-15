@@ -1,7 +1,6 @@
 ﻿using Adevent2017.Utils;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Adevent2017.DataStructures
 {
@@ -129,6 +128,21 @@ namespace Adevent2017.DataStructures
                 return default(T);
             else
                 return parentNode.Item;
+        }
+
+        public T GetRoot(T childItem)
+        {
+            T root = childItem;
+            while (true)
+            {
+                var node = GetNode(root);
+                if (node.Parent == null)
+                    break;
+
+                root = node.Item;
+            }
+
+            return root;
         }
 
         public void DepthFirstWalk(T fromItem, Action<T> onItem)
