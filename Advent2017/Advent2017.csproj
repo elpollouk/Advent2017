@@ -84,6 +84,7 @@
     <Compile Include="Alogrithms\AstarTests.cs" />
     <Compile Include="Problem1501.cs" />
     <Compile Include="Problem1601.cs" />
+    <Compile Include="Problem1701.cs" />
     <Compile Include="Utils\StandardGraphAdapterBase.cs" />
     <Compile Include="DataStructures\PriorityQueueTests.cs" />
     <Compile Include="DataStructures\PriorityQueue.cs" />
