@@ -57,7 +57,7 @@ namespace Adevent2017
 
         [Theory]
         [InlineData(5, SeedAExample, SeedBExample, 1)]
-        [InlineData(40000000, SeedAActual, SeedBActual, 638)]
+        //[InlineData(40000000, SeedAActual, SeedBActual, 638)]
         void Part1(int rounds, ulong seedA, ulong seedB, int answer)
         {
             var genA = new Generator(seedA, FactorA);
@@ -88,9 +88,9 @@ namespace Adevent2017
         }
 
 
-        [Theory]
-        [InlineData(SeedAExample, SeedBExample, 309)]
-        [InlineData(SeedAActual, SeedBActual, 343)]
+        //[Theory]
+        //[InlineData(SeedAExample, SeedBExample, 309)]
+        //[InlineData(SeedAActual, SeedBActual, 343)]
         void Part2(ulong seedA, ulong seedB, int answer)
         {
             var genA = new Generator(seedA, FactorA);
