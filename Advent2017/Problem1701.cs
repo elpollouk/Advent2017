@@ -8,15 +8,14 @@ namespace Adevent2017
     {
         List<int> Solve1(int stepSize, int numCycles)
         {
+            int currentPosition = 0;
             var buffer = new List<int>();
             buffer.Add(0);
 
-            int currentPosition = 0;
-            for (var i = 0; i < numCycles; i++)
+            for (var i = 1; i < numCycles + 1; i++)
             {
-                currentPosition += stepSize;
-                currentPosition = (currentPosition % buffer.Count) + 1;
-                buffer.Insert(currentPosition, i+1);
+                currentPosition = ((currentPosition + stepSize) % buffer.Count) + 1;
+                buffer.Insert(currentPosition, i);
             }
 
             return buffer;
@@ -27,12 +26,12 @@ namespace Adevent2017
             var valueAt1 = -1;
             int bufferSize = 1;
             int currentPosition = 0;
-            for (var i = 0; i < numCycles; i++)
+
+            for (var i = 1; i < numCycles + 1; i++)
             {
-                currentPosition += stepSize;
-                currentPosition = (currentPosition % bufferSize) + 1;
+                currentPosition = ((currentPosition + stepSize) % bufferSize) + 1;
                 if (currentPosition == 1)
-                    valueAt1 = i + 1;
+                    valueAt1 = i;
                 bufferSize++;
             }
 
