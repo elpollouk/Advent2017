@@ -1,5 +1,4 @@
-﻿using Adevent2017.DataStructures;
-using Adevent2017.Utils;
+﻿using Adevent2017.Utils;
 using FluentAssertions;
 using System.Collections.Generic;
 using Xunit;
@@ -90,7 +89,7 @@ namespace Adevent2017
         [InlineData("Data/1601.txt", "abcdefghijklmnop", "iabmedjhclofgknp", 1)]
         [InlineData("Data/1601-example.txt", "abcde", "ceadb", 2)]
         [InlineData("Data/1601.txt", "abcdefghijklmnop", "oildcmfeajhbpngk", 1000000000)]
-        void Part1(string filename, string starting, string ending, ulong times)
+        void Solve(string filename, string starting, string ending, ulong times)
         {
             var moves = FileIterator.LoadCSV<string>(filename);
             var result = starting;
