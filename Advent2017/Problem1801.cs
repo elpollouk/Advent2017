@@ -9,14 +9,24 @@ namespace Adevent2017
     class VM
     {
         public long[] registers = new long[26];
-        public long lastSound = 0;
-        public long lastRecv = 0;
+        public Queue<long> send;
+        public Queue<long> recv;
         public string[] prog;
         public int ip;
+        public bool waiting = false;
+        public long sendCount = 0;
+
+        public bool IsDone => ip < 0 || ip >= prog.Length;
+        public bool IsWaitingForInput => recv.Count == 0 && waiting;
+        public void setReg(char r, long v) => registers[r - 'a'] = v;
     }
 
     public class Problem1801
     {
+        VM currentVM = null;
+        VM vm1;
+        VM vm2;
+
         int ParseRegister(string value)
         {
             if (value.Length == 1 && 'a' <= value[0] && value[0] <= 'z')
@@ -35,7 +45,9 @@ namespace Adevent2017
         void snd(VM vm, string[] command)
         {
             var value = GetValue(vm, command[1]);
-            vm.lastSound = value;
+            vm.send.Enqueue(value);
+            vm.sendCount++;
+            vm.ip++;
         }
 
         void set(VM vm, string[] command)
@@ -43,6 +55,7 @@ namespace Adevent2017
             var register = ParseRegister(command[1]);
             var value = GetValue(vm, command[2]);
             vm.registers[register] = value;
+            vm.ip++;
         }
 
         void add(VM vm, string[] command)
@@ -50,6 +63,7 @@ namespace Adevent2017
             var target = ParseRegister(command[1]);
             var value = GetValue(vm, command[2]);
             vm.registers[target] += value;
+            vm.ip++;
         }
 
         void mul(VM vm, string[] command)
@@ -57,6 +71,7 @@ namespace Adevent2017
             var target = ParseRegister(command[1]);
             var value = GetValue(vm, command[2]);
             vm.registers[target] *= value;
+            vm.ip++;
         }
 
         void mod(VM vm, string[] command)
@@ -64,24 +79,31 @@ namespace Adevent2017
             var target = ParseRegister(command[1]);
             var value = GetValue(vm, command[2]);
             vm.registers[target] %= value;
+            vm.ip++;
         }
 
         void rcv(VM vm, string[] command)
         {
-            var value = GetValue(vm, command[1]);
-            if (value != 0)
+            if (vm.recv.Count == 0)
             {
-                vm.lastRecv = vm.lastSound;
-                StopIteration.Now();
+                vm.waiting = true;
+                currentVM = vm == vm1 ? vm2 : vm1;
+                return;
             }
+            vm.waiting = false;
+            var register = ParseRegister(command[1]);
+            vm.registers[register] = vm.recv.Dequeue();
+            vm.ip++;
         }
 
         void jgz(VM vm, string[] command)
         {
             var checkValue = GetValue(vm, command[1]);
-            var jumpValue = GetValue(vm, command[2]) - 1;
+            var jumpValue = GetValue(vm, command[2]);
             if (checkValue > 0)
                 vm.ip += (int)jumpValue;
+            else
+                vm.ip++;
         }
 
         void ExecInstruction(VM vm)
@@ -121,35 +143,48 @@ namespace Adevent2017
                     Oh.WhatTheFuck();
                     break;
             }
-
-            vm.ip++;
         }
 
         VM Exec(string datafile)
         {
-            var vm = new VM();
-            vm.prog = FileIterator.LoadLines<string>(datafile);
+            vm1 = new VM();
+            vm2 = new VM();
+            var q1to2 = new Queue<long>();
+            var q2to1 = new Queue<long>();
+            vm1.send = q1to2;
+            vm1.recv = q2to1;
+            vm2.send = q2to1;
+            vm2.recv = q1to2;
+
+            vm1.setReg('p', 0);
+            vm2.setReg('p', 1);
+
+            vm1.prog = vm2.prog = FileIterator.LoadLines<string>(datafile);
+            currentVM = vm1;
+
             try
             {
                 while (true)
                 {
-                    ExecInstruction(vm);
-                    if (vm.ip < 0 || vm.ip >= vm.prog.Length)
+                    ExecInstruction(currentVM);
+                    if (currentVM.IsDone)
+                        break;
+                    if (vm1.IsWaitingForInput && vm2.IsWaitingForInput)
                         break;
                 }
             }
             catch (StopIteration) { }
 
-            return vm;
+            return vm2;
         }
 
         [Theory]
-        [InlineData("Data/1801-example.txt", 4)]
-        [InlineData("Data/1801.txt", 3188)]
+        //[InlineData("Data/1801-example.txt", 3)]
+        [InlineData("Data/1801.txt", 7112)]
         public void Part1(string datafile, long answer)
         {
             var vm = Exec(datafile);
-            vm.lastRecv.Should().Be(answer);
+            vm.sendCount.Should().Be(answer);
         }
     }
 }
