@@ -1,31 +1,30 @@
-﻿using Adevent2017.DataStructures;
-using Adevent2017.Utils;
+﻿using Adevent2017.Utils;
 using FluentAssertions;
 using System.Collections.Generic;
 using Xunit;
 
 namespace Adevent2017
 {
-    class VM
-    {
-        public long[] registers = new long[26];
-        public Queue<long> send;
-        public Queue<long> recv;
-        public string[] prog;
-        public int ip;
-        public bool waiting = false;
-        public long sendCount = 0;
-
-        public bool IsDone => ip < 0 || ip >= prog.Length;
-        public bool IsWaitingForInput => recv.Count == 0 && waiting;
-        public void setReg(char r, long v) => registers[r - 'a'] = v;
-    }
-
     public class Problem1801
     {
-        VM currentVM = null;
+        class VM
+        {
+            public long[] registers = new long[26];
+            public Queue<long> send;
+            public Queue<long> recv;
+            public string[] prog;
+            public int ip;
+            public bool waiting = false;
+            public long sendCount = 0;
+
+            public bool IsDone => ip < 0 || ip >= prog.Length;
+            public bool IsWaitingForInput => recv.Count == 0 && waiting;
+            public void setReg(char r, long v) => registers[r - 'a'] = v;
+        }
+
+        VM currentVM;
+        VM vm0;
         VM vm1;
-        VM vm2;
 
         int ParseRegister(string value)
         {
@@ -87,7 +86,7 @@ namespace Adevent2017
             if (vm.recv.Count == 0)
             {
                 vm.waiting = true;
-                currentVM = vm == vm1 ? vm2 : vm1;
+                currentVM = vm == vm0 ? vm1 : vm0;
                 return;
             }
             vm.waiting = false;
@@ -147,35 +146,31 @@ namespace Adevent2017
 
         VM Exec(string datafile)
         {
+            vm0 = new VM();
             vm1 = new VM();
-            vm2 = new VM();
-            var q1to2 = new Queue<long>();
-            var q2to1 = new Queue<long>();
-            vm1.send = q1to2;
-            vm1.recv = q2to1;
-            vm2.send = q2to1;
-            vm2.recv = q1to2;
+            var q0to1 = new Queue<long>();
+            var q1to0 = new Queue<long>();
+            vm0.send = q0to1;
+            vm0.recv = q1to0;
+            vm1.send = q1to0;
+            vm1.recv = q0to1;
 
-            vm1.setReg('p', 0);
-            vm2.setReg('p', 1);
+            vm0.setReg('p', 0);
+            vm1.setReg('p', 1);
 
-            vm1.prog = vm2.prog = FileIterator.LoadLines<string>(datafile);
+            vm0.prog = vm1.prog = FileIterator.LoadLines<string>(datafile);
             currentVM = vm1;
 
-            try
+            while (true)
             {
-                while (true)
-                {
-                    ExecInstruction(currentVM);
-                    if (currentVM.IsDone)
-                        break;
-                    if (vm1.IsWaitingForInput && vm2.IsWaitingForInput)
-                        break;
-                }
+                ExecInstruction(currentVM);
+                if (currentVM.IsDone)
+                    break;
+                if (vm0.IsWaitingForInput && vm1.IsWaitingForInput)
+                    break;
             }
-            catch (StopIteration) { }
 
-            return vm2;
+            return vm1;
         }
 
         [Theory]
