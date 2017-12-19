@@ -16,5 +16,6 @@ namespace Adevent2017.Utils
         public static void WhatTheFuck() => Swear("what the fuck?");
         public static void PissingNora() => Swear("pissing Nora");
         public static void ShttingHell() => Swear("shitting hell!");
+        public static void Bugger() => Swear("bugger");
     }
 }
