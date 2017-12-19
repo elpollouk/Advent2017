@@ -84,7 +84,7 @@ namespace Adevent2017
                         return result;
 
                     default:
-                        if ('A' <= c && c <= 'Z')
+                        if (IsLetter(c))
                         {
                             result += c;
                         }
@@ -101,7 +101,7 @@ namespace Adevent2017
             }
         }
 
-        string Solve1(string datafile, out int numSteps)
+        string Solve(string datafile, out int numSteps)
         {
             var map = new Map();
             FileIterator.ForEachLine<string>(datafile, line =>
@@ -130,7 +130,7 @@ namespace Adevent2017
         void Part1(string datafile, string anwser1, int answer2)
         {
             int numSteps;
-            Solve1(datafile, out numSteps).Should().Be(anwser1);
+            Solve(datafile, out numSteps).Should().Be(anwser1);
             numSteps.Should().Be(answer2);
         }
     }
