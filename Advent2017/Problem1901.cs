@@ -57,7 +57,7 @@ namespace Adevent2017
                 }
             }
         }
-        string FollowPath(Map map, int entryPoint)
+        string FollowPath(Map map, int entryPoint, out int numSteps)
         {
             var result = "";
 
@@ -65,6 +65,7 @@ namespace Adevent2017
             var y = 0;
             var dX = 0;
             var dY = 1;
+            numSteps = 0;
 
             while (true)
             {
@@ -96,10 +97,11 @@ namespace Adevent2017
 
                 x += dX;
                 y += dY;
+                numSteps++;
             }
         }
 
-        string Solve1(string datafile)
+        string Solve1(string datafile, out int numSteps)
         {
             var map = new Map();
             FileIterator.ForEachLine<string>(datafile, line =>
@@ -119,15 +121,17 @@ namespace Adevent2017
                 }
             }
 
-            return FollowPath(map, x);
+            return FollowPath(map, x, out numSteps);
         }
 
         [Theory]
-        [InlineData("Data/1901-example.txt", "ABCDEF")]
-        [InlineData("Data/1901.txt", "SXWAIBUZY")]
-        void Part1(string datafile, string anwser)
+        [InlineData("Data/1901-example.txt", "ABCDEF", 38)]
+        [InlineData("Data/1901.txt", "SXWAIBUZY", 16676)]
+        void Part1(string datafile, string anwser1, int answer2)
         {
-            Solve1(datafile).Should().Be(anwser);
+            int numSteps;
+            Solve1(datafile, out numSteps).Should().Be(anwser1);
+            numSteps.Should().Be(answer2);
         }
     }
 }
