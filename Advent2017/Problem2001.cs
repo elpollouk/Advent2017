@@ -77,9 +77,8 @@ namespace Adevent2017
       
             var lowestAcc = particles[0].Acc.DistanceFrom0Sqrd();
             var lowestParticle = particles[0];
-            for (var i = 1; i < particles.Count; i++)
+            foreach (var part in particles)
             {
-                var part = particles[i];
                 if (part.Acc.DistanceFrom0Sqrd() < lowestAcc)
                 {
                     lowestAcc = part.Acc.DistanceFrom0Sqrd();
