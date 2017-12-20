@@ -21,8 +21,6 @@ namespace Adevent2017
                 z += other.z;
             }
 
-            public long DistanceFrom0() => Math.Abs(x) + Math.Abs(y) + Math.Abs(z);
-            public long DistanceFrom(Vector3 point) => Math.Abs(x - point.x) + Math.Abs(y - point.y) + Math.Abs(z - point.z);
             public double DistanceFrom0Sqrd() => (x * x) + (y * y) + (z * z); 
         }
 
@@ -106,7 +104,7 @@ namespace Adevent2017
                 id++;
             });
 
-            for (var i = 0; i < 100; i++)
+            for (var i = 0; i < 39; i++)
             {
                 var ccache = CreateCollisionCache();
                 foreach (var part in particles.Values)
@@ -116,15 +114,9 @@ namespace Adevent2017
                 }
 
                 foreach (var collisions in ccache.Values)
-                {
                     if (collisions.Count >= 2)
-                    {
                         foreach (var partId in collisions)
-                        {
                             particles.Remove(partId);
-                        }
-                    }
-                }
             }
 
             return particles.Count;
