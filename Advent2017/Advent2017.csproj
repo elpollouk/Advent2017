@@ -90,6 +90,7 @@
     <Compile Include="Problem2001.cs" />
     <Compile Include="Problem2101.cs" />
     <Compile Include="Problem2201.cs" />
+    <Compile Include="Problem2301.cs" />
     <Compile Include="Utils\StandardGraphAdapterBase.cs" />
     <Compile Include="DataStructures\PriorityQueueTests.cs" />
     <Compile Include="DataStructures\PriorityQueue.cs" />
@@ -198,6 +199,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Data\2201.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\2301.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

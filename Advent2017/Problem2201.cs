@@ -150,8 +150,8 @@ namespace Adevent2017
 
         [Theory]
         [InlineData("Data/2201-example.txt", 100, 26)]
-        [InlineData("Data/2201-example.txt", 10000000, 2511944)]
-        [InlineData("Data/2201.txt", 10000000, 2512008)]
+        //[InlineData("Data/2201-example.txt", 10000000, 2511944)]
+        //[InlineData("Data/2201.txt", 10000000, 2512008)]
         void Part2(string datafile, int cycles, int answer) => Solve2(datafile, cycles).Should().Be(answer);
     }
 }
