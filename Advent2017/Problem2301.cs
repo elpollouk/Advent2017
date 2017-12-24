@@ -1,6 +1,5 @@
 ﻿using Adevent2017.Utils;
 using FluentAssertions;
-using System.Collections.Generic;
 using Xunit;
 
 namespace Adevent2017
@@ -101,7 +100,6 @@ namespace Adevent2017
         VM Exec(string datafile)
         {
             currentVM = new VM();
-
             currentVM.prog = FileIterator.LoadLines<string>(datafile);
 
             while (!currentVM.IsDone)
@@ -118,6 +116,53 @@ namespace Adevent2017
         {
             var vm = Exec(datafile);
             vm.mulCount.Should().Be(answer);
+        }
+
+        public static bool IsPrime(long value)
+        {
+            if (value == 1) return false;
+            if (value < 4) return true;
+            if (value % 2 == 0) return false;
+            if (value < 9) return true;
+            if (value % 3 == 0) return false;
+
+            for (var i = 5; i * i <= value; i += 6)
+            {
+                if (value % i == 0) return false;
+                if (value % (i + 2) == 0) return false;
+            }
+
+            return true;
+        }
+
+        [Fact]
+        public void Part2()
+        {
+            long a = 1;
+            long b = 0;
+            long c = 0;
+            long total = 0;
+
+            b = 57;
+            c = b;
+            if (a != 0)
+            {
+                b *= 100;
+                b += 100000;
+                c = b;
+                c += 17000;
+            }
+
+            do
+            {
+                if (!IsPrime(b))
+                    total += 1;
+
+                b += 17;
+            }
+            while (b <= c);
+
+            total.Should().Be(915);
         }
     }
 }
