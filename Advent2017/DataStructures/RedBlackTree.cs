@@ -100,17 +100,10 @@ namespace Adevent2017.DataStructures
         }
 
         public Node _root = null;
-
-        public void Insert(Key key, Value value)
+        public readonly Node _leaf = new Node(default(Key), default(Value))
         {
-            var node = new Node(key, value);
-            InsertInternal(_root, node);
-            Repair(node);
-
-            _root = node;
-            while (_root.Parent != null)
-                _root = _root.Parent;
-        }
+            Colour = Colour.Black
+        };
 
         public Value Search(Key key)
         {
@@ -119,7 +112,7 @@ namespace Adevent2017.DataStructures
 
         public Value SearchInternal(Node node, Key key)
         {
-            if (node == null)
+            if (node == _leaf)
                 return default(Value);
 
             var compareResult = key.CompareTo(node.Key);
@@ -132,6 +125,22 @@ namespace Adevent2017.DataStructures
             return SearchInternal(node.Right, key);
         }
 
+        public void Insert(Key key, Value value)
+        {
+            var node = new Node(key, value)
+            {
+                Left = _leaf,
+                Right = _leaf
+            };
+
+            InsertInternal(_root, node);
+            Repair(node);
+
+            _root = node;
+            while (_root.Parent != null)
+                _root = _root.Parent;
+        }
+
         private void InsertInternal(Node parent, Node node)
         {
             if (parent == null) return; // This is the new root
@@ -139,7 +148,7 @@ namespace Adevent2017.DataStructures
             var compareResult = node.Key.CompareTo(parent.Key);
             if (compareResult < 0)
             {
-                if (parent.Left != null)
+                if (parent.Left != _leaf)
                 {
                     InsertInternal(parent.Left, node);
                 }
@@ -151,7 +160,7 @@ namespace Adevent2017.DataStructures
             }
             else
             {
-                if (parent.Right != null)
+                if (parent.Right != _leaf)
                 {
                     InsertInternal(parent.Right, node);
                 }
@@ -174,7 +183,7 @@ namespace Adevent2017.DataStructures
             {
                 // Do nothing
             }
-            else if (node.Uncle != null && node.Uncle.Colour == Colour.Red)
+            else if (node.Uncle.Colour == Colour.Red)
             {
                 // Parent and uncle are both red, make the colours align with the current node
                 node.Parent.Colour = Colour.Black;
@@ -184,18 +193,19 @@ namespace Adevent2017.DataStructures
             }
             else
             {
-                // ????
-                if (node.GrandParent.Left != null && node == node.GrandParent.Left.Right)
+                // ???? - Shuffle unbalanced nodes into a balanced position
+                if (node == node.GrandParent.Left.Right)
                 {
                     node.Parent.RotateLeft();
                     node = node.Left;
                 }
-                else if (node.GrandParent.Right != null && node == node.GrandParent.Right.Left)
+                else if (node == node.GrandParent.Right.Left)
                 {
                     node.Parent.RotateRight();
                     node = node.Right;
                 }
 
+                // We need to cache these nodes as the result of rotating them will cause them to change their relationship to the original node
                 var p = node.Parent;
                 var g = node.GrandParent;
 

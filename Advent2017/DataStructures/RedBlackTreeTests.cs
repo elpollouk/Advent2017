@@ -5,7 +5,7 @@ namespace Adevent2017.DataStructures
 {
     public class RedBlackTreeTests
     {
-        static readonly RedBlackTree<int, string>.Node Leaf = null;
+        static RedBlackTree<int, string>.Node Leaf = null;
 
         void VerifyNode(RedBlackTree<int, string>.Node node, string value, string parentValue, string leftValue, string rightValue)
         {
@@ -31,6 +31,7 @@ namespace Adevent2017.DataStructures
         public void Insert()
         {
             var tree = new RedBlackTree<int, string>();
+            Leaf = tree._leaf;
             tree.Insert(5, "A");
             VerifyNode(tree._root, "A", null, null, null);
 
