@@ -23,6 +23,19 @@ namespace Adevent2017.DataStructures
         }
 
         private List<HeapElement> _heap = new List<HeapElement>();
+        private Func<int, int, bool> ShouldPromote;
+
+        public Heap() : this(false)
+        {
+        }
+
+        public Heap(bool maxHeap)
+        {
+            if (maxHeap)
+                ShouldPromote = ShouldPromote_MaxHeap;
+            else
+                ShouldPromote = ShouldPromote_MinHeap;
+        }
 
         public int Count => _heap.Count;
 
@@ -85,12 +98,20 @@ namespace Adevent2017.DataStructures
             _heap[i2] = t;
         }
 
-        private bool ShouldPromote(int higher, int lower)
+        private bool ShouldPromote_MinHeap(int higher, int lower)
         {
             if (lower == 0) return false;
             if (lower >= _heap.Count) return false;
 
             return _heap[higher].Key.CompareTo(_heap[lower].Key) > 0;
+        }
+
+        private bool ShouldPromote_MaxHeap(int higher, int lower)
+        {
+            if (lower == 0) return false;
+            if (lower >= _heap.Count) return false;
+
+            return _heap[higher].Key.CompareTo(_heap[lower].Key) < 0;
         }
     }
 }

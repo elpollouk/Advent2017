@@ -44,6 +44,44 @@ namespace Adevent2017.DataStructures
         }
 
         [Fact]
+        public void PushPop_MaxHeap_RandomOrder()
+        {
+            var heap = new Heap<int, string>(true);
+
+            heap.Push(4, "D");
+            heap.Push(6, "F");
+            heap.Push(2, "B");
+            heap.Push(3, "C");
+            heap.Push(15, "O");
+            heap.Push(14, "N");
+            heap.Push(10, "J");
+            heap.Push(7, "G");
+            heap.Push(11, "K");
+            heap.Push(13, "M");
+            heap.Push(1, "A");
+            heap.Push(8, "H");
+            heap.Push(12, "L");
+            heap.Push(9, "I");
+            heap.Push(5, "E");
+
+            heap.Pop().Should().Be("O");
+            heap.Pop().Should().Be("N");
+            heap.Pop().Should().Be("M");
+            heap.Pop().Should().Be("L");
+            heap.Pop().Should().Be("K");
+            heap.Pop().Should().Be("J");
+            heap.Pop().Should().Be("I");
+            heap.Pop().Should().Be("H");
+            heap.Pop().Should().Be("G");
+            heap.Pop().Should().Be("F");
+            heap.Pop().Should().Be("E");
+            heap.Pop().Should().Be("D");
+            heap.Pop().Should().Be("C");
+            heap.Pop().Should().Be("B");
+            heap.Pop().Should().Be("A");
+        }
+
+        [Fact]
         public void PushPop_InOrder()
         {
             var heap = new Heap<int, string>();
