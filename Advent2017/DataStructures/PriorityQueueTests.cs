@@ -10,11 +10,11 @@ namespace Adevent2017.DataStructures
         {
             var queue = new PriorityQueue<string>();
 
-            queue.Enqueue("C", 2);
+            queue.Enqueue("C", 3);
             queue.Enqueue("A", 1);
             queue.Enqueue("B", 2);
             queue.Enqueue("E", 5);
-            queue.Enqueue("D", 3);
+            queue.Enqueue("D", 4);
 
             queue.Dequeue().Should().Be("A");
             queue.Dequeue().Should().Be("B");

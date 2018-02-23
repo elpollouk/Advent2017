@@ -8,7 +8,7 @@ namespace Adevent2017.DataStructures
         Black,
     }
 
-    class RedBlackTree<Key, Value> where Key : IComparable
+    class RedBlackTree<Key, Value> where Key : IComparable<Key>
     { 
         public class Node
         {

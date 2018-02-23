@@ -82,6 +82,8 @@
   <ItemGroup>
     <Compile Include="Alogrithms\Astar.cs" />
     <Compile Include="Alogrithms\AstarTests.cs" />
+    <Compile Include="DataStructures\Heap.cs" />
+    <Compile Include="DataStructures\HeapTests.cs" />
     <Compile Include="DataStructures\RedBlackTree.cs" />
     <Compile Include="DataStructures\RedBlackTreeTests.cs" />
     <Compile Include="Problem1501.cs" />

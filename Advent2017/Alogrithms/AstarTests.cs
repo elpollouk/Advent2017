@@ -100,16 +100,11 @@ namespace Adevent2017.Alogrithms
             var path = Astar.FindPath(adapter, start, goal);
 
             path.Count.Should().Be(7);
-            for (var i = 0; i < 4; i++)
-            {
-                path[i].x.Should().Be(i);
-                path[i].y.Should().Be(0);
-            }
-            for (var i = 1; i < 4; i++)
-            {
-                path[i + 3].x.Should().Be(3);
-                path[i + 3].y.Should().Be(i);
-            }
+            path[0].x.Should().Be(0);
+            path[0].y.Should().Be(0);
+            // The actual path taken will depend on the implementation of the priority queue and how it handles equal priority items. Heaps are unstable
+            path[6].x.Should().Be(3);
+            path[6].y.Should().Be(3);
         }
 
         [Fact]
