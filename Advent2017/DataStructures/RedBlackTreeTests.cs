@@ -75,7 +75,6 @@ namespace Adevent2017.DataStructures
             VerifyNode(tree._root.Right.Right, "G", "F", null, null);
         }
 
-
         [Fact]
         public void Search()
         {
@@ -87,6 +86,14 @@ namespace Adevent2017.DataStructures
             tree.Insert(1, "E");
             tree.Insert(7, "F");
             tree.Insert(6, "G");
+            tree.Insert(8, "H");
+            tree.Insert(9, "I");
+            tree.Insert(10, "J");
+            tree.Insert(11, "K");
+            tree.Insert(12, "L");
+            tree.Insert(13, "M");
+            tree.Insert(14, "N");
+            tree.Insert(15, "O");
 
             tree.Search(1).Should().Be("E");
             tree.Search(2).Should().Be("D");
@@ -95,7 +102,15 @@ namespace Adevent2017.DataStructures
             tree.Search(5).Should().Be("A");
             tree.Search(6).Should().Be("G");
             tree.Search(7).Should().Be("F");
-            tree.Search(8).Should().BeNull();
+            tree.Search(8).Should().Be("H");
+            tree.Search(9).Should().Be("I");
+            tree.Search(10).Should().Be("J");
+            tree.Search(11).Should().Be("K");
+            tree.Search(12).Should().Be("L");
+            tree.Search(13).Should().Be("M");
+            tree.Search(14).Should().Be("N");
+            tree.Search(15).Should().Be("O");
+            tree.Search(16).Should().BeNull();
         }
     }
 }

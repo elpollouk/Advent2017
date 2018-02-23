@@ -95,6 +95,8 @@ namespace Adevent2017.DataStructures
 
             public override string ToString()
             {
+                if (Left == null)
+                    return "Leaf";
                 return $"Key: {Key}, Value: {Value}";
             }
         }
