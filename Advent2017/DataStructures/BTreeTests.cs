@@ -13,9 +13,9 @@ namespace Adevent2017.DataStructures
         [InlineData(3, 9, 5, 8, 1, 2, 6, 7, 4)]
         [InlineData(9)]
         [InlineData(7, 6)]
-        [InlineData(2, 1, 3)]
+        [InlineData(3, 1, 2)]
         [InlineData(5, 3, 7, 1)]
-        [InlineData(4, 7, 8, 3, 2)]
+        [InlineData(4, 6, 3, 9, 2)]
         [InlineData(9, 6, 8, 3, 1, 5)]
         public void Insert(params int[] keys)
         {
@@ -31,6 +31,8 @@ namespace Adevent2017.DataStructures
 
             foreach (var number in keys)
                 tree.Get(number).Should().Be(item(number));
+
+            tree.Get(-1).Should().BeNull();
         }
     }
 }

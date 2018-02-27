@@ -75,8 +75,6 @@ namespace Adevent2017.DataStructures
 
             if (leftChild != null)
             {
-                if (rightChild == null)
-                    throw new Exception("Oops");
                 node.Children.Insert(insertIndex, rightChild);
                 node.Children.Insert(insertIndex, leftChild);
                 rightChild.Parent = node;
@@ -96,9 +94,6 @@ namespace Adevent2017.DataStructures
 
                 if (node.Children.Count != 0)
                 {
-                    if (node.Children.Count != 4)
-                        throw new Exception("Wrong number of children");
-
                     newRightNode.Children.Add(node.Children[2]);
                     newRightNode.Children.Add(node.Children[3]);
                     newRightNode.Children[0].Parent = newRightNode;
