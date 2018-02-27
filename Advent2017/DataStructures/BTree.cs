@@ -121,6 +121,29 @@ namespace Adevent2017.DataStructures
             }
         }
 
+        public Item Get(int key) => GetInternal(_root, key);
+
+        private Item GetInternal(Node node, int key)
+        {
+            var hasChildren = node.Children.Count != 0;
+            var i = 0;
+            while (i < node.Keys.Count)
+            {
+                if (node.Keys[i] == key)
+                    return node.Items[i];
+
+                if (hasChildren && key < node.Keys[i])
+                    return GetInternal(node.Children[i], key);
+
+                i++;
+            }
+
+            if (hasChildren)
+                return GetInternal(node.Children[i], key);
+
+            return default(Item);
+        }
+
         public void VerifyTree() => VerifyNode(_root);
 
         private void VerifyNode(Node node)
