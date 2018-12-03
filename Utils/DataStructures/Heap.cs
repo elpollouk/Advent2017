@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Adevent2017.DataStructures
+namespace Utils.DataStructures
 {
     class Heap<Key, Item> where Key : IComparable<Key>
     {

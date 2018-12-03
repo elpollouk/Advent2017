@@ -1,7 +1,7 @@
 ﻿using Xunit;
 using FluentAssertions;
 
-namespace Adevent2017.Alogrithms
+namespace Utils.Alogrithms
 {
     public class HeapSortTests
     {

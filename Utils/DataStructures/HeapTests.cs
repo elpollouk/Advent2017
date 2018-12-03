@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using Xunit;
 
-namespace Adevent2017.DataStructures
+namespace Utils.DataStructures
 {
     public class HeapTests
     {

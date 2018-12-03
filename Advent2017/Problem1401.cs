@@ -1,5 +1,5 @@
-﻿using Adevent2017.DataStructures;
-using Adevent2017.Utils;
+﻿using Utils.DataStructures;
+using Utils;
 using FluentAssertions;
 using System.Collections.Generic;
 using Xunit;

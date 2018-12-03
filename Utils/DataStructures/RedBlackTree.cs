@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Adevent2017.DataStructures
+namespace Utils.DataStructures
 {
     enum Colour
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Adevent2017.Alogrithms
+namespace Utils.Alogrithms
 {
     static class HeapSort
     {
