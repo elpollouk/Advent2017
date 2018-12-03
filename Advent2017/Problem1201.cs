@@ -3,7 +3,7 @@ using Utils;
 using FluentAssertions;
 using Xunit;
 
-namespace Adevent2017
+namespace Advent2017
 {
     public class Problem1201
     {

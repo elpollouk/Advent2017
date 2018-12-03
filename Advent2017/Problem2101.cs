@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using Xunit;
 
-namespace Adevent2017
+namespace Advent2017
 {
     using GridWriter = Action<bool[,], int, int>;
     using GridRules = Dictionary<string, Action<bool[,], int, int>>;

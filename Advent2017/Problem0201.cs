@@ -2,7 +2,7 @@
 using FluentAssertions;
 using System.Collections.Generic;
 
-namespace Adevent2017
+namespace Advent2017
 {
     public static class Problem0201
     {

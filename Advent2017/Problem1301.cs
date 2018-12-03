@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
-namespace Adevent2017
+namespace Advent2017
 {
     public class Problem1301
     {

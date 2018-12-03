@@ -3,7 +3,7 @@ using FluentAssertions;
 using System.Collections.Generic;
 using Xunit;
 
-namespace Adevent2017
+namespace Advent2017
 {
     using Map = List<char[]>;
 
