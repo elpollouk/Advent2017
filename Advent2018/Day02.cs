@@ -46,9 +46,7 @@ namespace Advent2018
         [InlineData("ababab", false, true)]
         public void Problem1_TestHasTwoOrThree(string input, bool expectedTwo, bool expectedThree)
         {
-            bool hasTwo;
-            bool hasThree;
-            HasTwoOrThree(input, out hasTwo, out hasThree);
+            HasTwoOrThree(input, out bool hasTwo, out bool hasThree);
             hasTwo.Should().Be(expectedTwo);
             hasThree.Should().Be(expectedThree);
         }
@@ -61,9 +59,7 @@ namespace Advent2018
             var threes = 0;
             foreach (var input in inputs)
             {
-                bool hasTwo;
-                bool hasThree;
-                HasTwoOrThree(input, out hasTwo, out hasThree);
+                HasTwoOrThree(input, out bool hasTwo, out bool hasThree);
                 if (hasTwo) twos++;
                 if (hasThree) threes++;
             }
