@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2047
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Advent2017", "Advent2017\Advent2017.csproj", "{20133998-50ED-4F90-9E30-D1753C78438C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Advent2018", "Advent2018\Advent2018.csproj", "{56050DE0-DBA1-4E26-AB36-BB56011CC2EC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{20133998-50ED-4F90-9E30-D1753C78438C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20133998-50ED-4F90-9E30-D1753C78438C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20133998-50ED-4F90-9E30-D1753C78438C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20133998-50ED-4F90-9E30-D1753C78438C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56050DE0-DBA1-4E26-AB36-BB56011CC2EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56050DE0-DBA1-4E26-AB36-BB56011CC2EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56050DE0-DBA1-4E26-AB36-BB56011CC2EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56050DE0-DBA1-4E26-AB36-BB56011CC2EC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {340692F2-7CA5-414C-A9C0-CDEA5CF8C43F}
+	EndGlobalSection
+EndGlobal
