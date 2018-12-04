@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Utils
@@ -56,6 +57,24 @@ namespace Utils
             }
 
             return maxIndex;
+        }
+
+        public static T MaxItem<T>(this ICollection<T> list, Func<T, IComparable> valueGetter)
+        {
+            var maxItem = list.First();
+            var maxValue = valueGetter(maxItem);
+
+            foreach (var item in list)
+            {
+                var value = valueGetter(item);
+                if (maxValue.CompareTo(value) < 0)
+                {
+                    maxItem = item;
+                    maxValue = value;
+                }
+            }
+
+            return maxItem;
         }
     }
 }

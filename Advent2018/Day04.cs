@@ -87,52 +87,22 @@ namespace Advent2018
                         break;
 
                     case GuardEventType.Asleep:
-                        if (asleepMinute != -1) Oh.Bollocks();
                         asleepMinute = evnt.Time.Minute;
                         break;
 
                     case GuardEventType.Awake:
-                        if (asleepMinute == -1) Oh.PissingNora();
                         var minutes = guardTimes.GetOrCreate(currentGuard, () => new int[60]);
                         for (var i = asleepMinute; i < evnt.Time.Minute; i++)
                             minutes[i]++;
-
-                        asleepMinute = -1;
                         break;
                 }
             }
+ 
+            var maxPair = guardTimes.MaxItem(gt => gt.Value.Sum());
+            (maxPair.Key * maxPair.Value.ArgMax()).Should().Be(answer1);
 
-            var maxGuard = 0;
-            var maxAsleep = 0;
-            foreach (var pair in guardTimes)
-            {
-                var totalAsleep = pair.Value.Sum();
-                if (maxAsleep < totalAsleep)
-                {
-                    maxGuard = pair.Key;
-                    maxAsleep = totalAsleep;
-                }
-            }
-
-            var maxMinute = guardTimes[maxGuard].ArgMax();
-
-            (maxGuard * maxMinute).Should().Be(answer1);
-
-            maxGuard = 0;
-            maxAsleep = 0;
-            foreach (var pair in guardTimes)
-            {
-                var max = pair.Value.Max();
-                if (maxAsleep < max)
-                {
-                    maxGuard = pair.Key;
-                    maxAsleep = max;
-                }
-            }
-
-            maxMinute = guardTimes[maxGuard].ArgMax();
-
-            (maxGuard * maxMinute).Should().Be(answer2);
+            maxPair = guardTimes.MaxItem(gt => gt.Value.Max());
+            (maxPair.Key * maxPair.Value.ArgMax()).Should().Be(answer2);
         }
     }
 }
