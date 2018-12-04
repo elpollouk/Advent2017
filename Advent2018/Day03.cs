@@ -34,14 +34,14 @@ namespace Advent2018
                 };
             }
 
-            public void Apply(Dictionary<ValueTuple<int, int>, List<int>> cloth, HashSet<int> safeRequests)
+            public void Apply(Dictionary<(int, int), List<int>> cloth, HashSet<int> safeRequests)
             {
                 safeRequests.Add(Id);
 
                 for (var y = 0; y < Size[1]; y++)
                     for (var x = 0; x < Size[0]; x++)
                     {
-                        var pos = new ValueTuple<int, int>(Pos[0] + x, Pos[1] + y);
+                        var pos = (Pos[0] + x, Pos[1] + y);
                         var list = cloth.GetOrCreate(pos, () => new List<int>());
                         list.Add(Id);
                         if (list.Count != 1)
@@ -55,7 +55,7 @@ namespace Advent2018
         [InlineData(4, 3, "#1 @ 1,3: 4x4", "#2 @ 3,1: 4x4", "#3 @ 5,5: 2x2")]
         public void Problem_Test(int expectedInches, int expectedUniqueRequest, params string[] requests)
         {
-            var cloth = new Dictionary<ValueTuple<int, int>, List<int>>();
+            var cloth = new Dictionary<(int, int), List<int>>();
             var safeRequests = new HashSet<int>();
 
             foreach (var request in requests)
