@@ -7,8 +7,7 @@ namespace Utils
     {
         public static V GetOrDefault<K, V>(this IDictionary<K, V> dic, K key, V def = default(V))
         {
-            V v;
-            if (dic.TryGetValue(key, out v))
+            if (dic.TryGetValue(key, out V v))
                 return v;
             return def;
         }
