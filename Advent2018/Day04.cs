@@ -67,8 +67,8 @@ namespace Advent2018
         }
 
         [Theory]
-        [InlineData("Day04-example.txt", 240, 4455)]
-        [InlineData("Day04.txt", 94542, 50966)]
+        [InlineData("Data/Day04-example.txt", 240, 4455)]
+        [InlineData("Data/Day04.txt", 94542, 50966)]
         public void Test_Problem1(string file, int answer1, int answer2)
         {
             var events = FileIterator.ForEachLine(file)

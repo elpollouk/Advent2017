@@ -70,7 +70,7 @@ namespace Advent2018
         [Fact]
         public void Problem1_Solution()
         {
-            var inputs = FileIterator.LoadLines<string>("Day02.txt");
+            var inputs = FileIterator.LoadLines<string>("Data/Day02.txt");
             Problem1_TestChecksum(5704, inputs);
         }
 
@@ -114,7 +114,7 @@ namespace Advent2018
         [Fact]
         public void Problem2_Solution()
         {
-            var inputs = FileIterator.LoadLines<string>("Day02.txt");
+            var inputs = FileIterator.LoadLines<string>("Data/Day02.txt");
             Problem2_Test("umdryabviapkozistwcnihjqx", inputs);
         }
     }

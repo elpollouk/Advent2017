@@ -24,7 +24,7 @@ namespace Advent2018
         [Fact]
         public void Problem1_Solution()
         {
-            var deltas = FileIterator.LoadLines<int>("Day01.txt");
+            var deltas = FileIterator.LoadLines<int>("Data/Day01.txt");
             Problem1_Test(540, deltas);
         }
 
@@ -51,7 +51,7 @@ namespace Advent2018
         [Fact]
         public void Problem2_Solution()
         {
-            var deltas = FileIterator.LoadLines<int>("Day01.txt");
+            var deltas = FileIterator.LoadLines<int>("Data/Day01.txt");
             Problem2_Test(73056, deltas);
         }
     }

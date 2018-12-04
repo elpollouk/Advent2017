@@ -79,7 +79,7 @@ namespace Advent2018
         [Fact]
         public void Problem_Solution()
         {
-            var requests = FileIterator.LoadLines<string>("Day03.txt");
+            var requests = FileIterator.LoadLines<string>("Data/Day03.txt");
             Problem_Test(104126, 695, requests);
         }
     }
