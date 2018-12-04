@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace Utils
@@ -38,6 +39,23 @@ namespace Utils
                 clone.Add(v);
 
             return clone;
+        }
+
+        public static int ArgMax<T>(this IList<T> list) where T : IComparable
+        {
+            var maxItem = list[0];
+            var maxIndex = 0;
+
+            for (var i = 1; i < list.Count; i++)
+            {
+                if (maxItem.CompareTo(list[i]) < 0)
+                {
+                    maxItem = list[i];
+                    maxIndex = i;
+                }
+            }
+
+            return maxIndex;
         }
     }
 }

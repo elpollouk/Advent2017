@@ -16,6 +16,16 @@ namespace Utils
             }
         }
 
+        public static IEnumerable<string> FoarEachLine(string filename)
+        {
+            using (var reader = new StreamReader(filename))
+            {
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                    yield return line;
+            }
+        }
+
         public static T[] LoadLines<T>(string filename)
         {
             var lines = new List<T>();
