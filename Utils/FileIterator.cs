@@ -16,7 +16,7 @@ namespace Utils
             }
         }
 
-        public static IEnumerable<string> FoarEachLine(string filename)
+        public static IEnumerable<string> ForEachLine(string filename)
         {
             using (var reader = new StreamReader(filename))
             {

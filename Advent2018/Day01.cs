@@ -42,7 +42,7 @@ namespace Advent2018
             while (!seen.Contains(freq))
             {
                 seen.Add(freq);
-                freq += deltas[deltaIndex++ % deltas.Length];
+                freq += deltas.GetAtMod(deltaIndex++);
             }
 
             freq.Should().Be(expectedFreq);
