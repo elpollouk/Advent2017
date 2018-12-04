@@ -41,7 +41,7 @@ namespace Utils
             return clone;
         }
 
-        public static int ArgMax<T>(this IList<T> list) where T : IComparable
+        public static int ArgMax<T>(this IList<T> list) where T : IComparable<T>
         {
             var maxItem = list[0];
             var maxIndex = 0;

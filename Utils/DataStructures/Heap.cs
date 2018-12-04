@@ -5,24 +5,7 @@ namespace Utils.DataStructures
 {
     class Heap<Key, Item> where Key : IComparable<Key>
     {
-        private class HeapElement
-        {
-            public readonly Key Key;
-            public readonly Item Item;
-
-            public HeapElement(Key key, Item item)
-            {
-                this.Key = key;
-                this.Item = item;
-            }
-
-            public override string ToString()
-            {
-                return $"Key: {Key}, Item: {Item}";
-            }
-        }
-
-        private List<HeapElement> _heap = new List<HeapElement>();
+        private List<KeyValuePair<Key, Item>> _heap = new List<KeyValuePair<Key, Item>>();
         private Func<int, int, bool> ShouldPromote;
 
         public Heap() : this(false)
@@ -41,7 +24,7 @@ namespace Utils.DataStructures
 
         public void Push(Key key, Item item)
         {
-            _heap.Add(new HeapElement(key, item));
+            _heap.Add(new KeyValuePair<Key, Item>(key, item));
             var index = _heap.Count - 1;
             while (index != 0)
             {
@@ -56,7 +39,7 @@ namespace Utils.DataStructures
 
         public Item Pop()
         {
-            var item = _heap[0].Item;
+            var item = _heap[0].Value;
             var lastIndex = _heap.Count - 1;
             var last = _heap[lastIndex];
             _heap[0] = last;

@@ -33,7 +33,7 @@ namespace Utils
             return values.ToArray();
         }
 
-        public static T[] SplitAndConvert<T>(this string s) => s.SplitAndConvert<T>(new char[] { ',' });
+        public static T[] SplitAndConvert<T>(this string s) => s.SplitAndConvert<T>(',');
 
     }
 }
