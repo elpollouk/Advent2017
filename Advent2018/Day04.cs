@@ -71,7 +71,7 @@ namespace Advent2018
         [InlineData("Data/Day04.txt", 94542, 50966)]
         public void Test_Problem1(string file, int answer1, int answer2)
         {
-            var events = FileIterator.ForEachLine(file)
+            var events = FileIterator.Lines(file)
                 .Select(l => new GuardEvent(l))
                 .OrderBy(e => e.Time);
 
