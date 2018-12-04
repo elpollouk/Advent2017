@@ -45,10 +45,8 @@ namespace Advent2018
                         var list = cloth.GetOrCreate(pos, () => new List<int>());
                         list.Add(Id);
                         if (list.Count != 1)
-                        {
                             foreach (var request in list)
                                 safeRequests.Remove(request);
-                        }
                     }
             }
         }
