@@ -1,8 +1,6 @@
 ﻿using FluentAssertions;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using Utils;
 using Xunit;
 
 namespace Advent2018
@@ -19,22 +17,24 @@ namespace Advent2018
         int Collapse(string input, params char[] removals)
         {
             var set = new HashSet<char>(removals);
-            var list = new List<int>();
+            var list = new LinkedList<int>();
             foreach (var unit in input)
                 if (!set.Contains(unit))
-                    list.Add(UnitToValue(unit));
+                    list.AddLast(UnitToValue(unit));
 
-            var i = 0;
-            while (i < list.Count - 1)
+            var node = list.First;
+            while (node != list.Last)
             {
-                if (list[i] + list[i+1] == 0)
+                if (node.Value + node.Next.Value == 0)
                 {
-                    list.RemoveRange(i, 2);
-                    if (i != 0) i--;
+                    var prevNode = node.Previous;
+                    list.Remove(node.Next);
+                    list.Remove(node);
+                    node = prevNode ?? list.First;
                 }
                 else
                 {
-                    i++;
+                    node = node.Next;
                 }
             }
 
