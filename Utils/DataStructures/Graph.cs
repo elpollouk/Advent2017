@@ -5,7 +5,7 @@ namespace Utils.DataStructures
 {
     public class Graph<T>
     {
-        private class GraphNode
+        public class GraphNode
         {
             public GraphNode(T item) { Item = item; }
 
@@ -144,17 +144,16 @@ namespace Utils.DataStructures
 
         public T GetRoot(T childItem)
         {
-            T root = childItem;
+            var node = GetNode(childItem);
             while (true)
             {
-                var node = GetNode(root);
                 if (node.Parent == null)
                     break;
 
-                root = node.Item;
+                node = node.Parent;
             }
 
-            return root;
+            return node.Item;
         }
 
         public void DepthFirstWalk(Action<T> onItem) => DepthFirstWalk(Root, onItem);

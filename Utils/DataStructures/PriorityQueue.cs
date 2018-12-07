@@ -2,7 +2,7 @@
 
 namespace Utils.DataStructures
 {
-    class PriorityQueue<T, PriorityType> where PriorityType : IComparable<PriorityType>
+    public class PriorityQueue<T, PriorityType> where PriorityType : IComparable<PriorityType>
     {
         private Heap<PriorityType, T> _heap = new Heap<PriorityType, T>();
 
@@ -19,5 +19,5 @@ namespace Utils.DataStructures
         }
     }
 
-    class PriorityQueue<T> : PriorityQueue<T, int> { }
+    public class PriorityQueue<T> : PriorityQueue<T, int> { }
 }
