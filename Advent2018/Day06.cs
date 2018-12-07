@@ -70,9 +70,11 @@ namespace Advent2018
         }
 
         [Theory]
-        [InlineData(17, "1, 1", "1, 6", "8, 3", "3, 4", "5, 5", "8, 9")]
-        public void Problem1_Test(int answer, params string[] input)
+        [InlineData(17, 16, 32, "1, 1", "1, 6", "8, 3", "3, 4", "5, 5", "8, 9")]
+        public void Problem_Test(int largestOwned, int safeZoneSize, int safeDistance, params string[] input)
         {
+            // This is a real brute force approach.
+            // It feels that I could solve it with some sort of frontier exploration algorithm instead.
             var coords = ParseCoords(input);
             var dims = GetAreaExtent(coords);
             var volume = new int[dims.x, dims.y, coords.Length];
@@ -83,17 +85,21 @@ namespace Advent2018
                     for (var i = 0; i < coords.Length; i++)
                         volume[x, y, i] = ManhattenDistance(coords[i], (x, y));
 
-            // Flatten the volume, recording the co-ordinate that is closest
-            var flat = new int[dims.x, dims.y];
+            // Flatten the volume, recording the co-ordinate that is closest and therfore, owns it
+            var owners = new int[dims.x, dims.y];
+            // And sum up the total distances for each square
+            var totalDistances = new int[dims.x, dims.y];
             for (var y = 0; y < dims.y; y++)
             {
                 for (var x = 0; x < dims.x; x++)
                 {
                     var scores = IterateDistances(volume, x, y).OrderBy(p => p.Distance).ToArray();
                     if (scores[0].Distance == scores[1].Distance)
-                        flat[x, y] = -1;
+                        owners[x, y] = -1;
                     else
-                        flat[x, y] = scores[0].Index;
+                        owners[x, y] = scores[0].Index;
+
+                    totalDistances[x, y] = scores.Select(s => s.Distance).Sum();
                 }
             }
 
@@ -101,32 +107,39 @@ namespace Advent2018
             var totalAreas = new int[coords.Length];
             for (var x = 0; x < dims.x; x++)
             {
-                if (flat[x, 0] != -1)
-                    totalAreas[flat[x, 0]] = -1;
-                if (flat[x, dims.y - 1] != -1)
-                    totalAreas[flat[x, dims.y - 1]] = -1;
+                if (owners[x, 0] != -1)
+                    totalAreas[owners[x, 0]] = -1;
+                if (owners[x, dims.y - 1] != -1)
+                    totalAreas[owners[x, dims.y - 1]] = -1;
             }
             for (var y = 0; y < dims.y; y++)
             {
-                if (flat[0, y] != -1)
-                    totalAreas[flat[0, y]] = -1;
-                if (flat[dims.x - 1, y] != -1)
-                    totalAreas[flat[dims.x - 1, y]] = -1;
+                if (owners[0, y] != -1)
+                    totalAreas[owners[0, y]] = -1;
+                if (owners[dims.x - 1, y] != -1)
+                    totalAreas[owners[dims.x - 1, y]] = -1;
             }
 
             // Sum up the areas of the remaining owners
-            foreach (var owner in flat)
+            foreach (var owner in owners)
                 if (owner != -1 && totalAreas[owner] != -1)
                     totalAreas[owner]++;
 
-            totalAreas.Max().Should().Be(answer);
+            totalAreas.Max().Should().Be(largestOwned);
+
+            var safeCount = 0;
+            foreach (var distance in totalDistances)
+                if (distance < safeDistance)
+                    safeCount++;
+
+            safeCount.Should().Be(safeZoneSize);
         }
 
         [Fact]
-        public void Problem1_Solution()
+        public void Problem_Solution()
         {
             var inputs = Utils.FileIterator.LoadLines<string>("Data/Day06.txt");
-            Problem1_Test(4475, inputs);
+            Problem_Test(4475, 35237, 10000, inputs);
         }
     }
 }
