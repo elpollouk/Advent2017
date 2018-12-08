@@ -1,9 +1,6 @@
 ﻿using FluentAssertions;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Advent2018
@@ -30,24 +27,45 @@ namespace Advent2018
             return node;
         }
 
-        int SumTree(Node root)
+        int SumTree_Problem1(Node root)
         {
             var sum = root.MetaData.Sum();
-            sum += root.Children.Select(c => SumTree(c)).Sum();
+            sum += root.Children.Select(c => SumTree_Problem1(c)).Sum();
             return sum;
         }
 
+        int SumTree_Problem2(Node root)
+        {
+            if (root.Children.Count() != 0)
+            {
+                var sum = 0;
+                foreach (var index in root.MetaData)
+                {
+                    var i = index - 1; // Indexes are 1 based not 0 based!
+                    if (i < 0 || root.Children.Count() <= i)
+                        continue;
+                    sum += SumTree_Problem2(root.Children[i]);
+                }
+                return sum;
+            }
+            else
+            {
+                return root.MetaData.Sum();
+            }
+        }
+
         [Theory]
-        [InlineData(138, "Data/Day08-Test.txt")]
-        [InlineData(43825, "Data/Day08.txt")]
-        public void Problem1_Test(int answer, string inputFile)
+        [InlineData(138, 66, "Data/Day08-Test.txt")]
+        [InlineData(43825, 19276, "Data/Day08.txt")]
+        public void Problem_Test(int answer1, int answer2, string inputFile)
         {
             var values = Utils.FileIterator.LoadSSV<int>(inputFile);
             int offset = 0;
             var root = ParseStructure(values, ref offset);
             offset.Should().Be(values.Length);
 
-            SumTree(root).Should().Be(answer);
+            SumTree_Problem1(root).Should().Be(answer1);
+            SumTree_Problem2(root).Should().Be(answer2);
         }
     }
 }
