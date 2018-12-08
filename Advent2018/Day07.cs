@@ -1,10 +1,7 @@
 ﻿using FluentAssertions;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Utils;
 using Utils.DataStructures;
 using Xunit;
@@ -18,11 +15,13 @@ namespace Advent2018
             public Node(char value)
             {
                 Value = value;
+                Done = false;
             }
 
-            public readonly char Value; 
-            public List<char> Parents = new List<char>();
-            public List<char> Children = new List<char>();
+            public readonly char Value;
+            public bool Done;
+            public List<Node> Parents = new List<Node>();
+            public List<Node> Children = new List<Node>();
         }
 
         static Regex s_OrderReg = new Regex(@" (.) ");
@@ -31,6 +30,30 @@ namespace Advent2018
             var matches = s_OrderReg.Matches(input);
             if (matches.Count != 2) Oh.Bugger();
             return (matches[0].Groups[1].Value[0], matches[1].Groups[1].Value[0]);
+        }
+
+        PriorityQueue<Node, char> BuildGraph(string inputFile)
+        {
+            var dependencies = FileIterator.Lines(inputFile).Select(l => ParseOrder(l));
+
+            var graph = new Dictionary<char, Node>();
+            foreach (var (Parent, Child) in dependencies)
+            {
+                if (!graph.ContainsKey(Parent))
+                    graph[Parent] = new Node(Parent);
+                if (!graph.ContainsKey(Child))
+                    graph[Child] = new Node(Child);
+
+                graph[Parent].Children.Add(graph[Child]);
+                graph[Child].Parents.Add(graph[Parent]);
+            }
+
+            var queue = new PriorityQueue<Node, char>();
+            foreach (var item in graph.Values)
+                if (item.Parents.Count == 0)
+                    queue.Enqueue(item, item.Value);
+
+            return queue;
         }
 
         [Theory]
@@ -44,45 +67,18 @@ namespace Advent2018
         [InlineData("FDSEGJLPKNRYOAMQIUHTCVWZXB", "Data/Day07.txt")]
         public void Problem1_Solve(string answer, string inputFile)
         {
-            var dependencies = FileIterator.Lines(inputFile).Select(l => ParseOrder(l));
-
-            var graph = new Dictionary<char, Node>();
-            foreach (var (Parent, Child) in dependencies)
-            {
-                if (!graph.ContainsKey(Parent))
-                    graph[Parent] = new Node(Parent);
-                if (!graph.ContainsKey(Child))
-                    graph[Child] = new Node(Child);
-
-                graph[Parent].Children.Add(Child);
-                graph[Child].Parents.Add(Parent);
-            }
-
             var solution = "";
-            var done = new HashSet<char>();
-            var queue = new PriorityQueue<char, char>();
-            foreach (var item in graph.Values)
-                if (item.Parents.Count == 0)
-                    queue.Enqueue(item.Value, item.Value);
+            var queue = BuildGraph(inputFile);
 
             while (queue.Count != 0)
             {
                 var node = queue.Dequeue();
-                if (done.Contains(node))
-                    continue;
+                node.Done = true;
+                solution += node.Value;
 
-                var allParentsDone = true;
-                foreach (var parent in graph[node].Parents)
-                    if (!done.Contains(parent))
-                        allParentsDone = false;
-
-                if (!allParentsDone)
-                    continue;
-
-                done.Add(node);
-                solution += node;
-                foreach (var child in graph[node].Children)
-                    queue.Enqueue(child, child);
+                foreach (var child in node.Children)
+                    if (child.Parents.All(p => p.Done))
+                        queue.Enqueue(child, child.Value);
             }
 
             solution.Should().Be(answer);
