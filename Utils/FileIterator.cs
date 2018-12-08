@@ -57,5 +57,17 @@ namespace Utils
             });
             return values.ToArray();
         }
+
+        public static T[] LoadSSV<T>(string filename)
+        {
+            var values = new List<T>();
+            ForEachLine<string>(filename, line =>
+            {
+                var tsValues = line.SplitAndConvert<T>(' ');
+                foreach (var v in tsValues)
+                    values.Add(v);
+            });
+            return values.ToArray();
+        }
     }
 }
