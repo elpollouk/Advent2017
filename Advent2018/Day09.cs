@@ -1,9 +1,5 @@
 ﻿using FluentAssertions;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Utils;
 using Xunit;
 
@@ -62,7 +58,7 @@ namespace Advent2018
         [InlineData(30, 5807, 37305)]
         [InlineData(465, 71498, 383475)] // Solution 1
         [InlineData(465, 7149800, 3148209772)] // Solution 2
-        public void Problem1_Solution(int numPlayers, int numMarbles, ulong answer)
+        public void Solve(int numPlayers, int numMarbles, ulong answer)
         {
             var players = new ulong[numPlayers];
             var getCurrentPlayer = Generators.Cycler(numPlayers);
