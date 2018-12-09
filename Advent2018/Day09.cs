@@ -13,11 +13,11 @@ namespace Advent2018
     {
         class Marble
         {
-            public readonly int Value;
+            public readonly ulong Value;
             public Marble Clockwise;
             public Marble AntiClockwise;
 
-            public Marble(int value)
+            public Marble(ulong value)
             {
                 Value = value;
                 if (value == 0)
@@ -60,14 +60,15 @@ namespace Advent2018
         [InlineData(17, 1104, 2764)]
         [InlineData(21, 6111, 54718)]
         [InlineData(30, 5807, 37305)]
-        [InlineData(465, 71498, 383475)] // Solution
-        public void Problem1_Solution(int numPlayers, int numMarbles, int answer)
+        [InlineData(465, 71498, 383475)] // Solution 1
+        [InlineData(465, 7149800, 3148209772)] // Solution 2
+        public void Problem1_Solution(int numPlayers, int numMarbles, ulong answer)
         {
-            var players = new int[numPlayers];
+            var players = new ulong[numPlayers];
             var getCurrentPlayer = Generators.Cycler(numPlayers);
             var currentMarble = new Marble(0);
 
-            for (var i = 1; i <= numMarbles; i++)
+            for (var i = 1u; i <= numMarbles; i++)
             {
                 var currentPlayer = getCurrentPlayer();
                 if (i % 23 != 0)
