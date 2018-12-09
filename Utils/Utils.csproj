@@ -78,6 +78,7 @@
     <Compile Include="DataStructures\RedBlackTreeTests.cs" />
     <Compile Include="DictionaryExtensions.cs" />
     <Compile Include="FileIterator.cs" />
+    <Compile Include="Generators.cs" />
     <Compile Include="GraphBuilder.cs" />
     <Compile Include="Oh.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
