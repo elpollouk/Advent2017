@@ -82,7 +82,7 @@ namespace Advent2018
         [Theory]
         [InlineData("CABDFE", "Data/Day07-Test1.txt")]
         [InlineData("CABEFGD", "Data/Day07-Test2.txt")]
-        [InlineData("FDSEGJLPKNRYOAMQIUHTCVWZXB", "Data/Day07.txt")]
+        [InlineData("FDSEGJLPKNRYOAMQIUHTCVWZXB", "Data/Day07.txt")] // Solution
         public void Problem1_Solve(string answer, string inputFile)
         {
             var solution = "";
@@ -105,7 +105,8 @@ namespace Advent2018
         [Theory]
         [InlineData(15, 2, 0, "Data/Day07-Test1.txt")]
         [InlineData(258, 2, 60, "Data/Day07-Test1.txt")]
-        [InlineData(1000, 5, 60, "Data/Day07.txt")]
+        [InlineData(351, 1, 0, "Data/Day07.txt")]
+        [InlineData(1000, 5, 60, "Data/Day07.txt")] // Solution
         public void Problem2_Solve(int answer, int numWorkers, int lag, string inputFile)
         {
             var currentTime = 0;
