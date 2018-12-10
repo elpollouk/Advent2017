@@ -39,21 +39,10 @@ namespace Advent2018
         int SumTree_Problem2(Node root)
         {
             if (root.Children.Count() != 0)
-            {
-                var sum = 0;
-                foreach (var index in root.MetaData)
-                {
-                    var i = index - 1; // Indexes are 1 based not 0 based!
-                    if (i < 0 || root.Children.Count() <= i)
-                        continue;
-                    sum += SumTree_Problem2(root.Children[i]);
-                }
-                return sum;
-            }
+                return root.MetaData.Where(v => 0 < v && v <= root.Children.Count())
+                    .Select(v => SumTree_Problem2(root.Children[v - 1])).Sum();
             else
-            {
                 return root.MetaData.Sum();
-            }
         }
 
         [Theory]
