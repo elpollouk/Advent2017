@@ -1,7 +1,6 @@
 ﻿using FluentAssertions;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using Utils;
 using Utils.DataStructures;
 using Xunit;
@@ -42,12 +41,11 @@ namespace Advent2018
             public override string ToString() => $"'{WorkItem}', CompleteTime={CompleteTime}";
         }
 
-        static Regex s_OrderReg = new Regex(@" (.) ");
         (char Parent, char Child) ParseOrder(string input)
         {
-            var matches = s_OrderReg.Matches(input);
-            if (matches.Count != 2) Oh.Bugger();
-            return (matches[0].Groups[1].Value[0], matches[1].Groups[1].Value[0]);
+            var match = input.Match(@" (.) .+ (.) ");
+            if (match.Groups.Count != 3) Oh.Bugger();
+            return (match.Groups[1].Value[0], match.Groups[2].Value[0]);
         }
 
         PriorityQueue<WorkItem, char> BuildGraph(string inputFile)

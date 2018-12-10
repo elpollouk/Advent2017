@@ -20,16 +20,13 @@ namespace Advent2018
 
         class GuardEvent
         {
-            private static Regex s_TimeEventRegex = new Regex(@"\[(.+)\] (.+)");
-            private static Regex s_GuardIdRegex = new Regex(@"#(\d+)");
-
             public readonly GuardEventType Type;
             public readonly DateTime Time;
             public readonly int Id;
 
             public GuardEvent(string details)
             {
-                var matches = s_TimeEventRegex.Match(details);
+                var matches = details.Match(@"\[(.+)\] (.+)");
                 if (matches.Groups.Count != 3) Oh.Bugger();
 
                 Time = DateTime.ParseExact(matches.Groups[1].Value, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
@@ -48,7 +45,7 @@ namespace Advent2018
                 else
                 {
                     Type = GuardEventType.BeginShift;
-                    Id = int.Parse(s_GuardIdRegex.Match(desription).Groups[1].Value);
+                    Id = int.Parse(desription.Match(@"#(\d+)").Groups[1].Value);
                 }
             }
         }

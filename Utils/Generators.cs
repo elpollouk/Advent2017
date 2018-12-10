@@ -23,5 +23,7 @@ namespace Utils
                 for (var x = 0; x < width; x++)
                     yield return (x, y);
         }
+
+        public static IEnumerable<(int x, int y)> Rectangle(this Array array) => Rectangle(array.GetLength(0), array.GetLength(1));
     }
 }

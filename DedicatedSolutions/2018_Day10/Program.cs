@@ -104,7 +104,7 @@ namespace _2018_Day10
                     message[point.x - minX, point.y - minY] = '#';
 
                 // Print it out
-                foreach (var coord in Generators.Rectangle(previousWidth + 1, previousHeight + 1))
+                foreach (var coord in message.Rectangle())
                 {
                     if (coord.x == 0) Console.WriteLine();
                     var c = message[coord.x, coord.y];
