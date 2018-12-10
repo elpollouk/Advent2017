@@ -10,9 +10,9 @@ namespace Advent2018
 {
     public class Day07
     {
-        class Node
+        class WorkItem
         {
-            public Node(char value)
+            public WorkItem(char value)
             {
                 Value = value;
                 Done = false;
@@ -22,22 +22,22 @@ namespace Advent2018
 
             public readonly char Value;
             public bool Done;
-            public readonly List<Node> Parents = new List<Node>();
-            public readonly List<Node> Children = new List<Node>();
+            public readonly List<WorkItem> Parents = new List<WorkItem>();
+            public readonly List<WorkItem> Children = new List<WorkItem>();
 
             public override string ToString() => $"'{Value}'";
         }
 
-        class Worker
+        class Job
         {
-            public Worker(Node workItem, int lag)
+            public Job(WorkItem workItem, int lag)
             {
                 WorkItem = workItem;
                 CompleteTime = workItem.TimeRequired + lag;
             }
 
             public readonly int CompleteTime;
-            public readonly Node WorkItem;
+            public readonly WorkItem WorkItem;
 
             public override string ToString() => $"'{WorkItem}', CompleteTime={CompleteTime}";
         }
@@ -50,23 +50,23 @@ namespace Advent2018
             return (matches[0].Groups[1].Value[0], matches[1].Groups[1].Value[0]);
         }
 
-        PriorityQueue<Node, char> BuildGraph(string inputFile)
+        PriorityQueue<WorkItem, char> BuildGraph(string inputFile)
         {
             var dependencies = FileIterator.Lines(inputFile).Select(l => ParseOrder(l));
 
-            var graph = new Dictionary<char, Node>();
+            var graph = new Dictionary<char, WorkItem>();
             foreach (var (Parent, Child) in dependencies)
             {
                 if (!graph.ContainsKey(Parent))
-                    graph[Parent] = new Node(Parent);
+                    graph[Parent] = new WorkItem(Parent);
                 if (!graph.ContainsKey(Child))
-                    graph[Child] = new Node(Child);
+                    graph[Child] = new WorkItem(Child);
 
                 graph[Parent].Children.Add(graph[Child]);
                 graph[Child].Parents.Add(graph[Parent]);
             }
 
-            var queue = new PriorityQueue<Node, char>();
+            var queue = new PriorityQueue<WorkItem, char>();
             foreach (var item in graph.Values)
                 if (item.Parents.Count == 0)
                     queue.Enqueue(item, item.Value);
@@ -109,29 +109,29 @@ namespace Advent2018
         public void Problem2_Solve(int answer, int numWorkers, int lag, string inputFile)
         {
             var currentTime = 0;
-            var queue = BuildGraph(inputFile);
-            var workers = new PriorityQueue<Worker>();
+            var tasks = BuildGraph(inputFile);
+            var inprogress = new PriorityQueue<Job>();
 
-            while (queue.Count != 0 || workers.Count != 0)
+            while (tasks.Count != 0 || inprogress.Count != 0)
             {
                 // Complete current work
-                if (workers.Count != 0)
+                if (inprogress.Count != 0)
                 {
-                    var worker = workers.Dequeue();
-                    worker.WorkItem.Done = true;
+                    var job = inprogress.Dequeue();
+                    job.WorkItem.Done = true;
 
-                    foreach (var child in worker.WorkItem.Children)
+                    foreach (var child in job.WorkItem.Children)
                         if (child.Parents.All(p => p.Done))
-                            queue.Enqueue(child, child.Value);
+                            tasks.Enqueue(child, child.Value);
 
-                    currentTime = worker.CompleteTime;
+                    currentTime = job.CompleteTime;
                 }
 
                 // Schedule out new work to available workers
-                while (queue.Count != 0 && workers.Count < numWorkers)
+                while (tasks.Count != 0 && inprogress.Count < numWorkers)
                 {
-                    var worker = new Worker(queue.Dequeue(), currentTime + lag);
-                    workers.Enqueue(worker, worker.CompleteTime);
+                    var job = new Job(tasks.Dequeue(), currentTime + lag);
+                    inprogress.Enqueue(job, job.CompleteTime);
                 }
             }
 
