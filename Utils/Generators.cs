@@ -16,5 +16,12 @@ namespace Utils
             var current = 0;
             return () => collection[current++];
         }
+
+        public static IEnumerable<(int x, int y)> Rectangle(int width, int height)
+        {
+            for (var y = 0; y < height; y++)
+                for (var x = 0; x < width; x++)
+                    yield return (x, y);
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace Utils
 {
@@ -35,5 +36,10 @@ namespace Utils
 
         public static T[] SplitAndConvert<T>(this string s) => s.SplitAndConvert<T>(',');
 
+        public static Match Match(this string s, string regex)
+        {
+            var _regex = new Regex(regex);
+            return _regex.Match(s);
+        }
     }
 }
