@@ -79,6 +79,7 @@ namespace _2018_Day10
                 var currentHeight = maxY - minY;
                 if (previousWidth < currentWidth || previousHeight < currentHeight)
                     break;
+
                 previousWidth = currentWidth;
                 previousHeight = currentHeight;
                 time++;
@@ -96,22 +97,22 @@ namespace _2018_Day10
                     minY = Math.Min(minY, point.y);
                 }
 
-                // Map it into a 2D space
+                // Write to the output buffer
                 var message = new char[previousWidth + 1, previousHeight + 1];
                 foreach (var point in points)
                     message[point.x - minX, point.y - minY] = '#';
 
                 // Print it out
-                foreach (var coord in message.Rectangle())
+                foreach (var (x, y) in message.Rectangle())
                 {
-                    if (coord.x == 0) Console.WriteLine();
-                    var c = message[coord.x, coord.y];
+                    if (x == 0) Console.WriteLine();
+                    var c = message[x, y];
                     if (c == 0) c = ' ';
                     Console.Write(c);
                 }
             }
 
-            Console.WriteLine();
+            Console.WriteLine("\n");
             Console.WriteLine($"Time taken: {time}s");
         }
     }
