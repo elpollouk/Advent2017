@@ -1,6 +1,8 @@
 ﻿using FluentAssertions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Utils;
 using Xunit;
 
 namespace Advent2018
@@ -13,16 +15,16 @@ namespace Advent2018
             public readonly List<int> MetaData = new List<int>();
         };
 
-        Node ParseStructure(int[] input, ref int offset)
+        Node ParseStructure(Func<int> input)
         {
             var node = new Node();
-            var numChildren = input[offset++];
-            var numMetaData = input[offset++];
+            var numChildren = input();
+            var numMetaData = input();
             for (var i = 0; i < numChildren; i++)
-                node.Children.Add(ParseStructure(input, ref offset));
+                node.Children.Add(ParseStructure(input));
 
             for (var i = 0; i < numMetaData; i++)
-                node.MetaData.Add(input[offset++]);
+                node.MetaData.Add(input());
 
             return node;
         }
@@ -59,10 +61,8 @@ namespace Advent2018
         [InlineData(43825, 19276, "Data/Day08.txt")]
         public void Problem_Test(int answer1, int answer2, string inputFile)
         {
-            var values = Utils.FileIterator.LoadSSV<int>(inputFile);
-            int offset = 0;
-            var root = ParseStructure(values, ref offset);
-            offset.Should().Be(values.Length);
+            var values = FileIterator.LoadSSV<int>(inputFile).Reader();
+            var root = ParseStructure(values);
 
             SumTree_Problem1(root).Should().Be(answer1);
             SumTree_Problem2(root).Should().Be(answer2);
