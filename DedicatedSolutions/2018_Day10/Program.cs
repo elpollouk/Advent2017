@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Utils;
 
 namespace _2018_Day10
@@ -55,7 +52,7 @@ namespace _2018_Day10
                 points.Add(new Point(x, y, dx, dy));
             }
 
-            Console.WriteLine($"{points.Count()} points");
+            Console.WriteLine($"{points.Count} points");
 
             var previousWidth = int.MaxValue;
             var previousHeight = int.MaxValue;
