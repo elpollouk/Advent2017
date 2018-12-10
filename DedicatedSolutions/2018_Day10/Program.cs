@@ -42,8 +42,10 @@ namespace _2018_Day10
         static void Main(string[] args)
         {
             Console.WriteLine("Hello Day 10, 2018!");
+            var filename = args.Length != 0 ? args[0] : "Problem.txt";
+
             var points = new List<Point>();
-            foreach (var line in FileIterator.Lines(args[0]))
+            foreach (var line in FileIterator.Lines(filename))
             {
                 var match = line.Match(@"<(.+),(.+)>.+<(.+),(.+)>");
                 var x = int.Parse(match.Groups[1].Value);
