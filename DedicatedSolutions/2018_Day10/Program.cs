@@ -61,7 +61,6 @@ namespace _2018_Day10
             // Run the simulation
             while (true)
             {
-
                 var minX = int.MaxValue;
                 var maxX = int.MinValue;
                 var minY = int.MaxValue;
