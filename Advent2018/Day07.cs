@@ -18,20 +18,26 @@ namespace Advent2018
                 Done = false;
             }
 
-            public int TimeRequired(int lag) => (Value - 'A') + 1 + lag;
+            public int TimeRequired => (Value - 'A') + 1;
 
             public readonly char Value;
             public bool Done;
-            public List<Node> Parents = new List<Node>();
-            public List<Node> Children = new List<Node>();
+            public readonly List<Node> Parents = new List<Node>();
+            public readonly List<Node> Children = new List<Node>();
 
             public override string ToString() => $"'{Value}'";
         }
 
         class Worker
         {
-            public int CompleteTime;
-            public Node WorkItem;
+            public Worker(Node workItem, int lag)
+            {
+                WorkItem = workItem;
+                CompleteTime = workItem.TimeRequired + lag;
+            }
+
+            public readonly int CompleteTime;
+            public readonly Node WorkItem;
 
             public override string ToString() => $"'{WorkItem}', CompleteTime={CompleteTime}";
         }
@@ -102,43 +108,32 @@ namespace Advent2018
         [InlineData(1000, 5, 60, "Data/Day07.txt")]
         public void Problem2_Solve(int answer, int numWorkers, int lag, string inputFile)
         {
-            var queue = BuildGraph(inputFile);
             var currentTime = 0;
-            var workers = new Worker[numWorkers];
-            for (var i = 0; i < workers.Length; i++)
-                workers[i] = new Worker();
+            var queue = BuildGraph(inputFile);
+            var workers = new PriorityQueue<Worker>();
 
-            do
+            while (queue.Count != 0 || workers.Count != 0)
             {
                 // Complete current work
-                foreach (var worker in workers.Where(w => w.CompleteTime <= currentTime && w.WorkItem != null))
+                if (workers.Count != 0)
                 {
+                    var worker = workers.Dequeue();
                     worker.WorkItem.Done = true;
 
                     foreach (var child in worker.WorkItem.Children)
                         if (child.Parents.All(p => p.Done))
                             queue.Enqueue(child, child.Value);
 
-                    worker.WorkItem = null;
+                    currentTime = worker.CompleteTime;
                 }
 
                 // Schedule out new work to available workers
-                foreach (var worker in workers.Where(w => w.WorkItem == null))
+                while (queue.Count != 0 && workers.Count < numWorkers)
                 {
-                    if (queue.Count == 0) break;
-                    worker.WorkItem = queue.Dequeue();
-                    worker.CompleteTime = currentTime + worker.WorkItem.TimeRequired(lag);
+                    var worker = new Worker(queue.Dequeue(), currentTime + lag);
+                    workers.Enqueue(worker, worker.CompleteTime);
                 }
-
-                // Has all the work been done?
-                var activeWorkers = workers.Where(w => w.WorkItem != null);
-                if (activeWorkers.Count() == 0)
-                    break;
-
-                // Advance time
-                currentTime = activeWorkers.Select(w => w.CompleteTime).Min();
             }
-            while (true);
 
             (currentTime).Should().Be(answer);
         }
