@@ -35,50 +35,63 @@ namespace Advent2018
             return GetHundreds(powerLevel) - 5;
         }
 
-        (int x, int y) GetHighestPowerValue(int serialNumber)
+        int AreaSum(int[,] grid, int offsetX, int offsetY, int size)
         {
-            var grid = new Cell[300, 300];
-            foreach (var (x, y) in grid.Rectangle())
-            {
-                var cell = new Cell(GetPowerLevel(serialNumber, x + 1, y + 1));
-                grid[x, y] = cell;
-                if (x != 0 && y != 0)
-                {
-                    cell.AreaPowerLevel += grid[x - 1, y - 1].PowerLevel;
-                    grid[x - 1, y - 1].AreaPowerLevel += cell.PowerLevel;
-                }
-                if (x != 0)
-                {
-                    cell.AreaPowerLevel += grid[x - 1, y].PowerLevel;
-                    grid[x - 1, y].AreaPowerLevel += cell.PowerLevel;
-                }
-                if (y != 0)
-                {
-                    cell.AreaPowerLevel += grid[x, y - 1].PowerLevel;
-                    grid[x, y - 1].AreaPowerLevel += cell.PowerLevel;
-                }
-                if (y != 0 &&x != grid.GetLength(0)-1)
-                {
-                    cell.AreaPowerLevel += grid[x + 1, y - 1].PowerLevel;
-                    grid[x + 1, y - 1].AreaPowerLevel += cell.PowerLevel;
-                }
-            }
+            var sum = 0;
+            for (var y = 0; y < size; y++)
+                for (var x = 0; x < size; x++)
+                    sum += grid[offsetX + x, offsetY + y];
 
-            var max = int.MinValue;
+            return sum;
+        }
+
+        (int x, int y, int value) GetHighestPowerValue(int serialNumber, int squareSize)
+        {
+            const int GridSize = 300;
+            var grid = new int[GridSize, GridSize];
+            foreach (var (x, y) in grid.Rectangle())
+                grid[x, y] = GetPowerLevel(serialNumber, x + 1, y + 1);
+
+            var maxPower = int.MinValue;
             var maxX = 0;
             var maxY = 0;
-            foreach (var (x, y) in grid.Rectangle())
-            {
-                if (max < grid[x, y].AreaPowerLevel)
-                {
-                    max = grid[x, y].AreaPowerLevel;
-                    maxX = x;
-                    maxY = y;
 
+            for (var y = 0; y < GridSize - squareSize; y++)
+            {
+                for (var x = 0; x < GridSize - squareSize; x++)
+                {
+                    var power = AreaSum(grid, x, y, squareSize);
+                    if (maxPower < power)
+                    {
+                        maxPower = power;
+                        maxX = x;
+                        maxY = y;
+                    }
                 }
             }
 
-            return (maxX, maxY);
+            return (maxX + 1, maxY + 1, maxPower);
+        }
+
+        (int x, int y, int size) GetHighestPowerValueAndSize(int serialNumber)
+        {
+            int maxPower = int.MinValue;
+            int maxX = 0;
+            int maxY = 0;
+            int maxSize = 0;
+
+            for (var size = 300; size >= 3; size--)
+            {
+                var (x, y, power) = GetHighestPowerValue(serialNumber, size);
+                if (maxPower < power)
+                {
+                    maxPower = power;
+                    maxX = x;
+                    maxY = y;
+                    maxSize = size;
+                }
+            }
+            return (maxX, maxY, maxSize);
         }
 
         [Theory]
@@ -98,9 +111,13 @@ namespace Advent2018
         void GetPowerlevel_Test(int serialNumber, int x, int y, int expectedPowerLevel) => GetPowerLevel(serialNumber, x, y).Should().Be(expectedPowerLevel);
 
         [Theory]
-        [InlineData(18, 33, 45)]
-        [InlineData(42, 21, 61)]
-        [InlineData(9306, 235, 38)]
-        void GetHighestPowerValue_Test(int serialNumber, int expectedX, int expectedY) => GetHighestPowerValue(serialNumber).Should().Be((expectedX, expectedY));
+        [InlineData(18, 33, 45, 29)]
+        [InlineData(42, 21, 61, 30)]
+        [InlineData(9306, 235, 38, 30)] // Part 1 Solution
+        void GetHighestPowerValue3x3_Test(int serialNumber, int expectedX, int expectedY, int expectedPower) => GetHighestPowerValue(serialNumber, 3).Should().Be((expectedX, expectedY, expectedPower));
+
+        //[Theory]
+        //[InlineData(18, 90, 269, 16)]
+        //void GetHighersPowerValueAny_Test(int serialNumber, int expectedX, int expectedY, int expectedSize) => GetHighestPowerValueAndSize(serialNumber).Should().Be((expectedX, expectedY, expectedSize));
     }
 }
