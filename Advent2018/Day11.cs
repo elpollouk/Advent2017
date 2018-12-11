@@ -10,6 +10,7 @@ namespace Advent2018
         int GetRackId(int x) => x + 10;
 
         int GetHundreds(int value) => (value / 100) % 10;
+
         int GetPowerLevel(int serialNumber, int x, int y)
         {
             var rackId = GetRackId(x);
@@ -17,56 +18,52 @@ namespace Advent2018
             return GetHundreds(powerLevel) - 5;
         }
 
-        int AreaSum(int[,] grid, int offsetX, int offsetY, int size)
+        int[,] BuildGrid(int serialNumber, Func<int, int, int, int> getValue)
         {
-            var sum = 0;
-            for (var y = 0; y < size; y++)
-                for (var x = 0; x < size; x++)
-                    sum += grid[offsetX + x, offsetY + y];
+            var grid = new int[300, 300];
 
-            return sum;
-        }
-
-        int ColumnSum(int[,] grid, int offsetX, int offsetY, int size)
-        {
-            var sum = 0;
-            for (var y = 0; y < size; y++)
-                sum += grid[offsetX, offsetY + y];
-
-            return sum;
-        }
-
-        int RowSum(int[,] grid, int offsetX, int offsetY, int size)
-        {
-            var sum = 0;
-            for (var x = 0; x < size; x++)
-                sum += grid[offsetX + x, offsetY];
-
-            return sum;
-        }
-
-        (int x, int y, int value) GetHighestPowerValue(int serialNumber, int squareSize)
-        {
-            const int GridSize = 300;
-            var grid = new int[GridSize, GridSize];
             foreach (var (x, y) in grid.Rectangle())
-                grid[x, y] = GetPowerLevel(serialNumber, x + 1, y + 1);
+            {
+                grid[x, y] = getValue(serialNumber, x + 1, y + 1);
+                if (x != 0 && y != 0)
+                    grid[x, y] -= grid[x - 1, y - 1];
+                if (x != 0)
+                    grid[x, y] += grid[x - 1, y];
+                if (y != 0)
+                    grid[x, y] += grid[x, y - 1];
+            }
 
+            return grid;
+        }
+
+        int GetSum(int[,] grid, int x, int y, int size)
+        {
+            size--;
+            long sum = 0;
+            sum += grid[x + size, y + size];
+            if (x != 0 && y != 0)
+                sum += grid[x - 1, y - 1];
+            if (x != 0)
+                sum -= grid[x - 1, y + size];
+            if (y != 0)
+                sum -= grid[x + size, y - 1];
+            return (int)sum;
+        }
+
+        (int x, int y, int value) GetHighestPowerValue(int[,] grid, int squareSize)
+        {
             var maxPower = int.MinValue;
             var maxX = 0;
             var maxY = 0;
 
-            for (var y = 0; y < GridSize - squareSize; y++)
+            foreach (var (x, y) in Generators.Rectangle(grid.GetLength(0) - squareSize - 1, grid.GetLength(1) - squareSize - 1))
             {
-                for (var x = 0; x < GridSize - squareSize; x++)
+                var sum = GetSum(grid, x, y, squareSize);
+                if (maxPower < sum)
                 {
-                    var power = AreaSum(grid, x, y, squareSize);
-                    if (maxPower < power)
-                    {
-                        maxPower = power;
-                        maxX = x;
-                        maxY = y;
-                    }
+                    maxPower = sum;
+                    maxX = x;
+                    maxY = y;
                 }
             }
 
@@ -75,44 +72,52 @@ namespace Advent2018
 
         (int x, int y, int size) GetHighestPowerValueAndSize(int serialNumber)
         {
-            const int GridSize = 300;
-            var grid = new int[GridSize, GridSize];
-            foreach (var (x, y) in grid.Rectangle())
-                grid[x, y] = GetPowerLevel(serialNumber, x + 1, y + 1);
+            var grid = BuildGrid(serialNumber, GetPowerLevel);
 
             var maxPower = int.MinValue;
             var maxX = 0;
             var maxY = 0;
             var maxSize = 0;
 
-            foreach (var (x, y) in Generators.Rectangle(GridSize - 1, GridSize - 1))
+            foreach (var (x, y) in Generators.Rectangle(grid.GetLength(0) - 1, grid.GetLength(0) - 1))
             {
-                var slidingSum = grid[x, y];
-                // Because sub-arrays are square, we only need to grow until one side of the window hits an edge
-                var targetSize = Math.Min(GridSize - x, GridSize - y);
-
-                for (var growthSize = 1; growthSize < targetSize; growthSize++)
+                var targetSize = Math.Min(grid.GetLength(0) - x, grid.GetLength(0) - y);
+                for (var size = 1; size < targetSize; size++)
                 {
-                    // Grow the window that contains the sub-array sum by adding the sums of the new row and column added to the window
-                    // e.g.
-                    //   ###c
-                    //   ###c
-                    //   ###c
-                    //   rrrr
-                    slidingSum += ColumnSum(grid, x + growthSize, y, growthSize);
-                    slidingSum += RowSum(grid, x, y + growthSize, growthSize + 1);
-
-                    if (maxPower < slidingSum)
+                    var sum = GetSum(grid, x, y, size);
+                    if (maxPower < sum)
                     {
-                        maxPower = slidingSum;
+                        maxPower = sum;
                         maxX = x;
                         maxY = y;
-                        maxSize = growthSize + 1;
+                        maxSize = size;
                     }
                 }
             }
 
             return (maxX + 1, maxY + 1, maxSize);
+        }
+
+        [Theory]
+        [InlineData(0, 0, 1, 2)]
+        [InlineData(1, 1, 1, 2)]
+        [InlineData(0, 1, 1, 2)]
+        [InlineData(1, 0, 1, 2)]
+        [InlineData(1, 1, 2, 8)]
+        void GetSum_Test_Basic(int x, int y, int size, int expectedSum)
+        {
+            var grid = BuildGrid(0, (a, b, c) => 2);
+            GetSum(grid, x, y, size).Should().Be(expectedSum);
+        }
+
+        [Theory]
+        [InlineData(18, 32, 44, 29)]
+        [InlineData(42, 20, 60, 30)]
+        [InlineData(9306, 234, 37, 30)]
+        void GetSum_Test_Complex(int serialNumber, int x, int y, int expectedSum)
+        {
+            var grid = BuildGrid(serialNumber, GetPowerLevel);
+            GetSum(grid, x, y, 3).Should().Be(expectedSum);
         }
 
         [Theory]
@@ -135,13 +140,17 @@ namespace Advent2018
         [InlineData(18, 33, 45, 29)]
         [InlineData(42, 21, 61, 30)]
         [InlineData(9306, 235, 38, 30)] // Part 1 Solution
-        void GetHighestPowerValue3x3_Test(int serialNumber, int expectedX, int expectedY, int expectedPower) => GetHighestPowerValue(serialNumber, 3).Should().Be((expectedX, expectedY, expectedPower));
+        void GetHighestPowerValue3x3_Test(int serialNumber, int expectedX, int expectedY, int expectedPower)
+        {
+            var grid = BuildGrid(serialNumber, GetPowerLevel);
+            GetHighestPowerValue(grid, 3).Should().Be((expectedX, expectedY, expectedPower));
+        }
 
         [Theory]
-        //[InlineData(18, 90, 269, 16)]
-        //[InlineData(42, 232, 251, 12)]
+        [InlineData(18, 90, 269, 16)]
+        [InlineData(42, 232, 251, 12)]
         [InlineData(9306, 233, 146, 13)] // Part 2 Solution
-        //[InlineData(8772, 241, 65, 10)] // Dave's Solution
+        [InlineData(8772, 241, 65, 10)] // Dave's Solution
         void GetHighersPowerValueAny_Test(int serialNumber, int expectedX, int expectedY, int expectedSize) => GetHighestPowerValueAndSize(serialNumber).Should().Be((expectedX, expectedY, expectedSize));
     }
 }
