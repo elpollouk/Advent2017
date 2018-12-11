@@ -1,9 +1,5 @@
 ﻿using FluentAssertions;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Utils;
 using Xunit;
 
@@ -11,20 +7,6 @@ namespace Advent2018
 {
     public class Day11
     {
-        class Cell
-        {
-            public readonly int PowerLevel;
-            public int AreaPowerLevel;
-
-            public Cell(int powerLevel)
-            {
-                PowerLevel = powerLevel;
-                AreaPowerLevel = powerLevel;
-            }
-
-            public override string ToString() => $"Power={PowerLevel}, Area={AreaPowerLevel}";
-        };
-
         int GetRackId(int x) => x + 10;
 
         int GetHundreds(int value) => (value / 100) % 10;
@@ -41,6 +23,24 @@ namespace Advent2018
             for (var y = 0; y < size; y++)
                 for (var x = 0; x < size; x++)
                     sum += grid[offsetX + x, offsetY + y];
+
+            return sum;
+        }
+
+        int ColumnSum(int[,] grid, int offsetX, int offsetY, int size)
+        {
+            var sum = 0;
+            for (var y = 0; y < size; y++)
+                sum += grid[offsetX, offsetY + y];
+
+            return sum;
+        }
+
+        int RowSum(int[,] grid, int offsetX, int offsetY, int size)
+        {
+            var sum = 0;
+            for (var x = 0; x < size; x++)
+                sum += grid[offsetX + x, offsetY];
 
             return sum;
         }
@@ -75,23 +75,44 @@ namespace Advent2018
 
         (int x, int y, int size) GetHighestPowerValueAndSize(int serialNumber)
         {
-            int maxPower = int.MinValue;
-            int maxX = 0;
-            int maxY = 0;
-            int maxSize = 0;
+            const int GridSize = 300;
+            var grid = new int[GridSize, GridSize];
+            foreach (var (x, y) in grid.Rectangle())
+                grid[x, y] = GetPowerLevel(serialNumber, x + 1, y + 1);
 
-            for (var size = 300; size >= 3; size--)
+            var maxPower = int.MinValue;
+            var maxX = 0;
+            var maxY = 0;
+            var maxSize = 0;
+
+            foreach (var (x, y) in Generators.Rectangle(GridSize - 1, GridSize - 1))
             {
-                var (x, y, power) = GetHighestPowerValue(serialNumber, size);
-                if (maxPower < power)
+                var slidingSum = grid[x, y];
+                // Because sub-arrays are square, we only need to grow until one side of the window hits an edge
+                var targetSize = Math.Min(GridSize - x, GridSize - y);
+
+                for (var growthSize = 1; growthSize < targetSize; growthSize++)
                 {
-                    maxPower = power;
-                    maxX = x;
-                    maxY = y;
-                    maxSize = size;
+                    // Grow the window that contains the sub-array sum by adding the sums of the new row and column added to the window
+                    // e.g.
+                    //   ###c
+                    //   ###c
+                    //   ###c
+                    //   rrrr
+                    slidingSum += ColumnSum(grid, x + growthSize, y, growthSize);
+                    slidingSum += RowSum(grid, x, y + growthSize, growthSize + 1);
+
+                    if (maxPower < slidingSum)
+                    {
+                        maxPower = slidingSum;
+                        maxX = x;
+                        maxY = y;
+                        maxSize = growthSize + 1;
+                    }
                 }
             }
-            return (maxX, maxY, maxSize);
+
+            return (maxX + 1, maxY + 1, maxSize);
         }
 
         [Theory]
@@ -116,8 +137,11 @@ namespace Advent2018
         [InlineData(9306, 235, 38, 30)] // Part 1 Solution
         void GetHighestPowerValue3x3_Test(int serialNumber, int expectedX, int expectedY, int expectedPower) => GetHighestPowerValue(serialNumber, 3).Should().Be((expectedX, expectedY, expectedPower));
 
-        //[Theory]
+        [Theory]
         //[InlineData(18, 90, 269, 16)]
-        //void GetHighersPowerValueAny_Test(int serialNumber, int expectedX, int expectedY, int expectedSize) => GetHighestPowerValueAndSize(serialNumber).Should().Be((expectedX, expectedY, expectedSize));
+        //[InlineData(42, 232, 251, 12)]
+        [InlineData(9306, 233, 146, 13)] // Part 2 Solution
+        //[InlineData(8772, 241, 65, 10)] // Dave's Solution
+        void GetHighersPowerValueAny_Test(int serialNumber, int expectedX, int expectedY, int expectedSize) => GetHighestPowerValueAndSize(serialNumber).Should().Be((expectedX, expectedY, expectedSize));
     }
 }
