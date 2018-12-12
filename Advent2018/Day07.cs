@@ -108,10 +108,10 @@ namespace Advent2018
         public void Problem2_Solve(int answer, int numWorkers, int lag, string inputFile)
         {
             var currentTime = 0;
-            var tasks = BuildGraph(inputFile);
+            var ready = BuildGraph(inputFile);
             var inprogress = new PriorityQueue<Job>();
 
-            while (tasks.Count != 0 || inprogress.Count != 0)
+            while (ready.Count != 0 || inprogress.Count != 0)
             {
                 // Complete current work
                 if (inprogress.TryDequeue(out Job job))
@@ -120,15 +120,15 @@ namespace Advent2018
 
                     foreach (var child in job.WorkItem.Children)
                         if (child.Parents.All(p => p.Done))
-                            tasks.Enqueue(child, child.Value);
+                            ready.Enqueue(child, child.Value);
 
                     currentTime = job.CompleteTime;
                 }
 
                 // Schedule out new work to available workers
-                while (tasks.Count != 0 && inprogress.Count < numWorkers)
+                while (ready.Count != 0 && inprogress.Count < numWorkers)
                 {
-                    job = new Job(tasks.Dequeue(), currentTime + lag);
+                    job = new Job(ready.Dequeue(), currentTime + lag);
                     inprogress.Enqueue(job, job.CompleteTime);
                 }
             }
