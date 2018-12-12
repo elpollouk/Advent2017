@@ -1,10 +1,6 @@
 ﻿using FluentAssertions;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Utils;
 using Xunit;
 
@@ -134,8 +130,8 @@ namespace Advent2018
 
         [Theory]
         [InlineData("Data/Day12-Test.txt", "#..#.#..##......###...###", 325)]
-        [InlineData("Data/Day12.txt", "##..##....#.#.####........##.#.#####.##..#.#..#.#...##.#####.###.##...#....##....#..###.#...#.#.#.#", 3248)]
-        void Test(string inputfile, string initialState, int expectedAnswer)
+        [InlineData("Data/Day12.txt", "##..##....#.#.####........##.#.#####.##..#.#..#.#...##.#####.###.##...#....##....#..###.#...#.#.#.#", 3248)] // Solution
+        void Part1_Test(string inputfile, string initialState, int expectedAnswer)
         {
             var rules = LoadRules(inputfile);
             var state = CreateInitialState(initialState);
@@ -147,6 +143,33 @@ namespace Advent2018
             }
 
             SumPots(state).Should().Be(expectedAnswer);
+        }
+
+        [Theory]
+        [InlineData("Data/Day12.txt", "##..##....#.#.####........##.#.#####.##..#.#..#.#...##.#####.###.##...#....##....#..###.#...#.#.#.#", 100, 8000)]
+        [InlineData("Data/Day12.txt", "##..##....#.#.####........##.#.#####.##..#.#..#.#...##.#####.###.##...#....##....#..###.#...#.#.#.#", 101, 8080)]
+        [InlineData("Data/Day12.txt", "##..##....#.#.####........##.#.#####.##..#.#..#.#...##.#####.###.##...#....##....#..###.#...#.#.#.#", 110, 8800)]
+        [InlineData("Data/Day12.txt", "##..##....#.#.####........##.#.#####.##..#.#..#.#...##.#####.###.##...#....##....#..###.#...#.#.#.#", 200, 16000)]
+        [InlineData("Data/Day12.txt", "##..##....#.#.####........##.#.#####.##..#.#..#.#...##.#####.###.##...#....##....#..###.#...#.#.#.#", 400, 32000)]
+        [InlineData("Data/Day12.txt", "##..##....#.#.####........##.#.#####.##..#.#..#.#...##.#####.###.##...#....##....#..###.#...#.#.#.#", 1000, 80000)]
+        void Part2_CalculationTest(string inputfile, string initialState, int generation, int expectedAnswer)
+        {
+            var rules = LoadRules(inputfile);
+            var state = CreateInitialState(initialState);
+            for (var i = 0; i < generation; i++)
+            {
+                state = NextState(rules, state);
+            }
+
+            PrintPots(state);
+            SumPots(state).Should().Be(expectedAnswer);
+        }
+
+        [Fact]
+        void Part2_Calculation()
+        {
+            // Using the above discovered knowledge for my sequence, I can calculate 50,000,000,000 usings maths!
+            (80 * 50000000000).Should().Be(4000000000000);
         }
     }
 }
