@@ -22,6 +22,8 @@ namespace Advent2018
         {
             var grid = new int[300, 300];
 
+            // Build the grid as a summed area table
+            // https://en.wikipedia.org/wiki/Summed-area_table
             foreach (var (x, y) in grid.Rectangle())
             {
                 grid[x, y] = getValue(serialNumber, x + 1, y + 1);
