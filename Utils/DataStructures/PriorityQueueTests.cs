@@ -43,5 +43,35 @@ namespace Utils.DataStructures
             queue.Dequeue().Should().Be("D");
             queue.Dequeue().Should().Be("E");
         }
+
+        [Fact]
+        public void TryDequeue_EmptyQueue()
+        {
+            var queue = new PriorityQueue<string>();
+            queue.TryDequeue(out string item).Should().BeFalse();
+            item.Should().BeNull();
+            queue.Count.Should().Be(0);
+        }
+
+        [Fact]
+        public void TryDequeue_OneItemQueue()
+        {
+            var queue = new PriorityQueue<string>();
+            queue.Enqueue("test", 0);
+            queue.TryDequeue(out string item).Should().BeTrue();
+            item.Should().Be("test");
+            queue.Count.Should().Be(0);
+        }
+
+        [Fact]
+        public void TryDequeue_TwoItemQueue()
+        {
+            var queue = new PriorityQueue<string>();
+            queue.Enqueue("wrong item", 1);
+            queue.Enqueue("right item", 0);
+            queue.TryDequeue(out string item).Should().BeTrue();
+            item.Should().Be("right item");
+            queue.Count.Should().Be(1);
+        }
     }
 }

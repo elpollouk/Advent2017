@@ -17,6 +17,18 @@ namespace Utils.DataStructures
         {
             return _heap.Pop();
         }
+
+        public bool TryDequeue(out T item)
+        {
+            if (Count == 0)
+            {
+                item = default(T);
+                return false;
+            }
+
+            item = Dequeue();
+            return true;
+        }
     }
 
     public class PriorityQueue<T> : PriorityQueue<T, int> { }

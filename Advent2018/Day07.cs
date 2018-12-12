@@ -114,9 +114,8 @@ namespace Advent2018
             while (tasks.Count != 0 || inprogress.Count != 0)
             {
                 // Complete current work
-                if (inprogress.Count != 0)
+                if (inprogress.TryDequeue(out Job job))
                 {
-                    var job = inprogress.Dequeue();
                     job.WorkItem.Done = true;
 
                     foreach (var child in job.WorkItem.Children)
@@ -129,7 +128,7 @@ namespace Advent2018
                 // Schedule out new work to available workers
                 while (tasks.Count != 0 && inprogress.Count < numWorkers)
                 {
-                    var job = new Job(tasks.Dequeue(), currentTime + lag);
+                    job = new Job(tasks.Dequeue(), currentTime + lag);
                     inprogress.Enqueue(job, job.CompleteTime);
                 }
             }
