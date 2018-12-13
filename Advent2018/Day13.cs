@@ -1,10 +1,7 @@
 ﻿using FluentAssertions;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Utils;
 using Xunit;
 
@@ -18,7 +15,7 @@ namespace Advent2018
             public int y;
             public int dX;
             public int dY;
-            public int crossingCount = 0;
+            private int crossingCount = 0;
 
             public Cart(int x, int y, char initialDirection)
             {
@@ -150,22 +147,22 @@ namespace Advent2018
             return null;
         }
 
-        bool HasCollided(IList<Cart> carts, Cart cart)
+        Cart GetCollidedWith(ICollection<Cart> carts, Cart cart)
         {
             foreach (var other in carts)
                 if (cart != other && cart.IsCollided(other))
-                    return true;
+                    return other;
 
-            return false;
+            return null;
         }
 
-        (char[,], Cart[]) LoadSimulation(string inputFile)
+        (char[,], HashSet<Cart>) LoadSimulation(string inputFile)
         {
             var lines = FileIterator.LoadLines<string>(inputFile);
             var width = lines[0].Length;
             var height = lines.Length;
             var cavern = new char[width, height];
-            var carts = new List<Cart>();
+            var carts = new HashSet<Cart>();
 
             foreach (var(x, y) in Generators.Rectangle(width, height))
             {
@@ -199,7 +196,7 @@ namespace Advent2018
                 }
             }
 
-            return (cavern, carts.ToArray());
+            return (cavern, carts);
         }
 
         void DebugDumpCavern(char[,] cavern)
@@ -214,18 +211,25 @@ namespace Advent2018
             Debug.WriteLine("");
         }
 
-        Cart Step(char[,] cavern, Cart[] carts)
+        ICollection<Cart> Step(char[,] cavern, ICollection<Cart> carts)
         {
+            var collidedCarts = new List<Cart>();
             var orderedCarts = carts.OrderBy(c => c.y).ThenBy(c => c.x);
 
             foreach (var cart in orderedCarts)
             {
                 cart.Step(cavern[cart.x, cart.y]);
-                if (HasCollided(carts, cart))
-                    return cart;
+                var collidedWith = GetCollidedWith(carts, cart);
+                if (collidedWith != null)
+                {
+                    collidedCarts.Add(cart);
+                    collidedCarts.Add(collidedWith);
+                    carts.Remove(cart);
+                    carts.Remove(collidedWith);
+                }
             }
 
-            return null;
+            return collidedCarts;
         }
 
         [Theory]
@@ -273,16 +277,34 @@ namespace Advent2018
 
         [Theory]
         [InlineData(7, 3, "Data/Day13-Test.txt")]
+        [InlineData(2, 0, "Data/Day13-Test2.txt")]
         [InlineData(113, 136, "Data/Day13.txt")] // Solution
         void Problem1(int expectedX, int expectedY, string inputFile)
         {
             var (cavern, carts) = LoadSimulation(inputFile);
-            Cart collidedCart = null;
-            while (collidedCart == null)
-                collidedCart = Step(cavern, carts);
+            ICollection<Cart> collidedCarts = null;
+            do
+            {
+                collidedCarts = Step(cavern, carts);
+            }
+            while (collidedCarts.Count == 0);
 
-            collidedCart.x.Should().Be(expectedX);
-            collidedCart.y.Should().Be(expectedY);
+            collidedCarts.First().x.Should().Be(expectedX);
+            collidedCarts.First().y.Should().Be(expectedY);
+        }
+
+        [Theory]
+        [InlineData(6, 4, "Data/Day13-Test2.txt")]
+        [InlineData(114, 136, "Data/Day13.txt")] // Solution
+        void Problem2(int expectedX, int expectedY, string inputFile)
+        {
+            var (cavern, carts) = LoadSimulation(inputFile);
+
+            while (carts.Count > 1)
+                Step(cavern, carts);
+
+            carts.First().x.Should().Be(expectedX);
+            carts.First().y.Should().Be(expectedY);
         }
     }
 }
