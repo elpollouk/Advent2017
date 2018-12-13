@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Utils;
 using Xunit;
@@ -16,6 +16,7 @@ namespace Advent2018
             public int dX;
             public int dY;
             private int crossingCount = 0;
+            private Action[] crossingAction;
 
             public Cart(int x, int y, char initialDirection)
             {
@@ -48,6 +49,13 @@ namespace Advent2018
                         Oh.Bugger();
                         break;
                 }
+
+                crossingAction = new Action[]
+                {
+                    TurnLeft,
+                    () => { },
+                    TurnRight
+                };
             }
 
             public void Step(char currentLocation)
@@ -112,39 +120,11 @@ namespace Advent2018
                 }
             }
 
-            public void UpdateCrossing()
-            {
-                switch (crossingCount)
-                {
-                    case 0:
-                        TurnLeft();
-                        crossingCount = 1;
-                        break;
-
-                    case 1:
-                        crossingCount = 2;
-                        break;
-
-                    case 2:
-                        TurnRight();
-                        crossingCount = 0;
-                        break;
-                }
-            }
+            public void UpdateCrossing() => crossingAction.GetAtMod(crossingCount++)();
 
             public bool IsCollided(Cart other) => x == other.x && y == other.y;
 
             public override string ToString() => $"{x}, {y}";
-        }
-
-        Cart GetCollidedCart(IList<Cart> carts)
-        {
-            for (var i = 0; i < carts.Count - 1; i++)
-                for (var j = i + 1; j < carts.Count; j++)
-                    if (carts[i].IsCollided(carts[j]))
-                        return carts[i];
-
-            return null;
         }
 
         Cart GetCollidedWith(ICollection<Cart> carts, Cart cart)
@@ -199,18 +179,6 @@ namespace Advent2018
             return (cavern, carts);
         }
 
-        void DebugDumpCavern(char[,] cavern)
-        {
-            foreach (var (x, y) in cavern.Rectangle())
-            {
-                if (x == 0)
-                    Debug.WriteLine("");
-
-                Debug.Write(cavern[x, y]);
-            }
-            Debug.WriteLine("");
-        }
-
         ICollection<Cart> Step(char[,] cavern, ICollection<Cart> carts)
         {
             var collidedCarts = new List<Cart>();
@@ -256,23 +224,6 @@ namespace Advent2018
             cart.TurnRight();
             cart.dX.Should().Be(expectedDX);
             cart.dY.Should().Be(expectedDY);
-        }
-
-        [Theory]
-        [InlineData(1, 2, 1, 2, 1, 2)]
-        [InlineData(3, 4, 0, 0, 2, 3, 3, 4, 3, 4)]
-        [InlineData(7, 9, 7, 9, 2, 3, 7, 9, 3, 4)]
-        [InlineData(6, 5, 7, 9, 6, 5, 7, 2, 6, 5, 3, 4)]
-        void GetCollidedCart_Test(int expectedX, int expectedY, params int[] cartLocations)
-        {
-            var carts = new List<Cart>();
-            for (var i = 0; i < cartLocations.Length; i += 2)
-                carts.Add(new Cart(cartLocations[i], cartLocations[i + 1], '<'));
-
-            var collided = GetCollidedCart(carts);
-            collided.Should().NotBeNull();
-            collided.x.Should().Be(expectedX);
-            collided.y.Should().Be(expectedY);
         }
 
         [Theory]
