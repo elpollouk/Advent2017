@@ -21,7 +21,7 @@ namespace Utils
             return builder.ToString();
         }
 
-        public static T GetAtMod<T>(this T[] a, int index) => a[index % a.Length];
+        public static T GetAtMod<T>(this IList<T> a, int index) => a[index % a.Count];
 
         public static void SetAtMod<T>(this T[] a, int index, T value) => a[index % a.Length] = value;
 
