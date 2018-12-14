@@ -8,17 +8,18 @@ namespace Advent2018
 {
     public class Day14
     {
-        List<int> SplitNumber(int number)
+        IEnumerable<int> SplitNumber(int number)
         {
-            var list = new List<int>();
-            while (number != 0)
+            if (number <= 9)
             {
-                list.Insert(0, number % 10);
-                number /= 10;
+                yield return number;
             }
-            if (list.Count == 0)
-                list.Add(0);
-            return list;
+            else if (number <= 99)
+            {
+                yield return number / 10;
+                yield return number % 10;
+            }
+            else throw new Exception();
         }
 
         List<int> Expand(int requiredNumber, params int[] initial)
