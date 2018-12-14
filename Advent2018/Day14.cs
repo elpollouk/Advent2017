@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
@@ -44,27 +45,16 @@ namespace Advent2018
             return list;
         }
 
-        bool CompareSequence(IList<int> expected, IList<int> searchedList, int searchedListOffset)
-        {
-            if (searchedListOffset < 0)
-                return false;
-
-            for (var i = 0; i < expected.Count; i++)
-            {
-                if (searchedList.Count <= searchedListOffset + i)
-                    return false;
-
-                if (expected[i] != searchedList[searchedListOffset + i])
-                    return false;
-            }
-            return true;
-        }
-
         int FindOffsetInExpansion(string searchFor, params int[] initial)
         {
-            var searchForList = new List<int>();
-            foreach (var c in searchFor)
-                searchForList.Add(c - '0');
+            var searchForNumber = int.Parse(searchFor);
+            var windowRemoveMod = (int)Math.Pow(10, (searchFor.Length - 1));
+            var windowValue = 0;
+            foreach (var v in initial)
+            {
+                windowValue *= 10;
+                windowValue += v;
+            }
 
             var list = new List<int>(initial);
             var elves = new int[] { 0, 1 };
@@ -78,12 +68,15 @@ namespace Advent2018
                     sum += score;
                     elves[i] += (score + 1);
                 }
+
                 foreach (var i in SplitNumber(sum))
                 {
                     list.Add(i);
-                    var offset = list.Count - searchForList.Count;
-                    if (CompareSequence(searchForList, list, offset))
-                        return offset;
+                    windowValue %= windowRemoveMod;
+                    windowValue *= 10;
+                    windowValue += i;
+                    if (windowValue == searchForNumber)
+                        return list.Count - searchFor.Length;
                 }
 
                 for (var i = 0; i < elves.Length; i++)
