@@ -37,28 +37,37 @@ namespace Advent2018
         {
             public int[] registers = new int[4];
 
+            public void Execute((OpCodes opcode, int a, int b, int c)[] program)
+            {
+                foreach (var (opcode, a, b, c) in program)
+                {
+                    s_OpCodeImplementations[opcode](registers, a, b, c);
+                }
+            }
 
             public static Dictionary<OpCodes, Action<int[], int, int, int>> s_OpCodeImplementations;
 
             static Cpu()
             {
-                s_OpCodeImplementations = new Dictionary<OpCodes, Action<int[], int, int, int>>();
-                s_OpCodeImplementations[OpCodes.ADDR] = (r, a, b, c) => r[c] = r[a] + r[b];
-                s_OpCodeImplementations[OpCodes.ADDI] = (r, a, b, c) => r[c] = r[a] + b;
-                s_OpCodeImplementations[OpCodes.MULR] = (r, a, b, c) => r[c] = r[a] * r[b];
-                s_OpCodeImplementations[OpCodes.MULI] = (r, a, b, c) => r[c] = r[a] * b;
-                s_OpCodeImplementations[OpCodes.BANR] = (r, a, b, c) => r[c] = r[a] & r[b];
-                s_OpCodeImplementations[OpCodes.BANI] = (r, a, b, c) => r[c] = r[a] & b;
-                s_OpCodeImplementations[OpCodes.BORR] = (r, a, b, c) => r[c] = r[a] | r[b];
-                s_OpCodeImplementations[OpCodes.BORI] = (r, a, b, c) => r[c] = r[a] | b;
-                s_OpCodeImplementations[OpCodes.SETR] = (r, a, b, c) => r[c] = r[a];
-                s_OpCodeImplementations[OpCodes.SETI] = (r, a, b, c) => r[c] = a;
-                s_OpCodeImplementations[OpCodes.GTIR] = (r, a, b, c) => r[c] = a > r[b] ? 1 : 0;
-                s_OpCodeImplementations[OpCodes.GTRI] = (r, a, b, c) => r[c] = r[a] > b ? 1 : 0;
-                s_OpCodeImplementations[OpCodes.GTRR] = (r, a, b, c) => r[c] = r[a] > r[b] ? 1 : 0;
-                s_OpCodeImplementations[OpCodes.EQIR] = (r, a, b, c) => r[c] = a == r[b] ? 1 : 0;
-                s_OpCodeImplementations[OpCodes.EQRI] = (r, a, b, c) => r[c] = r[a] == b ? 1 : 0;
-                s_OpCodeImplementations[OpCodes.EQRR] = (r, a, b, c) => r[c] = r[a] == r[b] ? 1 : 0;
+                s_OpCodeImplementations = new Dictionary<OpCodes, Action<int[], int, int, int>>
+                {
+                    [OpCodes.ADDR] = (r, a, b, c) => r[c] = r[a] + r[b],
+                    [OpCodes.ADDI] = (r, a, b, c) => r[c] = r[a] + b,
+                    [OpCodes.MULR] = (r, a, b, c) => r[c] = r[a] * r[b],
+                    [OpCodes.MULI] = (r, a, b, c) => r[c] = r[a] * b,
+                    [OpCodes.BANR] = (r, a, b, c) => r[c] = r[a] & r[b],
+                    [OpCodes.BANI] = (r, a, b, c) => r[c] = r[a] & b,
+                    [OpCodes.BORR] = (r, a, b, c) => r[c] = r[a] | r[b],
+                    [OpCodes.BORI] = (r, a, b, c) => r[c] = r[a] | b,
+                    [OpCodes.SETR] = (r, a, b, c) => r[c] = r[a],
+                    [OpCodes.SETI] = (r, a, b, c) => r[c] = a,
+                    [OpCodes.GTIR] = (r, a, b, c) => r[c] = a > r[b] ? 1 : 0,
+                    [OpCodes.GTRI] = (r, a, b, c) => r[c] = r[a] > b ? 1 : 0,
+                    [OpCodes.GTRR] = (r, a, b, c) => r[c] = r[a] > r[b] ? 1 : 0,
+                    [OpCodes.EQIR] = (r, a, b, c) => r[c] = a == r[b] ? 1 : 0,
+                    [OpCodes.EQRI] = (r, a, b, c) => r[c] = r[a] == b ? 1 : 0,
+                    [OpCodes.EQRR] = (r, a, b, c) => r[c] = r[a] == r[b] ? 1 : 0
+                };
             }
         }
 
@@ -122,35 +131,30 @@ namespace Advent2018
             count.Should().Be(3);
         }
 
-        int[] CountMatches(List<Observation> observations, Dictionary<int, OpCodes> knownCodes)
+        HashSet<OpCodes>[] CountMatches(List<Observation> observations)
         {
-            var matchCounts = new int[observations.Count];
+            var matchCounts = new HashSet<OpCodes>[observations.Count];
+            for (var i = 0; i < matchCounts.Length; i++)
+                matchCounts[i] = new HashSet<OpCodes>();
 
             for (var i = 0; i < observations.Count; i++)
             {
                 var obs = observations[i];
-                if (knownCodes.ContainsKey(obs.Action[0]))
-                {
-                    matchCounts[i] = 1;
-                    continue;
-                }
-
-                foreach (var opcode in Cpu.s_OpCodeImplementations.Values)
+                foreach (var opcode in Enum.GetValues(typeof(OpCodes)).Cast<OpCodes>())
                 {
                     var registers = (int[])obs.Before.Clone();
-                    opcode(registers, obs.Action[1], obs.Action[2], obs.Action[3]);
+                    Cpu.s_OpCodeImplementations[opcode](registers, obs.Action[1], obs.Action[2], obs.Action[3]);
                     if (ArraysMatch(registers, obs.After))
-                        matchCounts[i]++;
+                        matchCounts[i].Add(opcode);
                 }
             }
 
             return matchCounts;
         }
 
-        [Fact]
-        void Problem1()
+        List<Observation> LoadObservations(string filename)
         {
-            var lines = FileIterator.LoadLines<string>("Data/Day16-1.txt");
+            var lines = FileIterator.LoadLines<string>(filename);
             var observations = new List<Observation>();
 
             var currentLine = 0;
@@ -166,11 +170,73 @@ namespace Advent2018
                 currentLine++;
             }
 
-            var knownCodes = new Dictionary<int, OpCodes>();
-            var matchCounts = CountMatches(observations, knownCodes);
+            return observations;
+        }
 
-            var multipleMatched = matchCounts.Where(c => c >= 3).Count();
+        (OpCodes opcode, int a, int b, int c)[] LoadProgram(string filename, Dictionary<int, OpCodes> knownCodes)
+        {
+            var lines = FileIterator.LoadLines<string>(filename);
+            var program = new (OpCodes opcode, int a, int b, int c)[lines.Length];
+
+            for (var i = 0; i < lines.Length; i++)
+            {
+                var match = lines[i].Match(@"(\d+) (\d+) (\d+) (\d+)");
+                program[i].opcode = knownCodes[int.Parse(match.Groups[1].Value)];
+                program[i].a = int.Parse(match.Groups[2].Value);
+                program[i].b = int.Parse(match.Groups[3].Value);
+                program[i].c = int.Parse(match.Groups[4].Value);
+            }
+
+            return program;
+        }
+
+        [Fact]
+        void Problem1()
+        {
+            var observations = LoadObservations("Data/Day16-1.txt");
+            var matchCounts = CountMatches(observations);
+
+            var multipleMatched = matchCounts.Where(c => c.Count >= 3).Count();
             multipleMatched.Should().Be(509); // Problem 1 solution
+        }
+
+        [Fact]
+        void Problem2()
+        {
+            var observations = LoadObservations("Data/Day16-1.txt");
+            var matchedOpCodes = CountMatches(observations);
+            var knownCodes = new Dictionary<int, OpCodes>();
+            var knownCodesReverse = new Dictionary<OpCodes, int>();
+
+            while (knownCodes.Count != 16)
+            {
+                for (var i = 0; i < matchedOpCodes.Length; i++)
+                {
+                    var observationOpCode = observations[i].Action[0];
+
+                    if (matchedOpCodes[i].Count == 1)
+                    {
+                        knownCodes[observationOpCode] = matchedOpCodes[i].First();
+                        knownCodesReverse[matchedOpCodes[i].First()] = observationOpCode;
+                    }
+                    else
+                    {
+                        var removeList = new List<OpCodes>();
+                        foreach (var opcode in matchedOpCodes[i])
+                            if (knownCodesReverse.TryGetValue(opcode, out int value))
+                                if (observationOpCode != value)
+                                    removeList.Add(opcode);
+
+                        foreach (var opcode in removeList)
+                            matchedOpCodes[i].Remove(opcode);
+                    }
+                }
+            }
+
+            var program = LoadProgram("Data/Day16-2.txt", knownCodes);
+            var cpu = new Cpu();
+            cpu.Execute(program);
+            cpu.registers[0].Should().Be(496);
         }
     }
 }
