@@ -1,11 +1,7 @@
 ﻿using FluentAssertions;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Utils;
 using Xunit;
 
@@ -88,33 +84,6 @@ namespace Advent2018
             return (environment, minX, minY);
         }
 
-        //[Fact]
-        void DrawEnvironment(CellState[,] environment)
-        {
-            //var (environment, offsetX) = LoadEnvironment("Data/Day17-Test1.txt");
-
-            foreach (var (x, y) in environment.Rectangle())
-            {
-                if (x == 0) Debug.WriteLine("");
-                switch (environment[x, y])
-                {
-                    case CellState.Wall:
-                        Debug.Write("#");
-                        break;
-
-                    case CellState.Water:
-                        Debug.Write("~");
-                        break;
-
-                    default:
-                        Debug.Write(" ");
-                        break;
-                }
-            }
-
-            Debug.WriteLine("\n\n");
-        }
-
         bool IsStable(CellState[,] environment, int x, int y)
         {
             if (environment[x, y] == CellState.Wall)
@@ -158,11 +127,11 @@ namespace Advent2018
         }
 
         [Theory]
-        [InlineData(57, "Data/Day17-Test1.txt")]
-        [InlineData(10, "Data/Day17-Test2.txt")]
-        [InlineData(20, "Data/Day17-Test3.txt")]
-        [InlineData(38364, "Data/Day17.txt")]
-        void Problem1(int expectedCount, string inputfile)
+        [InlineData(57, 29, "Data/Day17-Test1.txt")]
+        [InlineData(10, 3, "Data/Day17-Test2.txt")]
+        [InlineData(20, 11, "Data/Day17-Test3.txt")]
+        [InlineData(38364, 30551, "Data/Day17.txt")] // Solution
+        void Problem1(int expectedCount, int expectedStable, string inputfile)
         {
             var (environment, offsetX, minY) = LoadEnvironment(inputfile);
             var waterX = 500 - offsetX;
@@ -183,10 +152,8 @@ namespace Advent2018
                     waterFrontier.Push((x, y));
                     waterFrontier.Push((x, y + 1));
                     environment[x, y + 1] = CellState.Water;
-                    continue;
                 }
-
-                if (IsStable(environment, x, y + 1))
+                else if (IsStable(environment, x, y + 1))
                 {
                     if (environment[x - 1, y] == CellState.Empty)
                     {
@@ -207,13 +174,18 @@ namespace Advent2018
 
             //Render(environment);
 
-            var count = 0;
+            var totalCount = 0;
+            var stableCount = 0;
             foreach (var (x, y) in environment.Rectangle())
                 if (y >= minY && environment[x, y] == CellState.Water)
-                    count++;
+                {
+                    totalCount++;
+                    if (IsStable(environment, x, y))
+                        stableCount++;
+                }
 
-            // Take one away for the initial source
-            count.Should().Be(expectedCount);
+            totalCount.Should().Be(expectedCount);
+            stableCount.Should().Be(expectedStable);
         }
     }
 }
