@@ -122,6 +122,31 @@ namespace Advent2018
             count.Should().Be(3);
         }
 
+        int[] CountMatches(List<Observation> observations, Dictionary<int, OpCodes> knownCodes)
+        {
+            var matchCounts = new int[observations.Count];
+
+            for (var i = 0; i < observations.Count; i++)
+            {
+                var obs = observations[i];
+                if (knownCodes.ContainsKey(obs.Action[0]))
+                {
+                    matchCounts[i] = 1;
+                    continue;
+                }
+
+                foreach (var opcode in Cpu.s_OpCodeImplementations.Values)
+                {
+                    var registers = (int[])obs.Before.Clone();
+                    opcode(registers, obs.Action[1], obs.Action[2], obs.Action[3]);
+                    if (ArraysMatch(registers, obs.After))
+                        matchCounts[i]++;
+                }
+            }
+
+            return matchCounts;
+        }
+
         [Fact]
         void Problem1()
         {
@@ -141,18 +166,8 @@ namespace Advent2018
                 currentLine++;
             }
 
-            var matchCounts = new int[observations.Count];
-            for (var i = 0; i < observations.Count; i++)
-            {
-                var obs = observations[i];
-                foreach (var opcode in Cpu.s_OpCodeImplementations.Values)
-                {
-                    var registers = (int[])obs.Before.Clone();
-                    opcode(registers, obs.Action[1], obs.Action[2], obs.Action[3]);
-                    if (ArraysMatch(registers, obs.After))
-                        matchCounts[i]++;
-                }
-            }
+            var knownCodes = new Dictionary<int, OpCodes>();
+            var matchCounts = CountMatches(observations, knownCodes);
 
             var multipleMatched = matchCounts.Where(c => c >= 3).Count();
             multipleMatched.Should().Be(509); // Problem 1 solution
