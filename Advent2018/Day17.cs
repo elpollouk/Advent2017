@@ -157,14 +157,14 @@ namespace Advent2018
                 {
                     if (environment[x - 1, y] == CellState.Empty)
                     {
-                        // Expand left along a level surface
+                        // Expand left along a stable surface
                         waterFrontier.Push((x, y));
                         waterFrontier.Push((x - 1, y));
                         environment[x - 1, y] = CellState.Water;
                     }
                     else if (environment[x + 1, y] == CellState.Empty)
                     {
-                        // Expand left along a level surface
+                        // Expand right along a stable surface
                         waterFrontier.Push((x, y));
                         waterFrontier.Push((x + 1, y));
                         environment[x + 1, y] = CellState.Water;
