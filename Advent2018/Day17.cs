@@ -50,10 +50,11 @@ namespace Advent2018
             public int EndY => Horizontal ? StartY : Extent;
         }
 
-        (CellState[,] environment, int offsetX) LoadEnvironment(string filename)
+        (CellState[,] environment, int offsetX, int minY) LoadEnvironment(string filename)
         {
             var strokes = new List<Stroke>();
             var minX = int.MaxValue;
+            var minY = int.MaxValue;
             var maxX = int.MinValue;
             var maxY = int.MinValue;
             FileIterator.ForEachLine<string>(filename, line =>
@@ -61,6 +62,7 @@ namespace Advent2018
                 var stroke = new Stroke(line);
                 strokes.Add(stroke);
                 minX = Math.Min(minX, stroke.StartX);
+                minY = Math.Min(minY, stroke.StartY);
                 maxX = Math.Max(maxX, stroke.EndX);
                 maxY = Math.Max(maxY, stroke.EndY);
             });
@@ -83,7 +85,7 @@ namespace Advent2018
                 }
             }
 
-            return (environment, minX);
+            return (environment, minX, minY);
         }
 
         //[Fact]
@@ -156,13 +158,13 @@ namespace Advent2018
         }
 
         [Theory]
-        //[InlineData(57, "Data/Day17-Test1.txt")]
-        //[InlineData(11, "Data/Day17-Test2.txt")]
-        //[InlineData(21, "Data/Day17-Test3.txt")]
-        [InlineData(0, "Data/Day17.txt")] // 38369 too high
+        [InlineData(57, "Data/Day17-Test1.txt")]
+        [InlineData(10, "Data/Day17-Test2.txt")]
+        [InlineData(20, "Data/Day17-Test3.txt")]
+        [InlineData(38364, "Data/Day17.txt")]
         void Problem1(int expectedCount, string inputfile)
         {
-            var (environment, offsetX) = LoadEnvironment(inputfile);
+            var (environment, offsetX, minY) = LoadEnvironment(inputfile);
             var waterX = 500 - offsetX;
             environment[waterX, 0] = CellState.Water;
 
@@ -203,15 +205,15 @@ namespace Advent2018
                 }
             }
 
-            Render(environment);
+            //Render(environment);
 
             var count = 0;
-            foreach (var cell in environment)
-                if ((cell == CellState.Water))
+            foreach (var (x, y) in environment.Rectangle())
+                if (y >= minY && environment[x, y] == CellState.Water)
                     count++;
 
             // Take one away for the initial source
-            (count - 1).Should().Be(expectedCount);
+            count.Should().Be(expectedCount);
         }
     }
 }
