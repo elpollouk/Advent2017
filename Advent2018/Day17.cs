@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -136,11 +137,29 @@ namespace Advent2018
             return true;
         }
 
+        void Render(CellState[,] environment)
+        {
+            Renderer.RenderGrid(@"c:\temp\test.png", environment, cell =>
+            {
+                switch (cell)
+                {
+                    case CellState.Empty:
+                        return Color.Black;
+
+                    case CellState.Water:
+                        return Color.Blue;
+
+                    default:
+                        return Color.Brown;
+                }
+            });
+        }
+
         [Theory]
-        [InlineData(57, "Data/Day17-Test1.txt")]
-        [InlineData(11, "Data/Day17-Test2.txt")]
-        [InlineData(21, "Data/Day17-Test3.txt")]
-        //[InlineData(0, "Data/Day17.txt")] // 38369 too high
+        //[InlineData(57, "Data/Day17-Test1.txt")]
+        //[InlineData(11, "Data/Day17-Test2.txt")]
+        //[InlineData(21, "Data/Day17-Test3.txt")]
+        [InlineData(0, "Data/Day17.txt")] // 38369 too high
         void Problem1(int expectedCount, string inputfile)
         {
             var (environment, offsetX) = LoadEnvironment(inputfile);
@@ -184,7 +203,7 @@ namespace Advent2018
                 }
             }
 
-            DrawEnvironment(environment);
+            Render(environment);
 
             var count = 0;
             foreach (var cell in environment)
