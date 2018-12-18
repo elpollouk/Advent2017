@@ -101,7 +101,7 @@ namespace Advent2018
                             break;
 
                         case CellState.LumberYard:
-                            buffer[(y * width) + 5] = 13;
+                            buffer[(y * width) + x] = 13;
                             break;
                     }
                 }
