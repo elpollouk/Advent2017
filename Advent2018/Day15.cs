@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using System.Collections.Generic;
+using System.Linq;
 using Utils;
 using Xunit;
 
@@ -32,8 +33,6 @@ namespace Advent2018
             {
                 if (DistanceFromStart < other.DistanceFromStart)
                     return true;
-                if (DistanceFromStart > other.DistanceFromStart)
-                    return false;
 
                 return false;
             }
@@ -83,7 +82,7 @@ namespace Advent2018
             }
         }
 
-        List<(int x, int y)> LoadPath(int[] input)
+        List<(int x, int y)> LoadTuples(int[] input)
         {
             var path = new List<(int x, int y)>();
 
@@ -139,13 +138,29 @@ namespace Advent2018
 
         [Theory]
         [InlineData(2, 3, 6, 3, 2, 2, 3, 2, 4, 2, 5, 2, 6, 2, 6, 3)]
+        [InlineData(2, 1, 6, 1, 3, 1, 3, 2, 4, 2, 5, 2, 5, 1, 6, 1)]
+        [InlineData(2, 5, 6, 5, 2, 4, 3, 4, 4, 4, 5, 4, 6, 4, 6, 5)]
+        [InlineData(1, 1, 1, 5, 2, 1, 2, 2, 2, 3, 2, 4, 1, 4, 1, 5)]
+        [InlineData(7, 1, 7, 5, 6, 1, 6, 2, 6, 3, 6, 4, 7, 4, 7, 5)]
+        [InlineData(2, 2, 2, 4, 2, 3, 2, 4)]
+        [InlineData(2, 2, 9, 1)]
         void TestNavigation(int startX, int startY, int endX, int endY, params int[] expectedPath)
         {
             var environment = FileIterator.LoadGrid("Data/Day15-NavTest.txt", CharToCellState);
-            environment.DebugDump(CellStateToChar);
-
-            var path = LoadPath(expectedPath);
+            var path = LoadTuples(expectedPath);
             PathToNearestTarget(environment, (startX, startY), (endX, endY)).Should().BeEquivalentTo(path, options => options.WithStrictOrdering());
+        }
+
+        //[InlineData()];
+        void TestNavigation_FirstStep_MultipleTargets(int startX, int startY, int firstX, int firstY, params int[] targets)
+        {
+            var environment = FileIterator.LoadGrid("Data/Day15-NavTest.txt", CharToCellState);
+            var targetList = LoadTuples(targets).ToArray();
+            var path = PathToNearestTarget(environment, (startX, startY), targetList);
+
+            var first = path.First();
+            first.x.Should().Be(firstX);
+            first.y.Should().Be(firstY);
         }
     }
 }
