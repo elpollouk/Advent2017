@@ -18,6 +18,8 @@ namespace Advent2018
 
         struct PathStep
         {
+            public static readonly PathStep MaxDistance = new PathStep(int.MaxValue, (0, 0), (0, 0));
+
             public readonly int DistanceFromStart;
             public readonly (int x, int y) Pos;
             public readonly (int x, int y) From;
@@ -101,8 +103,8 @@ namespace Advent2018
             while (frontier.Count != 0)
             {
                 var step = frontier.Dequeue();
-                if (!pathMap.TryGetValue((step.Pos.x, step.Pos.y), out PathStep existingStep))
-                    existingStep = new PathStep(int.MaxValue, (0, 0), (0, 0));
+                if (!pathMap.TryGetValue(step.Pos, out PathStep existingStep))
+                    existingStep = PathStep.MaxDistance;
 
                 if (step.IsQuickerThan(existingStep))
                 {
@@ -140,7 +142,6 @@ namespace Advent2018
 
             return path;
         }
-
 
         [Theory]
         [InlineData(2, 3, 6, 3, 2, 2, 3, 2, 4, 2, 5, 2, 6, 2, 6, 3)]
