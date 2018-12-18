@@ -76,5 +76,41 @@ namespace Utils
 
             return maxItem;
         }
+
+        public static IEnumerable<T> GetNeighbours<T>(this T[,] grid, int x, int y)
+        {
+            if (1 <= y && y <= grid.GetLength(1))
+            {
+                if (1 <= x && x <= grid.GetLength(0))
+                    yield return grid[x - 1, y - 1];
+
+                if (0 <= x && x <= grid.GetLength(0) - 1)
+                    yield return grid[x, y - 1];
+
+                if (-1 <= x && x <= grid.GetLength(0) - 2)
+                    yield return grid[x + 1, y - 1];
+            }
+
+            if (0 <= y && y <= grid.GetLength(1) - 1)
+            {
+                if (1 <= x && x <= grid.GetLength(0))
+                    yield return grid[x - 1, y];
+
+                if (-1 <= x && x <= grid.GetLength(0) - 2)
+                    yield return grid[x + 1, y];
+            }
+
+            if (-1 <= y && y <= grid.GetLength(1) - 2)
+            {
+                if (1 <= x && x <= grid.GetLength(0))
+                    yield return grid[x - 1, y + 1];
+
+                if (0 <= x && x <= grid.GetLength(0) - 1)
+                    yield return grid[x, y + 1];
+
+                if (-1 <= x && x <= grid.GetLength(0) - 2)
+                    yield return grid[x + 1, y + 1];
+            }
+        }
     }
 }

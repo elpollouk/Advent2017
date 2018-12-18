@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Utils
@@ -40,6 +41,14 @@ namespace Utils
         {
             var _regex = new Regex(regex);
             return _regex.Match(s);
+        }
+
+        public static string ToHexString(this byte[] buffer)
+        {
+            StringBuilder hex = new StringBuilder(buffer.Length * 2);
+            foreach (byte b in buffer)
+                hex.AppendFormat("{0:x2}", b);
+            return hex.ToString();
         }
     }
 }
