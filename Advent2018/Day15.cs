@@ -128,19 +128,16 @@ namespace Advent2018
                                         .ThenBy(t => t.y)
                                         .ThenBy(t => t.x);
 
-            foreach (var target in orderedTargets)
+            if (orderedTargets.Count() != 0 )
             {
-                if (pathMap.ContainsKey(target))
+                var location = pathMap[orderedTargets.First()];
+                while (location.Pos.x != start.x || location.Pos.y != start.y)
                 {
-                    var location = pathMap[target];
-                    while (location.Pos.x != start.x || location.Pos.y != start.y)
-                    {
-                        path.AddFirst(location.Pos);
-                        location = pathMap[location.From];
-                    }
-                    break;
+                    path.AddFirst(location.Pos);
+                    location = pathMap[location.From];
                 }
             }
+
             return path;
         }
 
