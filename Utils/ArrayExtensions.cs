@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
@@ -111,6 +112,19 @@ namespace Utils
                 if (-1 <= x && x <= grid.GetLength(0) - 2)
                     yield return grid[x + 1, y + 1];
             }
+        }
+
+        public static void DebugDump<T>(this T[,] grid, Func<T, char> charMapper)
+        {
+            foreach (var (x, y) in grid.Rectangle())
+            {
+                if (x == 0)
+                    Debug.WriteLine("");
+
+                Debug.Write(charMapper(grid[x, y]));
+            }
+
+            Debug.WriteLine("");
         }
     }
 }

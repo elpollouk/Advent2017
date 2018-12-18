@@ -69,5 +69,16 @@ namespace Utils
             });
             return values.ToArray();
         }
+
+        public static T[,] LoadGrid<T>(string filename, Func<char, T> cellMapper)
+        {
+            var lines = LoadLines<string>(filename);
+            var grid = new T[lines[0].Length, lines.Length];
+
+            foreach (var (x, y) in grid.Rectangle())
+                grid[x, y] = cellMapper(lines[y][x]);
+
+            return grid;
+        }
     }
 }
