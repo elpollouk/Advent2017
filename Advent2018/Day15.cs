@@ -123,13 +123,22 @@ namespace Advent2018
             }
 
             var path = new LinkedList<(int x, int y)>();
-            if (pathMap.ContainsKey(targets[0]))
+            var orderedTargets = targets.Where(t => pathMap.ContainsKey(t))
+                                        .OrderBy(t => pathMap[t].DistanceFromStart)
+                                        .ThenBy(t => t.y)
+                                        .ThenBy(t => t.x);
+
+            foreach (var target in orderedTargets)
             {
-                var location = pathMap[targets[0]];
-                while (location.Pos.x != start.x || location.Pos.y != start.y)
+                if (pathMap.ContainsKey(target))
                 {
-                    path.AddFirst(location.Pos);
-                    location = pathMap[location.From];
+                    var location = pathMap[target];
+                    while (location.Pos.x != start.x || location.Pos.y != start.y)
+                    {
+                        path.AddFirst(location.Pos);
+                        location = pathMap[location.From];
+                    }
+                    break;
                 }
             }
             return path;
@@ -151,16 +160,28 @@ namespace Advent2018
             PathToNearestTarget(environment, (startX, startY), (endX, endY)).Should().BeEquivalentTo(path, options => options.WithStrictOrdering());
         }
 
-        //[InlineData()];
-        void TestNavigation_FirstStep_MultipleTargets(int startX, int startY, int firstX, int firstY, params int[] targets)
+        [Theory]
+        [InlineData(2, 3, 2, 2, 2, 5, 2, 1)] // Vertical read order wins
+        [InlineData(3, 4, 2, 4, 1, 4, 5, 4)] // Horizontal read order wins
+        [InlineData(3, 4, 2, 4, 5, 4, 1, 4)] // Horizontal read order wins, alternative target order
+        [InlineData(3, 2, 2, 2, 3, 4, 5, 2, 1, 2)] // Three way tie, read order wins
+        [InlineData(3, 3, 3, 4, 3, 1, 3, 4)] // Non-read order is closer
+        [InlineData(3, 2, 3, 3, 9, 1, 3, 5)] // First read order target not reachable
+        void TestNavigation_MultipleTargets_FirstStep(int startX, int startY, int firstX, int firstY, params int[] targets)
         {
             var environment = FileIterator.LoadGrid("Data/Day15-NavTest.txt", CharToCellState);
             var targetList = LoadTuples(targets).ToArray();
             var path = PathToNearestTarget(environment, (startX, startY), targetList);
 
-            var first = path.First();
-            first.x.Should().Be(firstX);
-            first.y.Should().Be(firstY);
+            path.First().Should().Be((firstX, firstY));
+        }
+
+        [Fact]
+        void TestNavigation_MultipleTargets_NoPaths()
+        {
+            var environment = FileIterator.LoadGrid("Data/Day15-NavTest.txt", CharToCellState);
+            var path = PathToNearestTarget(environment, (2, 3), (9, 1), (9, 5));
+            path.Count.Should().Be(0);
         }
     }
 }
