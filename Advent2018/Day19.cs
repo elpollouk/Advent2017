@@ -128,25 +128,18 @@ namespace Advent2018
         void ProblemCompiled(bool hardMode, int expectedAnswer)
         {
             var a = 0;
-            var c = 0;
             var d = hardMode ? 10551408 : 1008;
-            var e = 1;
             var f = 0;
 
-            do
+            for (var e = 1; e <= d; e++)
             {
-                c = 1;
-                do
+                for (var c = 1; c <= d; c++)
                 {
                     f = c * e;
                     if (f == d)
                         a += e;
-                    c++;
                 }
-                while (c <= d);
-                e++;
             }
-            while (e <= d);
 
             a.Should().Be(expectedAnswer);
         }
