@@ -127,21 +127,15 @@ namespace Advent2018
         [InlineData(false, 3224)]
         void ProblemCompiled(bool hardMode, int expectedAnswer)
         {
-            var a = 0;
-            var d = hardMode ? 10551408 : 1008;
-            var f = 0;
+            var total = 0;
+            var target = hardMode ? 10551408 : 1008;
 
-            for (var e = 1; e <= d; e++)
-            {
-                for (var c = 1; c <= d; c++)
-                {
-                    f = c * e;
-                    if (f == d)
-                        a += e;
-                }
-            }
+            for (var i = 1; i <= target; i++)
+                for (var j = 1; j <= target; j++)
+                    if (i * j == target)
+                        total += i;
 
-            a.Should().Be(expectedAnswer);
+            total.Should().Be(expectedAnswer);
         }
     }
 }
