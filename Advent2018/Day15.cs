@@ -54,20 +54,26 @@ namespace Advent2018
                 Pos = pos;
             }
 
-            public bool IsEngaged(Entity[,] environment)
+            public Entity GetEngaged(Entity[,] environment)
             {
                 var enemy = Type == EntityType.Elf ? EntityType.Goblin : EntityType.Elf;
 
-                if (environment[Pos.x, Pos.y - 1].Type == enemy)
-                    return true;
-                if (environment[Pos.x - 1, Pos.y].Type == enemy)
-                    return true;
-                if (environment[Pos.x + 1, Pos.y].Type == enemy)
-                    return true;
-                if (environment[Pos.x, Pos.y + 1].Type == enemy)
-                    return true;
+                var adjacent = new List<Entity>
+                {
+                    environment[Pos.x, Pos.y - 1],
+                    environment[Pos.x - 1, Pos.y],
+                    environment[Pos.x + 1, Pos.y],
+                    environment[Pos.x, Pos.y + 1]
+                };
 
-                return false;
+                var engaged = adjacent.Where(e => e.Type == enemy)
+                                      .OrderBy(e => e.Pos.y)
+                                      .ThenBy(e => e.Pos.x);
+
+                if (engaged.Count() == 0)
+                    return null;
+
+                return engaged.First();
             }
         }
 
@@ -217,7 +223,7 @@ namespace Advent2018
             foreach (var entity in entities.OrderBy(e => e.Pos.y).ThenBy(e => e.Pos.x).ToArray())
             {
                 // Move first
-                if (!entity.IsEngaged(environment))
+                if (entity.GetEngaged(environment) == null)
                 {
                     var targets = GetValidTargets(environment, entities, entity.Type);
                     var path = PathToNearestTarget(environment, entity.Pos, targets);
@@ -231,7 +237,8 @@ namespace Advent2018
                 }
 
                 // Then attack
-                if (entity.IsEngaged(environment))
+                var target = entity.GetEngaged(environment);
+                if (target != null)
                 {
 
                 }
