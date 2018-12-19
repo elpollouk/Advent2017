@@ -221,10 +221,16 @@ namespace Advent2018
             return list.ToArray();
         }
 
-        void Step(Entity[,] environment, ICollection<Entity> entities)
+        bool Step(Entity[,] environment, ICollection<Entity> entities)
         {
-            foreach (var entity in entities.OrderBy(e => e.Pos.y).ThenBy(e => e.Pos.x).ToArray())
+            if (WinningTeam(entities) != EntityType.None)
+                return false; // The game is over
+
+            var orderedEntities = entities.OrderBy(e => e.Pos.y).ThenBy(e => e.Pos.x).ToArray();
+            for (var i = 0; i < orderedEntities.Length; i++)
             {
+                var entity = orderedEntities[i];
+
                 // Check that the entity hasn't been killed this round
                 if (entity.Health <= 0)
                     continue;
@@ -252,9 +258,17 @@ namespace Advent2018
                     {
                         environment[target.Pos.x, target.Pos.y] = Entity.None;
                         entities.Remove(target);
+
+                        // Determine if this was a full round or not
+                        if (i != orderedEntities.Length - 1) // It's a full round if this is the last entity to act
+                            if (WinningTeam(entities) == entity.Type)
+                                return false; // Not a full round
                     }
                 }
             }
+
+
+            return true; // A full round
         }
 
         EntityType WinningTeam(ICollection<Entity> entities)
@@ -405,23 +419,25 @@ namespace Advent2018
             sorted[8].Pos.Should().Be((7, 5));
         }
 
-        [Fact]
-        void TestExample3_Battle()
+        [Theory]
+        [InlineData(27730, "Data/Day15-Battle1.txt")]
+        [InlineData(36334, "Data/Day15-Battle2.txt")]
+        [InlineData(39514, "Data/Day15-Battle3.txt")]
+        [InlineData(27755, "Data/Day15-Battle4.txt")]
+        [InlineData(28944, "Data/Day15-Battle5.txt")]
+        [InlineData(18740, "Data/Day15-Battle6.txt")]
+        [InlineData(243390, "Data/Day15.txt")]
+        void Problem1(int expectedOutcome, string inputFile)
         {
-            var environment = FileIterator.LoadGrid("Data/Day15-Example3.txt", CharToCellState);
+            var environment = FileIterator.LoadGrid(inputFile, CharToCellState);
             var entities = GatherEntities(environment);
 
             var round = 0;
-            while (WinningTeam(entities) == EntityType.None)
-            {
-                Step(environment, entities);
+            while (Step(environment, entities))
                 round++;
-            }
 
             var totalHealth = entities.Select(e => e.Health).Sum();
-            round.Should().Be(47);
-            totalHealth.Should().Be(590);
-            (totalHealth * round).Should().Be(27730);
+            (totalHealth * round).Should().Be(expectedOutcome);
         }
     }
 }
