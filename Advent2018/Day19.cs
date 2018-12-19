@@ -133,22 +133,21 @@ namespace Advent2018
             var e = 1;
             var f = 0;
 
-        L3:
-            c = 1;
-        L2:
-            f = c * e;
-            if (f == d)
-                a += e;
-            c++;
-            if (c <= d)
-                goto L2;
-            e++;
+            do
+            {
+                c = 1;
+                do
+                {
+                    f = c * e;
+                    if (f == d)
+                        a += e;
+                    c++;
+                }
+                while (c <= d);
+                e++;
+            }
+            while (e <= d);
 
-            if (e > d)
-                goto END;
-            goto L3;
-
-        END:
             a.Should().Be(expectedAnswer);
         }
     }
