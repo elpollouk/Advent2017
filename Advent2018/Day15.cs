@@ -8,9 +8,9 @@ namespace Advent2018
 {
     public class Day15
     {
-        enum CellState
+        enum EntityType
         {
-            Clear,
+            None,
             Wall,
             Elf,
             Goblin
@@ -42,68 +42,71 @@ namespace Advent2018
 
         class Entity
         {
-            public readonly CellState Type;
+            public static readonly Entity None = new Entity(EntityType.None, (-1, -1));
+            public static readonly Entity Wall = new Entity(EntityType.Wall, (-1, -1));
+
+            public readonly EntityType Type;
             public (int x, int y) Pos;
 
-            public Entity(CellState type, (int x, int y) pos)
+            public Entity(EntityType type, (int x, int y) pos)
             {
                 Type = type;
                 Pos = pos;
             }
 
-            public bool IsEngaged(CellState[,] environment)
+            public bool IsEngaged(Entity[,] environment)
             {
-                var enemy = Type == CellState.Elf ? CellState.Goblin : CellState.Elf;
+                var enemy = Type == EntityType.Elf ? EntityType.Goblin : EntityType.Elf;
 
-                if (environment[Pos.x, Pos.y - 1] == enemy)
+                if (environment[Pos.x, Pos.y - 1].Type == enemy)
                     return true;
-                if (environment[Pos.x - 1, Pos.y] == enemy)
+                if (environment[Pos.x - 1, Pos.y].Type == enemy)
                     return true;
-                if (environment[Pos.x + 1, Pos.y] == enemy)
+                if (environment[Pos.x + 1, Pos.y].Type == enemy)
                     return true;
-                if (environment[Pos.x, Pos.y + 1] == enemy)
+                if (environment[Pos.x, Pos.y + 1].Type == enemy)
                     return true;
 
                 return false;
             }
         }
 
-        static CellState CharToCellState(char value)
+        static Entity CharToCellState(char value, int x, int y)
         {
             switch (value)
             {
                 case '.':
-                    return CellState.Clear;
+                    return Entity.None;
 
                 case '#':
-                    return CellState.Wall;
+                    return Entity.Wall;
 
                 case 'E':
-                    return CellState.Elf;
+                    return new Entity(EntityType.Elf, (x, y));
 
                 case 'G':
-                    return CellState.Goblin;
+                    return new Entity(EntityType.Goblin, (x, y));
 
                 default:
                     Oh.Bugger();
-                    return CellState.Clear;
+                    return Entity.None;
             }
         }
 
-        static char CellStateToChar(CellState cellState)
+        static char CellStateToChar(Entity entity)
         {
-            switch (cellState)
+            switch (entity.Type)
             {
-                case CellState.Clear:
+                case EntityType.None:
                     return '.';
 
-                case CellState.Wall:
+                case EntityType.Wall:
                     return '#';
 
-                case CellState.Elf:
+                case EntityType.Elf:
                     return 'E';
 
-                case CellState.Goblin:
+                case EntityType.Goblin:
                     return 'G';
 
                 default:
@@ -122,20 +125,20 @@ namespace Advent2018
             return path;
         }
 
-        ICollection<(int x, int y)> PathToNearestTarget(CellState[,] grid, (int x, int y) start, params (int x, int y)[] targets)
+        ICollection<(int x, int y)> PathToNearestTarget(Entity[,] grid, (int x, int y) start, params (int x, int y)[] targets)
         {
             var pathMap = new Dictionary<(int x, int y), PathStep>();
             var frontier = new Queue<PathStep>();
             frontier.Enqueue(new PathStep(0, start, start));
 
             // Clear out the starting cell temporarily to make it a valid path location
-            var originalCellState = grid[start.x, start.y];
-            grid[start.x, start.y] = CellState.Clear;
+            var originalCellEntity = grid[start.x, start.y];
+            grid[start.x, start.y] = Entity.None;
 
             while (frontier.Count != 0)
             {
                 var step = frontier.Dequeue();
-                if (grid[step.Pos.x, step.Pos.y] != CellState.Clear)
+                if (grid[step.Pos.x, step.Pos.y].Type != EntityType.None)
                     continue;
 
                 var existingStep = pathMap.GetOrDefault(step.Pos, PathStep.MaxDistance);
@@ -152,7 +155,7 @@ namespace Advent2018
             }
 
             // Restore the original start location value
-            grid[start.x, start.y] = originalCellState;
+            grid[start.x, start.y] = originalCellEntity;
 
             var path = new LinkedList<(int x, int y)>();
             var orderedTargets = targets.Where(t => pathMap.ContainsKey(t))
@@ -173,46 +176,47 @@ namespace Advent2018
             return path;
         }
 
-        List<Entity> GatherEntities(CellState[,] environment)
+        List<Entity> GatherEntities(Entity[,] environment)
         {
             var entities = new List<Entity>();
             foreach (var (x, y) in environment.Rectangle())
             {
-                switch (environment[x, y])
+                switch (environment[x, y].Type)
                 {
-                    case CellState.Elf:
-                    case CellState.Goblin:
-                        entities.Add(new Entity(environment[x, y], (x, y)));
+                    case EntityType.Elf:
+                    case EntityType.Goblin:
+                        entities.Add(environment[x, y]);
                         break;
                 }
             }
             return entities;
         }
 
-        (int x, int y)[] GetValidTargets(CellState[,] environment, ICollection<Entity> entities, CellState targetsFor)
+        (int x, int y)[] GetValidTargets(Entity[,] environment, ICollection<Entity> entities, EntityType targetsFor)
         {
             var list = new HashSet<(int x, int y)>();
-            var targetType = targetsFor == CellState.Elf ? CellState.Goblin : CellState.Elf;
+            var targetType = targetsFor == EntityType.Elf ? EntityType.Goblin : EntityType.Elf;
 
             foreach (var entity in entities.Where(e => e.Type == targetType))
             {
-                if (environment[entity.Pos.x, entity.Pos.y - 1] == CellState.Clear)
+                if (environment[entity.Pos.x, entity.Pos.y - 1].Type == EntityType.None)
                     list.Add((entity.Pos.x, entity.Pos.y - 1));
-                if (environment[entity.Pos.x - 1, entity.Pos.y] == CellState.Clear)
+                if (environment[entity.Pos.x - 1, entity.Pos.y].Type == EntityType.None)
                     list.Add((entity.Pos.x - 1, entity.Pos.y));
-                if (environment[entity.Pos.x + 1, entity.Pos.y] == CellState.Clear)
+                if (environment[entity.Pos.x + 1, entity.Pos.y].Type == EntityType.None)
                     list.Add((entity.Pos.x + 1, entity.Pos.y));
-                if (environment[entity.Pos.x, entity.Pos.y + 1] == CellState.Clear)
+                if (environment[entity.Pos.x, entity.Pos.y + 1].Type == EntityType.None)
                     list.Add((entity.Pos.x, entity.Pos.y + 1));
             }
 
             return list.ToArray();
         }
 
-        void Step(CellState[,] environment, ICollection<Entity> entities)
+        void Step(Entity[,] environment, ICollection<Entity> entities)
         {
             foreach (var entity in entities.OrderBy(e => e.Pos.y).ThenBy(e => e.Pos.x).ToArray())
             {
+                // Move first
                 if (!entity.IsEngaged(environment))
                 {
                     var targets = GetValidTargets(environment, entities, entity.Type);
@@ -220,10 +224,16 @@ namespace Advent2018
                     if (path.Count() != 0)
                     {
                         var newLocation = path.First();
-                        environment[entity.Pos.x, entity.Pos.y] = CellState.Clear;
+                        environment[entity.Pos.x, entity.Pos.y] = Entity.None;
                         entity.Pos = newLocation;
-                        environment[newLocation.x, newLocation.y] = entity.Type;
+                        environment[newLocation.x, newLocation.y] = entity;
                     }
+                }
+
+                // Then attack
+                if (entity.IsEngaged(environment))
+                {
+
                 }
             }
         }
@@ -271,8 +281,8 @@ namespace Advent2018
         void TestNavigation_ElvesAndGoblinsBlockPath()
         {
             var environment = FileIterator.LoadGrid("Data/Day15-NavTest.txt", CharToCellState);
-            environment[2, 3] = CellState.Elf;
-            environment[3, 3] = CellState.Goblin;
+            environment[2, 3] = new Entity(EntityType.Elf, (2, 3));
+            environment[3, 3] = new Entity(EntityType.Goblin, (3, 3));
 
             var path = PathToNearestTarget(environment, (4, 2), (2, 4));
             path.First().Should().Be((5, 2));
@@ -286,13 +296,13 @@ namespace Advent2018
             var sorted = entities.OrderBy(e => e.Pos.y).ThenBy(e => e.Pos.x).ToArray();
 
             sorted.Length.Should().Be(4);
-            sorted[0].Type.Should().Be(CellState.Elf);
+            sorted[0].Type.Should().Be(EntityType.Elf);
             sorted[0].Pos.Should().Be((1, 1));
-            sorted[1].Type.Should().Be(CellState.Goblin);
+            sorted[1].Type.Should().Be(EntityType.Goblin);
             sorted[1].Pos.Should().Be((4, 1));
-            sorted[2].Type.Should().Be(CellState.Goblin);
+            sorted[2].Type.Should().Be(EntityType.Goblin);
             sorted[2].Pos.Should().Be((2, 3));
-            sorted[3].Type.Should().Be(CellState.Goblin);
+            sorted[3].Type.Should().Be(EntityType.Goblin);
             sorted[3].Pos.Should().Be((5, 3));
         }
 
@@ -302,7 +312,7 @@ namespace Advent2018
             var environment = FileIterator.LoadGrid("Data/Day15-Example1.txt", CharToCellState);
             var entities = GatherEntities(environment);
 
-            var targets = GetValidTargets(environment, entities, CellState.Elf);
+            var targets = GetValidTargets(environment, entities, EntityType.Elf);
             var sorted = targets.OrderBy(t => t.y).ThenBy(t => t.x).ToArray();
 
             sorted.Length.Should().Be(6);
@@ -313,7 +323,7 @@ namespace Advent2018
             sorted[4].Should().Be((1, 3));
             sorted[5].Should().Be((3, 3));
 
-            targets = GetValidTargets(environment, entities, CellState.Goblin);
+            targets = GetValidTargets(environment, entities, EntityType.Goblin);
             sorted = targets.OrderBy(t => t.y).ThenBy(t => t.x).ToArray();
 
             sorted.Length.Should().Be(2);
@@ -326,14 +336,14 @@ namespace Advent2018
         {
             var environment = FileIterator.LoadGrid("Data/Day15-Example1.txt", CharToCellState);
             var entities = GatherEntities(environment);
-            var targets = GetValidTargets(environment, entities, CellState.Elf);
+            var targets = GetValidTargets(environment, entities, EntityType.Elf);
             var path = PathToNearestTarget(environment, (1, 1), targets);
 
             path.First().Should().Be((2, 1));
         }
 
         [Fact]
-        void TestExample2()
+        void TestExample2_Movement()
         {
             var environment = FileIterator.LoadGrid("Data/Day15-Example2.txt", CharToCellState);
             var entities = GatherEntities(environment);
@@ -346,23 +356,23 @@ namespace Advent2018
 
             var sorted = entities.OrderBy(e => e.Pos.y).ThenBy(e => e.Pos.x).ToArray();
             sorted.Count().Should().Be(9);
-            sorted[0].Type.Should().Be(CellState.Goblin);
+            sorted[0].Type.Should().Be(EntityType.Goblin);
             sorted[0].Pos.Should().Be((3, 2));
-            sorted[1].Type.Should().Be(CellState.Goblin);
+            sorted[1].Type.Should().Be(EntityType.Goblin);
             sorted[1].Pos.Should().Be((4, 2));
-            sorted[2].Type.Should().Be(CellState.Goblin);
+            sorted[2].Type.Should().Be(EntityType.Goblin);
             sorted[2].Pos.Should().Be((5, 2));
-            sorted[3].Type.Should().Be(CellState.Goblin);
+            sorted[3].Type.Should().Be(EntityType.Goblin);
             sorted[3].Pos.Should().Be((3, 3));
-            sorted[4].Type.Should().Be(CellState.Elf);
+            sorted[4].Type.Should().Be(EntityType.Elf);
             sorted[4].Pos.Should().Be((4, 3));
-            sorted[5].Type.Should().Be(CellState.Goblin);
+            sorted[5].Type.Should().Be(EntityType.Goblin);
             sorted[5].Pos.Should().Be((5, 3));
-            sorted[6].Type.Should().Be(CellState.Goblin);
+            sorted[6].Type.Should().Be(EntityType.Goblin);
             sorted[6].Pos.Should().Be((1, 4));
-            sorted[7].Type.Should().Be(CellState.Goblin);
+            sorted[7].Type.Should().Be(EntityType.Goblin);
             sorted[7].Pos.Should().Be((4, 4));
-            sorted[8].Type.Should().Be(CellState.Goblin);
+            sorted[8].Type.Should().Be(EntityType.Goblin);
             sorted[8].Pos.Should().Be((7, 5));
         }
     }
