@@ -47,6 +47,8 @@ namespace Advent2018
 
             public readonly EntityType Type;
             public (int x, int y) Pos;
+            public int Health = 200;
+            public int Power = 3;
 
             public Entity(EntityType type, (int x, int y) pos)
             {
@@ -67,7 +69,8 @@ namespace Advent2018
                 };
 
                 var engaged = adjacent.Where(e => e.Type == enemy)
-                                      .OrderBy(e => e.Pos.y)
+                                      .OrderBy(e => e.Health)
+                                      .ThenBy(e => e.Pos.y)
                                       .ThenBy(e => e.Pos.x);
 
                 if (engaged.Count() == 0)
@@ -222,6 +225,10 @@ namespace Advent2018
         {
             foreach (var entity in entities.OrderBy(e => e.Pos.y).ThenBy(e => e.Pos.x).ToArray())
             {
+                // Check that the entity hasn't been killed this round
+                if (entity.Health <= 0)
+                    continue;
+
                 // Move first
                 if (entity.GetEngaged(environment) == null)
                 {
@@ -240,9 +247,24 @@ namespace Advent2018
                 var target = entity.GetEngaged(environment);
                 if (target != null)
                 {
-
+                    target.Health -= entity.Power;
+                    if (target.Health <= 0)
+                    {
+                        environment[target.Pos.x, target.Pos.y] = Entity.None;
+                        entities.Remove(target);
+                    }
                 }
             }
+        }
+
+        EntityType WinningTeam(ICollection<Entity> entities)
+        {
+            var firstType = entities.First().Type;
+
+            if (entities.Count() == entities.Where(e => e.Type == firstType).Count())
+                return firstType;
+
+            return EntityType.None;
         }
 
         [Theory]
@@ -381,6 +403,25 @@ namespace Advent2018
             sorted[7].Pos.Should().Be((4, 4));
             sorted[8].Type.Should().Be(EntityType.Goblin);
             sorted[8].Pos.Should().Be((7, 5));
+        }
+
+        [Fact]
+        void TestExample3_Battle()
+        {
+            var environment = FileIterator.LoadGrid("Data/Day15-Example3.txt", CharToCellState);
+            var entities = GatherEntities(environment);
+
+            var round = 0;
+            while (WinningTeam(entities) == EntityType.None)
+            {
+                Step(environment, entities);
+                round++;
+            }
+
+            var totalHealth = entities.Select(e => e.Health).Sum();
+            round.Should().Be(47);
+            totalHealth.Should().Be(590);
+            (totalHealth * round).Should().Be(27730);
         }
     }
 }
