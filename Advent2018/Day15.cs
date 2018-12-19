@@ -43,12 +43,28 @@ namespace Advent2018
         class Entity
         {
             public readonly CellState Type;
-            public readonly (int x, int y) Pos;
+            public (int x, int y) Pos;
 
             public Entity(CellState type, (int x, int y) pos)
             {
                 Type = type;
                 Pos = pos;
+            }
+
+            public bool IsEngaged(CellState[,] environment)
+            {
+                var enemy = Type == CellState.Elf ? CellState.Goblin : CellState.Elf;
+
+                if (environment[Pos.x, Pos.y - 1] == enemy)
+                    return true;
+                if (environment[Pos.x - 1, Pos.y] == enemy)
+                    return true;
+                if (environment[Pos.x + 1, Pos.y] == enemy)
+                    return true;
+                if (environment[Pos.x, Pos.y + 1] == enemy)
+                    return true;
+
+                return false;
             }
         }
 
@@ -193,6 +209,25 @@ namespace Advent2018
             return list.ToArray();
         }
 
+        void Step(CellState[,] environment, ICollection<Entity> entities)
+        {
+            foreach (var entity in entities.OrderBy(e => e.Pos.y).ThenBy(e => e.Pos.x).ToArray())
+            {
+                if (!entity.IsEngaged(environment))
+                {
+                    var targets = GetValidTargets(environment, entities, entity.Type);
+                    var path = PathToNearestTarget(environment, entity.Pos, targets);
+                    if (path.Count() != 0)
+                    {
+                        var newLocation = path.First();
+                        environment[entity.Pos.x, entity.Pos.y] = CellState.Clear;
+                        entity.Pos = newLocation;
+                        environment[newLocation.x, newLocation.y] = entity.Type;
+                    }
+                }
+            }
+        }
+
         [Theory]
         [InlineData(2, 3, 6, 3, 2, 2, 3, 2, 4, 2, 5, 2, 6, 2, 6, 3)]
         [InlineData(2, 1, 6, 1, 3, 1, 3, 2, 4, 2, 5, 2, 5, 1, 6, 1)]
@@ -295,6 +330,40 @@ namespace Advent2018
             var path = PathToNearestTarget(environment, (1, 1), targets);
 
             path.First().Should().Be((2, 1));
+        }
+
+        [Fact]
+        void TestExample2()
+        {
+            var environment = FileIterator.LoadGrid("Data/Day15-Example2.txt", CharToCellState);
+            var entities = GatherEntities(environment);
+
+            Step(environment, entities);
+            Step(environment, entities);
+            Step(environment, entities);
+
+            environment.DebugDump(CellStateToChar);
+
+            var sorted = entities.OrderBy(e => e.Pos.y).ThenBy(e => e.Pos.x).ToArray();
+            sorted.Count().Should().Be(9);
+            sorted[0].Type.Should().Be(CellState.Goblin);
+            sorted[0].Pos.Should().Be((3, 2));
+            sorted[1].Type.Should().Be(CellState.Goblin);
+            sorted[1].Pos.Should().Be((4, 2));
+            sorted[2].Type.Should().Be(CellState.Goblin);
+            sorted[2].Pos.Should().Be((5, 2));
+            sorted[3].Type.Should().Be(CellState.Goblin);
+            sorted[3].Pos.Should().Be((3, 3));
+            sorted[4].Type.Should().Be(CellState.Elf);
+            sorted[4].Pos.Should().Be((4, 3));
+            sorted[5].Type.Should().Be(CellState.Goblin);
+            sorted[5].Pos.Should().Be((5, 3));
+            sorted[6].Type.Should().Be(CellState.Goblin);
+            sorted[6].Pos.Should().Be((1, 4));
+            sorted[7].Type.Should().Be(CellState.Goblin);
+            sorted[7].Pos.Should().Be((4, 4));
+            sorted[8].Type.Should().Be(CellState.Goblin);
+            sorted[8].Pos.Should().Be((7, 5));
         }
     }
 }
