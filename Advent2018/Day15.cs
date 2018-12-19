@@ -103,24 +103,19 @@ namespace Advent2018
             while (frontier.Count != 0)
             {
                 var step = frontier.Dequeue();
-                if (!pathMap.TryGetValue(step.Pos, out PathStep existingStep))
-                    existingStep = PathStep.MaxDistance;
+                if (grid[step.Pos.x, step.Pos.y] != CellState.Clear)
+                    continue;
+
+                var existingStep = pathMap.GetOrDefault(step.Pos, PathStep.MaxDistance);
 
                 if (step.IsQuickerThan(existingStep))
                 {
                     pathMap[step.Pos] = step;
 
-                    if (grid[step.Pos.x, step.Pos.y - 1] == CellState.Clear)
-                        frontier.Enqueue(new PathStep(step.DistanceFromStart + 1, (step.Pos.x, step.Pos.y - 1), step.Pos));
-
-                    if (grid[step.Pos.x - 1, step.Pos.y] == CellState.Clear)
-                        frontier.Enqueue(new PathStep(step.DistanceFromStart + 1, (step.Pos.x - 1, step.Pos.y), step.Pos));
-
-                    if (grid[step.Pos.x + 1, step.Pos.y] == CellState.Clear)
-                        frontier.Enqueue(new PathStep(step.DistanceFromStart + 1, (step.Pos.x + 1, step.Pos.y), step.Pos));
-
-                    if (grid[step.Pos.x, step.Pos.y + 1] == CellState.Clear)
-                        frontier.Enqueue(new PathStep(step.DistanceFromStart + 1, (step.Pos.x, step.Pos.y + 1), step.Pos));
+                    frontier.Enqueue(new PathStep(step.DistanceFromStart + 1, (step.Pos.x, step.Pos.y - 1), step.Pos));
+                    frontier.Enqueue(new PathStep(step.DistanceFromStart + 1, (step.Pos.x - 1, step.Pos.y), step.Pos));
+                    frontier.Enqueue(new PathStep(step.DistanceFromStart + 1, (step.Pos.x + 1, step.Pos.y), step.Pos));
+                    frontier.Enqueue(new PathStep(step.DistanceFromStart + 1, (step.Pos.x, step.Pos.y + 1), step.Pos));
                 }
             }
 
