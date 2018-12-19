@@ -73,10 +73,7 @@ namespace Advent2018
                                       .ThenBy(e => e.Pos.y)
                                       .ThenBy(e => e.Pos.x);
 
-                if (engaged.Count() == 0)
-                    return null;
-
-                return engaged.First();
+                return engaged.FirstOrDefault();
             }
         }
 
@@ -99,28 +96,6 @@ namespace Advent2018
                 default:
                     Oh.Bugger();
                     return Entity.None;
-            }
-        }
-
-        static char CellStateToChar(Entity entity)
-        {
-            switch (entity.Type)
-            {
-                case EntityType.None:
-                    return '.';
-
-                case EntityType.Wall:
-                    return '#';
-
-                case EntityType.Elf:
-                    return 'E';
-
-                case EntityType.Goblin:
-                    return 'G';
-
-                default:
-                    Oh.Bollocks();
-                    return 'X';
             }
         }
 
@@ -185,9 +160,9 @@ namespace Advent2018
             return path;
         }
 
-        List<Entity> GatherEntities(Entity[,] environment)
+        ICollection<Entity> GatherEntities(Entity[,] environment)
         {
-            var entities = new List<Entity>();
+            var entities = new HashSet<Entity>();
             foreach (var (x, y) in environment.Rectangle())
             {
                 switch (environment[x, y].Type)
@@ -240,7 +215,7 @@ namespace Advent2018
                 {
                     var targets = GetValidTargets(environment, entities, entity.Type);
                     var path = PathToNearestTarget(environment, entity.Pos, targets);
-                    if (path.Count() != 0)
+                    if (path.Count != 0)
                     {
                         var newLocation = path.First();
                         environment[entity.Pos.x, entity.Pos.y] = Entity.None;
@@ -274,7 +249,7 @@ namespace Advent2018
         {
             var firstType = entities.First().Type;
 
-            if (entities.Count() == entities.Where(e => e.Type == firstType).Count())
+            if (entities.Count == entities.Where(e => e.Type == firstType).Count())
                 return firstType;
 
             return EntityType.None;
@@ -394,8 +369,6 @@ namespace Advent2018
             Step(environment, entities);
             Step(environment, entities);
 
-            environment.DebugDump(CellStateToChar);
-
             var sorted = entities.OrderBy(e => e.Pos.y).ThenBy(e => e.Pos.x).ToArray();
             sorted.Count().Should().Be(9);
             sorted[0].Type.Should().Be(EntityType.Goblin);
@@ -425,7 +398,7 @@ namespace Advent2018
         [InlineData(27755, "Data/Day15-Battle4.txt")]
         [InlineData(28944, "Data/Day15-Battle5.txt")]
         [InlineData(18740, "Data/Day15-Battle6.txt")]
-        [InlineData(243390, "Data/Day15.txt")]
+        [InlineData(243390, "Data/Day15.txt")] // Solution
         void Problem1(int expectedOutcome, string inputFile)
         {
             var environment = FileIterator.LoadGrid(inputFile, CharToCellState);
@@ -453,7 +426,6 @@ namespace Advent2018
                     entity.Power = 13;
                 }
             }
-
 
             var round = 0;
             while (Step(environment, entities))
