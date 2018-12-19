@@ -176,5 +176,16 @@ namespace Advent2018
             var path = PathToNearestTarget(environment, (2, 3), (9, 1), (9, 5));
             path.Count.Should().Be(0);
         }
+
+        [Fact]
+        void TestNavigation_ElvesAndGoblinsBlockPath()
+        {
+            var environment = FileIterator.LoadGrid("Data/Day15-NavTest.txt", CharToCellState);
+            environment[2, 3] = CellState.Elf;
+            environment[3, 3] = CellState.Golbin;
+
+            var path = PathToNearestTarget(environment, (4, 2), (2, 4));
+            path.First().Should().Be((5, 2));
+        }
     }
 }
