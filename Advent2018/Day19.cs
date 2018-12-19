@@ -97,7 +97,7 @@ namespace Advent2018
         [Theory]
         [InlineData(6, 0, "Data/Day19-Test.txt")]
         [InlineData(3224, 0, "Data/Day19.txt")] // Solution
-        public void Problem1(int expectedValue, int register, string inputFile)
+        void Problem1(int expectedValue, int register, string inputFile)
         {
             var program = LoadProgram(inputFile, out int ipr);
             var cpu = new Cpu
@@ -107,6 +107,49 @@ namespace Advent2018
             cpu.Execute(program);
 
             cpu.registers[register].Should().Be(expectedValue);
+        }
+
+        //[Fact]
+        void Problem2()
+        {
+            var program = LoadProgram("Data/Day19.txt", out int ipr);
+            var cpu = new Cpu
+            {
+                IPR = ipr
+            };
+            cpu.registers[0] = 1;
+            cpu.Execute(program);
+
+            cpu.registers[0].Should().Be(0);
+        }
+
+        [Theory]
+        [InlineData(false, 3224)]
+        void ProblemCompiled(bool hardMode, int expectedAnswer)
+        {
+            var a = 0;
+            var c = 0;
+            var d = hardMode ? 10551408 : 1008;
+            var e = 1;
+            var f = 0;
+
+        L3:
+            c = 1;
+        L2:
+            f = c * e;
+            if (f == d)
+                a += e;
+            c++;
+            if (c <= d)
+                goto L2;
+            e++;
+
+            if (e > d)
+                goto END;
+            goto L3;
+
+        END:
+            a.Should().Be(expectedAnswer);
         }
     }
 }
