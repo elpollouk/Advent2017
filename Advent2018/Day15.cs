@@ -31,13 +31,7 @@ namespace Advent2018
                 From = from;
             }
 
-            public bool IsQuickerThan(PathStep other)
-            {
-                if (DistanceFromStart < other.DistanceFromStart)
-                    return true;
-
-                return false;
-            }
+            public bool IsQuickerThan(PathStep other) => DistanceFromStart < other.DistanceFromStart;
         }
 
         class Entity
