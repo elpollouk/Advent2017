@@ -175,7 +175,7 @@ namespace Advent2018
             if (orderedTargets.Count() != 0 )
             {
                 var location = pathMap[orderedTargets.First()];
-                while (location.Pos.x != start.x || location.Pos.y != start.y)
+                while (location.DistanceFromStart != 0)
                 {
                     path.AddFirst(location.Pos);
                     location = pathMap[location.From];
@@ -266,7 +266,6 @@ namespace Advent2018
                     }
                 }
             }
-
 
             return true; // A full round
         }
@@ -438,6 +437,31 @@ namespace Advent2018
 
             var totalHealth = entities.Select(e => e.Health).Sum();
             (totalHealth * round).Should().Be(expectedOutcome);
+        }
+
+        [Fact]
+        void Problem2()
+        {
+            var environment = FileIterator.LoadGrid("Data/Day15.txt", CharToCellState);
+            var entities = GatherEntities(environment);
+            var numElves = 0;
+            foreach (var entity in entities)
+            {
+                if (entity.Type == EntityType.Elf)
+                {
+                    numElves++;
+                    entity.Power = 13;
+                }
+            }
+
+
+            var round = 0;
+            while (Step(environment, entities))
+                round++;
+
+            entities.Where(e => e.Type == EntityType.Elf).Count().Should().Be(numElves);
+            var totalHealth = entities.Select(e => e.Health).Sum();
+            (totalHealth * round).Should().Be(59886);
         }
     }
 }
