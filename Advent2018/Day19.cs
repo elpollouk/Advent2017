@@ -125,13 +125,15 @@ namespace Advent2018
 
         [Theory]
         [InlineData(false, 3224)]
+        [InlineData(true, 32188416)]
         void ProblemCompiled(bool hardMode, int expectedAnswer)
         {
             var total = 0;
             var target = hardMode ? 10551408 : 1008;
 
-            for (var i = 1; i <= target; i++)
-                for (var j = 1; j <= target; j++)
+            total += target;
+            for (var i = 1; i <= target / 2; i++)
+                for (var j = 1; (i * j) <= target; j++)
                     if (i * j == target)
                         total += i;
 
