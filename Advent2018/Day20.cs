@@ -11,17 +11,15 @@ namespace Advent2018
     {
         struct PathStep
         {
-            public static readonly PathStep MaxDistance = new PathStep(int.MaxValue, (0, 0), (0, 0));
+            public static readonly PathStep MaxDistance = new PathStep(int.MaxValue, (0, 0));
 
             public readonly int DistanceFromStart;
             public readonly (int x, int y) Pos;
-            public readonly (int x, int y) From;
 
-            public PathStep(int distance, (int x, int y) pos, (int x, int y) from)
+            public PathStep(int distance, (int x, int y) pos)
             {
                 DistanceFromStart = distance;
                 Pos = pos;
-                From = from;
             }
 
             public bool IsQuickerThan(PathStep other) => DistanceFromStart < other.DistanceFromStart;
@@ -94,7 +92,7 @@ namespace Advent2018
         {
             var pathMap = new Dictionary<(int x, int y), PathStep>();
             var frontier = new Queue<PathStep>();
-            frontier.Enqueue(new PathStep(0, (0, 0), (0, 0)));
+            frontier.Enqueue(new PathStep(0, (0, 0)));
 
             while (frontier.Count != 0)
             {
@@ -107,7 +105,7 @@ namespace Advent2018
                     pathMap[step.Pos] = step;
 
                     foreach (var linkedArea in graph.GetLinked(step.Pos))
-                        frontier.Enqueue(new PathStep(step.DistanceFromStart + 1, linkedArea, step.Pos));
+                        frontier.Enqueue(new PathStep(step.DistanceFromStart + 1, linkedArea));
                 }
             }
 
