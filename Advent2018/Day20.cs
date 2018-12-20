@@ -90,7 +90,7 @@ namespace Advent2018
             return graph;
         }
 
-        int GetHighestDoorCount(Graph<(int x, int y)> graph)
+        IEnumerable<PathStep> GetAreasAboveDoorCount(int count, Graph<(int x, int y)> graph)
         {
             var pathMap = new Dictionary<(int x, int y), PathStep>();
             var frontier = new Queue<PathStep>();
@@ -111,31 +111,7 @@ namespace Advent2018
                 }
             }
 
-            return pathMap.Values.Select(s => s.DistanceFromStart).OrderByDescending(s => s).First();
-        }
-
-        int GetDoorCountsAbove(int count, Graph<(int x, int y)> graph)
-        {
-            var pathMap = new Dictionary<(int x, int y), PathStep>();
-            var frontier = new Queue<PathStep>();
-            frontier.Enqueue(new PathStep(0, (0, 0), (0, 0)));
-
-            while (frontier.Count != 0)
-            {
-                var step = frontier.Dequeue();
-
-                var existingStep = pathMap.GetOrDefault(step.Pos, PathStep.MaxDistance);
-
-                if (step.IsQuickerThan(existingStep))
-                {
-                    pathMap[step.Pos] = step;
-
-                    foreach (var linkedArea in graph.GetLinked(step.Pos))
-                        frontier.Enqueue(new PathStep(step.DistanceFromStart + 1, linkedArea, step.Pos));
-                }
-            }
-
-            return pathMap.Values.Where(s => s.DistanceFromStart >= count).Count();
+            return pathMap.Values.Where(s => s.DistanceFromStart >= count);
         }
 
         [Theory]
@@ -147,7 +123,8 @@ namespace Advent2018
         void Problem1_Test(int expectedDoorCount, string input)
         {
             var graph = BuildGraph(input);
-            GetHighestDoorCount(graph).Should().Be(expectedDoorCount);
+            GetAreasAboveDoorCount(expectedDoorCount, graph).Select(s => s.DistanceFromStart)
+                                                            .First().Should().Be(expectedDoorCount);
         }
 
         [Fact]
@@ -162,7 +139,7 @@ namespace Advent2018
         {
             var input = FileIterator.Lines("Data/Day20.txt").First();
             var graph = BuildGraph(input);
-            GetDoorCountsAbove(1000, graph).Should().Be(8514);
+            GetAreasAboveDoorCount(1000, graph).Count().Should().Be(8514);
         }
     }
 }
