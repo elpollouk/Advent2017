@@ -17,6 +17,12 @@ namespace Utils
             return () => collection[current++];
         }
 
+        public static Func<char> Reader(this string text)
+        {
+            var current = 0;
+            return () => text[current++];
+        }
+
         public static IEnumerable<(int x, int y)> Rectangle(int width, int height)
         {
             for (var y = 0; y < height; y++)
