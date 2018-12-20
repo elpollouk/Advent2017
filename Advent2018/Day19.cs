@@ -131,12 +131,11 @@ namespace Advent2018
             var total = 0;
             var target = hardMode ? 10551408 : 1008;
 
-            total += target;
             for (var i = 1; i <= target / 2; i++)
-                for (var j = 1; (i * j) <= target; j++)
-                    if (i * j == target)
-                        total += i;
+                if (target % i == 0)
+                    total += i;
 
+            total += target;
             total.Should().Be(expectedAnswer);
         }
     }
