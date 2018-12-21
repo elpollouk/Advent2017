@@ -6,8 +6,8 @@ namespace Advent2018
 {
     public class Day21
     {
-        //[Fact]
-        void Promblem1_Raw()
+        [Fact]
+        void Problem1_Raw()
         {
             var program = Day19.LoadProgram("Data/Day21.txt", out int ipr);
             var cpu = new Day19.Cpu
@@ -22,36 +22,28 @@ namespace Advent2018
         [Fact]
         void Problem2_Compiled()
         {
-            var r = new int[6];
             var seen = new HashSet<int>();
-            int lastValue = -1;
+            int lastValue;
 
-            r[4] = 0;
+            var a = 0;
             do
             {
-                r[1] = r[4] | 65536;
-                r[4] = 2024736;
+                seen.Add(a);
+                lastValue = a;
 
-                while (true)
+                var b = a | 65536;
+                a = 2024736;
+
+                while (b != 0)
                 {
-                    r[2] = r[1] & 255;
-                    r[4] += r[2];
-                    r[4] &= 16777215;
-                    r[4] *= 65899;
-                    r[4] &= 16777215;
-
-                    if (256 > r[1])
-                        break;
-
-                    r[1] >>= 8;
+                    a += b & 255;
+                    a &= 16777215;
+                    a *= 65899;
+                    a &= 16777215;
+                    b >>= 8;
                 }
-
-                if (seen.Contains(r[4]))
-                    break;
-                lastValue = r[4];
-                seen.Add(lastValue);
             }
-            while (r[4] != r[0]);
+            while (!seen.Contains(a));
 
             lastValue.Should().Be(12284643);
         }
