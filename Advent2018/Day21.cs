@@ -24,9 +24,11 @@ namespace Advent2018
         }
 
         [Fact]
-        void Problem1_Compiled()
+        void Problem2_Compiled()
         {
             var r = new int[6];
+            var seen = new HashSet<int>();
+            int lastValue = -1;
 
             r[4] = 0;
             do
@@ -45,67 +47,17 @@ namespace Advent2018
                     if (256 > r[1])
                         break;
 
-                    r[2] = 0;
-                    while (true)
-                    {
-                        r[3] = r[2] + 1;
-                        r[3] *= 256;
-                        if (r[3] > r[1])
-                            break;
-
-                        r[2]++;
-                    }
-                    r[1] = r[2];
+                    r[1] >>= 8;
                 }
+
+                if (seen.Contains(r[4]))
+                    break;
+                lastValue = r[4];
+                seen.Add(lastValue);
             }
             while (r[4] != r[0]);
-            // 15656032 Too high
 
-            /*            r[4] = 0;
-                    L1:
-                        r[1] = r[4] | 65536;
-                        r[4] = 2024736;
-                    L2:
-                        r[2] = r[1] & 255;
-                        r[4] += r[2];
-                        r[4] &= 16777215;
-                        r[4] *= 65899;
-                        r[4] &= 16777215;
-                        r[2] = 256 > r[1] ? 1 : 0;
-                        if (r[2] != 0) goto IF1;
-                        goto EL1;
-
-                    IF1:
-                        goto L5;
-
-                    EL1:
-                        r[2] = 0;
-
-                    L3:
-                        r[3] = r[2] + 1;
-                        r[3] *= 256;
-                        r[3] = r[3] > r[1] ? 1 : 0;
-                        if (r[3] != 0) goto IF2;
-                        goto EL2;
-
-                    IF2:
-                        goto L4;
-
-                    EL2:
-                        r[2]++;
-                        goto L3;
-                    L4:
-                        r[1] = r[2];
-                        goto L2;
-
-                    L5:
-                        r[2] = r[4] == r[0] ? 1 : 0;
-                        if (r[2] != 0) goto END;
-                        goto L1;
-
-                    END:
-                        return;
-            */
+            lastValue.Should().Be(12284643);
         }
     }
 }
