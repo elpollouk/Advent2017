@@ -11,7 +11,7 @@ namespace Advent2018
 {
     public class Day19
     {
-        enum OpCodes
+        public enum OpCodes
         {
             ADDR,
             ADDI,
@@ -31,7 +31,7 @@ namespace Advent2018
             EQRR
         }
 
-        class Cpu
+        public class Cpu
         {
             public int IPR = 0;
             public int[] registers = new int[6];
@@ -75,7 +75,7 @@ namespace Advent2018
             }
         }
 
-        (OpCodes opcode, int a, int b, int c)[] LoadProgram(string filename, out int ipr)
+        public static (OpCodes opcode, int a, int b, int c)[] LoadProgram(string filename, out int ipr)
         {
             var lines = FileIterator.LoadLines<string>(filename);
             var program = new (OpCodes opcode, int a, int b, int c)[lines.Length - 1];
