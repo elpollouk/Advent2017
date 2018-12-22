@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Utils.Alogrithms
 {
-    static class Astar
+    public static class Astar
     {
         public interface IGraphAdapter<Node>
         {
