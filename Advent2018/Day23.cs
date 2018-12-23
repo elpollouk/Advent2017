@@ -14,6 +14,7 @@ namespace Advent2018
             public readonly (int x, int y, int z) Pos;
             public readonly (int width, int height, int depth) Size;
             public readonly (int x, int y, int z)[] Extents = new (int x, int y, int z)[8];
+            public int Volume => Size.width * Size.height * Size.depth;
 
             public Partition((int x, int y, int z) pos, (int width, int height, int depth) size)
             {
@@ -73,6 +74,24 @@ namespace Advent2018
 
                 return false;
             }
+
+            public IEnumerable<Partition> CreateSubPartitions()
+            {
+                if (Volume == 1) throw new Exception("Partition already at minimum size");
+
+                var halfWidth = Size.width / 2;
+                var halfHeight = Size.height / 2;
+                var halfDepth = Size.depth / 2;
+
+                yield return new Partition((Pos), (halfWidth, halfHeight, halfDepth));
+                yield return new Partition((Pos.x + halfWidth, Pos.y, Pos.z), (halfWidth, halfHeight, halfDepth));
+                yield return new Partition((Pos.x, Pos.y + halfHeight, Pos.z), (halfWidth, halfHeight, halfDepth));
+                yield return new Partition((Pos.x + halfWidth, Pos.y + halfHeight, Pos.z), (halfWidth, halfHeight, halfDepth));
+                yield return new Partition((Pos.x, Pos.y, Pos.z + halfDepth), (halfWidth, halfHeight, halfDepth));
+                yield return new Partition((Pos.x + halfWidth, Pos.y, Pos.z + halfDepth), (halfWidth, halfHeight, halfDepth));
+                yield return new Partition((Pos.x, Pos.y + halfHeight, Pos.z + halfDepth), (halfWidth, halfHeight, halfDepth));
+                yield return new Partition((Pos.x + halfWidth, Pos.y + halfHeight, Pos.z + halfDepth), (halfWidth, halfHeight, halfDepth));
+            }
         }
 
         (int x, int y, int z, int r) ParseNode(string input)
@@ -86,7 +105,7 @@ namespace Advent2018
             );
         }
 
-        ((int minX, int minY, int minZ), (int maxX, int maxY, int maxZ)) BuildProblemSpace((int x, int y, int z, int r)[] bots)
+        Partition BuildInitialPartition((int x, int y, int z, int r)[] bots)
         {
             var minX = int.MaxValue;
             var minY = int.MaxValue;
@@ -105,9 +124,9 @@ namespace Advent2018
                 maxZ = Math.Max(maxZ, z);
             }
 
-            return (
+            return new Partition(
                 (minX, minY, minZ),
-                (maxX, maxY, maxZ)
+                (maxX - minX + 1, maxY - minY + 1, maxZ - minZ + 1)
             );
         }
 
@@ -164,6 +183,78 @@ namespace Advent2018
         void Partition_ZeroSizeThrows(int width, int height, int depth)
         {
             Assert.Throws<Exception>(() => new Partition((0, 0, 0), (width, height, depth)));
+        }
+
+        [Fact]
+        void Partition_CreateSubPartitions_ThrowsIfTooSmall()
+        {
+            var partition = new Partition((0, 0, 0), (1, 1, 1));
+            var ex = Assert.Throws<Exception>(() => partition.CreateSubPartitions().First());
+            ex.Message.Should().Be("Partition already at minimum size");
+        }
+
+        [Fact]
+        void Partition_CreateSubPartitions_2x2x2()
+        {
+            var partition = new Partition((-1, -1, -1), (2, 2, 2));
+            var subPartitons = partition.CreateSubPartitions().ToArray();
+            subPartitons.Length.Should().Be(8);
+
+            subPartitons[0].Pos.Should().Be((-1, -1, -1));
+            subPartitons[0].Size.Should().Be((1, 1, 1));
+
+            subPartitons[1].Pos.Should().Be((0, -1, -1));
+            subPartitons[1].Size.Should().Be((1, 1, 1));
+
+            subPartitons[2].Pos.Should().Be((-1, 0, -1));
+            subPartitons[2].Size.Should().Be((1, 1, 1));
+
+            subPartitons[3].Pos.Should().Be((0, 0, -1));
+            subPartitons[3].Size.Should().Be((1, 1, 1));
+
+            subPartitons[4].Pos.Should().Be((-1, -1, 0));
+            subPartitons[4].Size.Should().Be((1, 1, 1));
+
+            subPartitons[5].Pos.Should().Be((0, -1, 0));
+            subPartitons[5].Size.Should().Be((1, 1, 1));
+
+            subPartitons[6].Pos.Should().Be((-1, 0, 0));
+            subPartitons[6].Size.Should().Be((1, 1, 1));
+
+            subPartitons[7].Pos.Should().Be((0, 0, 0));
+            subPartitons[7].Size.Should().Be((1, 1, 1));
+        }
+
+        [Fact]
+        void Partition_CreateSubPartitions_4x6x8()
+        {
+            var partition = new Partition((5, 6, 0), (4, 6, 8));
+            var subPartitons = partition.CreateSubPartitions().ToArray();
+            subPartitons.Length.Should().Be(8);
+
+            subPartitons[0].Pos.Should().Be((5, 6, 0));
+            subPartitons[0].Size.Should().Be((2, 3, 4));
+
+            subPartitons[1].Pos.Should().Be((7, 6, 0));
+            subPartitons[1].Size.Should().Be((2, 3, 4));
+
+            subPartitons[2].Pos.Should().Be((5, 9, 0));
+            subPartitons[2].Size.Should().Be((2, 3, 4));
+
+            subPartitons[3].Pos.Should().Be((7, 9, 0));
+            subPartitons[3].Size.Should().Be((2, 3, 4));
+
+            subPartitons[4].Pos.Should().Be((5, 6, 4));
+            subPartitons[4].Size.Should().Be((2, 3, 4));
+
+            subPartitons[5].Pos.Should().Be((7, 6, 4));
+            subPartitons[5].Size.Should().Be((2, 3, 4));
+
+            subPartitons[6].Pos.Should().Be((5, 9, 4));
+            subPartitons[6].Size.Should().Be((2, 3, 4));
+
+            subPartitons[7].Pos.Should().Be((7, 9, 4));
+            subPartitons[7].Size.Should().Be((2, 3, 4));
         }
     }
 }
