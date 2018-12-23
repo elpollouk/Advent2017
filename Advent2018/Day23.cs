@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Utils;
 using Xunit;
 
@@ -15,11 +13,23 @@ namespace Advent2018
         {
             public readonly (int x, int y, int z) Pos;
             public readonly (int width, int height, int depth) Size;
+            public readonly (int x, int y, int z)[] Extents = new (int x, int y, int z)[8];
 
             public Partition((int x, int y, int z) pos, (int width, int height, int depth) size)
             {
+                if (size.width * size.height * size.depth <= 0) throw new Exception("Invalid partition size");
+
                 Pos = pos;
                 Size = size;
+
+                Extents[0] = Pos;
+                Extents[1] = (Pos.x + Size.width - 1, Pos.y, Pos.z);
+                Extents[2] = (Pos.x, Pos.y + Size.height - 1, Pos.z);
+                Extents[3] = (Pos.x + Size.width - 1, Pos.y + Size.height - 1, Pos.z);
+                Extents[4] = (Pos.x, Pos.y, Pos.z + Size.depth);
+                Extents[5] = (Pos.x + Size.width - 1, Pos.y, Pos.z + Size.depth - 1);
+                Extents[6] = (Pos.x, Pos.y + Size.height - 1, Pos.z + Size.depth - 1);
+                Extents[7] = (Pos.x + Size.width - 1, Pos.y + Size.height - 1, Pos.z + Size.depth - 1);
             }
 
             IEnumerable<(int x, int y, int z)> GetBotExtents((int x, int y, int z, int r) bot)
@@ -32,18 +42,6 @@ namespace Advent2018
                 yield return (bot.x, bot.y, bot.z - bot.r);
             }
 
-            IEnumerable<(int x, int y, int z)> GetPartitionExtents()
-            {
-                yield return Pos;
-                yield return (Pos.x + Size.width - 1, Pos.y, Pos.z);
-                yield return (Pos.x, Pos.y + Size.height -1, Pos.z);
-                yield return (Pos.x + Size.width - 1, Pos.y + Size.height - 1, Pos.z);
-                yield return (Pos.x, Pos.y, Pos.z + Size.depth);
-                yield return (Pos.x + Size.width - 1, Pos.y, Pos.z + Size.depth - 1);
-                yield return (Pos.x, Pos.y + Size.height - 1, Pos.z + Size.depth - 1);
-                yield return (Pos.x + Size.width - 1, Pos.y + Size.height - 1, Pos.z + Size.depth - 1);
-            }
-
             public bool ContainsPoint(int x, int y, int z)
             {
                 return (Pos.x <= x) && (x < Pos.x + Size.width)
@@ -51,14 +49,15 @@ namespace Advent2018
                      && (Pos.z <= z) && (z < Pos.z + Size.depth);
             }
 
-            private bool WithinBotRange(int x, int y, int z, (int x, int y, int z, int r) bot)
+            private static bool WithinBotRange((int x, int y, int z) point, (int x, int y, int z, int r) bot)
             {
-                var distance = Math.Abs(x - bot.x) + Math.Abs(y - bot.y) + Math.Abs(z - bot.z);
+                var distance = Math.Abs(point.x - bot.x) + Math.Abs(point.y - bot.y) + Math.Abs(point.z - bot.z);
                 return distance <= bot.r;
             }
 
             public bool WithinRange((int x, int y, int z, int r) bot)
             {
+                // Check if bot is actually inside the partition
                 if (ContainsPoint(bot.x, bot.y, bot.z))
                     return true;
 
@@ -68,8 +67,8 @@ namespace Advent2018
                         return true;
 
                 // Check if the extents of this partition fall within range of the bot
-                foreach (var (x, y, z) in GetPartitionExtents())
-                    if (WithinBotRange(x, y, z, bot))
+                foreach (var extent in Extents)
+                    if (WithinBotRange(extent, bot))
                         return true;
 
                 return false;
@@ -150,11 +149,21 @@ namespace Advent2018
         [InlineData(true, 1, 2, 0, 3, 2, 1, -10, -10, -10, 10000)] // Bot has a range the completely overshoots partition
         [InlineData(true, -3, -3, -3, 3, 3, 3, -2, -4, -2, 1)] // Sanity check space and bot in negative area
         [InlineData(false, -3, -3, -3, 3, 3, 3, -2, -5, -2, 1)] // Same as above, except bot is slightly out of range
-        void Parition_WithinRange_Test(bool expectedInRange, int partX, int partY, int partZ, int partWidth, int partHeight, int partDepth, int botX, int botY, int botZ, int botRange)
+        [InlineData(true, -4, -4, -4, 1, 1, 1, -3, -3, -3, 2)] // Smallest partition, none of the axis match, but still in range
+        void Partition_WithinRange_Test(bool expectedInRange, int partX, int partY, int partZ, int partWidth, int partHeight, int partDepth, int botX, int botY, int botZ, int botRange)
         {
             var partition = new Partition((partX, partY, partZ), (partWidth, partHeight, partDepth));
             (int x, int y, int z, int r) bot = (botX, botY, botZ, botRange);
             partition.WithinRange(bot).Should().Be(expectedInRange);
+        }
+
+        [Theory]
+        [InlineData(0, 1, 1)]
+        [InlineData(1, 0, 1)]
+        [InlineData(1, 1, 0)]
+        void Partition_ZeroSizeThrows(int width, int height, int depth)
+        {
+            Assert.Throws<Exception>(() => new Partition((0, 0, 0), (width, height, depth)));
         }
     }
 }
