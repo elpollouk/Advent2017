@@ -50,8 +50,8 @@ namespace Advent2018
             public bool ContainsPoint(int x, int y, int z)
             {
                 return (Pos.x <= x) && (x < Pos.x + Size.width)
-                     && (Pos.y <= y) && (y < Pos.y + Size.height)
-                     && (Pos.z <= z) && (z < Pos.z + Size.depth);
+                    && (Pos.y <= y) && (y < Pos.y + Size.height)
+                    && (Pos.z <= z) && (z < Pos.z + Size.depth);
             }
 
             private static bool WithinBotRange((int x, int y, int z) point, (int x, int y, int z, int r) bot)
@@ -179,11 +179,9 @@ namespace Advent2018
 
             var count = 0;
             for (var i = 0; i < bots.Length; i++)
-            {
                 if (WithinRange(strongest, bots[i]))
                     count++;
-            }
-
+ 
             count.Should().Be(expectedAnswer);
         }
 
@@ -370,9 +368,9 @@ namespace Advent2018
 
         IEnumerable<Partition> GetHighestPopulationSubPartitions(Partition partition)
         {
-
             var subPartitions = partition.CreateSubPartitionsAndPopulate().OrderByDescending(p => p.Bots.Count);
 
+            // Only bother returning the sub-partitions that have the highest in range populations population
             var highest = subPartitions.First().Bots.Count;
             foreach (var subPartition in subPartitions)
             {
@@ -391,38 +389,45 @@ namespace Advent2018
             var frontier = new PriorityQueue<Partition>();
 
             // We want to explore the highest population partition in the hope we can reduce it down to a 1x1x1 size
-            frontier.Enqueue(partition, bots.Length - partition.Bots.Count);
+            // My implementation of a priority queue orders from lowest to highest, but I need to order from highest to lowest
+            // so convert the count to a negative value
+            frontier.Enqueue(partition, -partition.Bots.Count);
 
+            // Track the best 1x1x1 partitions in case we have multiple withe the same count
+            // The problem isn't asking for the highest count, but the distance to the closest partion with the highest count
             var maxCount = int.MinValue;
             var winningestPartitions = new List<Partition>();
 
             while (frontier.Count != 0)
             {
                 partition = frontier.Dequeue();
-                if (partition.Bots.Count < maxCount) continue;
+                if (partition.Bots.Count < maxCount) continue; // If we already have a candidate, skip partitions that can never beat it
 
                 foreach (var subPartition in GetHighestPopulationSubPartitions(partition))
                 {
                     if (subPartition.Volume == 1)
                     {
+                        // Special case for 1x1x1 volumes to see if they are a winnining candidate
                         if (maxCount < subPartition.Bots.Count)
                         {
+                            // Clear winner, clear out any previous winners
                             maxCount = subPartition.Bots.Count;
-                            winningestPartitions = new List<Partition>();
-                            winningestPartitions.Add(subPartition);
+                            winningestPartitions = new List<Partition> { subPartition };
                         }
                         else if (maxCount == subPartition.Bots.Count)
                         {
+                            // Joint winningest, add it to the list
                             winningestPartitions.Add(subPartition);
                         }
                     }
                     else
                     {
-                        frontier.Enqueue(subPartition, bots.Length - subPartition.Bots.Count);
+                        frontier.Enqueue(subPartition, -subPartition.Bots.Count);
                     }
                 }
             }
 
+            // Of all the winning candidates, find the closest one
             var minDistance = int.MaxValue;
             foreach (var part in winningestPartitions)
             {
