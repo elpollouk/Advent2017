@@ -151,7 +151,7 @@ namespace Advent2018
         [InlineData(1025, 11817, 9, 751)]
         void Problem2(int expectedMinutes, ulong depth, int targetX, int targetY)
         {
-            var cave = new (ulong el, AreaType type)[1000, 1000];
+            var cave = new (ulong el, AreaType type)[136, 756];
             foreach (var (x, y) in cave.Rectangle())
             {
                 ulong gi;
