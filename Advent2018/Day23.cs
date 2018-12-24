@@ -366,19 +366,6 @@ namespace Advent2018
             partition.Bots.Count.Should().Be(3);
         }
 
-        IEnumerable<Partition> GetHighestPopulationSubPartitions(Partition partition)
-        {
-            var subPartitions = partition.CreateSubPartitionsAndPopulate().OrderByDescending(p => p.Bots.Count);
-
-            // Only bother returning the sub-partitions that have the highest in range populations population
-            var highest = subPartitions.First().Bots.Count;
-            foreach (var subPartition in subPartitions)
-            {
-                if (subPartition.Bots.Count != highest) break;
-                yield return subPartition;
-            }
-        }
-
         [Theory]
         [InlineData(36, "Data/Day23-Test2.txt")]
         [InlineData(124623002, "Data/Day23.txt")] // Solution
@@ -403,7 +390,7 @@ namespace Advent2018
                 partition = frontier.Dequeue();
                 if (partition.Bots.Count < maxCount) continue; // If we already have a candidate, skip partitions that can never beat it
 
-                foreach (var subPartition in GetHighestPopulationSubPartitions(partition))
+                foreach (var subPartition in partition.CreateSubPartitionsAndPopulate())
                 {
                     if (subPartition.Volume == 1)
                     {
