@@ -60,7 +60,7 @@ namespace Utils
             return maxIndex;
         }
 
-        public static T MaxItem<T>(this ICollection<T> list, Func<T, IComparable> valueGetter)
+        public static T MaxItem<T>(this IEnumerable<T> list, Func<T, IComparable> valueGetter)
         {
             var maxItem = list.First();
             var maxValue = valueGetter(maxItem);
