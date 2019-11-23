@@ -1,31 +1,24 @@
 ﻿using FluentAssertions;
 using Xunit;
-using System.Collections.Generic;
-using System;
+using Utils.VM;
 
 namespace Advent2017
 {
     public class Problem2501
     {
-        enum State
+        enum Instruction
         {
             A, B, C, D, E, F
         }
 
-        class VM
+        class VmState
         {
-            public VM(Dictionary<State, Action<VM>> instructionSet, int tapeSize, State initialState)
-            {
-                InstructionSet = instructionSet;
-                Tape = new bool[tapeSize];
-                TapeIndex = tapeSize / 2;
-                State = initialState;
-            }
+            public Instruction NextInstruction = Instruction.A;
+            public readonly Tape<bool> Tape;
 
-            public void Execute(int numCycles)
+            public VmState(int tapeSize)
             {
-                for (var i = 0; i < numCycles; i++)
-                    InstructionSet[State](this);
+                Tape = new Tape<bool>(tapeSize);
             }
 
             public int CheckSum()
@@ -37,149 +30,144 @@ namespace Advent2017
 
                 return sum;
             }
+        }
 
-            public bool Read() => Tape[TapeIndex];
-            public void Write(bool value) => Tape[TapeIndex] = value;
-            public void Left(int count = 1) => TapeIndex -= count;
-            public void Right(int count = 1) => TapeIndex += count;
-
-            public Dictionary<State, Action<VM>> InstructionSet;
-            public State State;
-            public bool[] Tape;
-            public int TapeIndex;
+        class Program : IProgram<Instruction, VmState>
+        {
+            public Instruction Fetch(VmState vmState) => vmState.NextInstruction;
         }
 
         [Fact]
         public void TestPart1()
         {
-            var instructionSet = new Dictionary<State, Action<VM>>();
-            instructionSet[State.A] = vm =>
+            var instructionSet = new InstructionSet<Instruction, VmState>();
+            instructionSet[Instruction.A] = vm =>
             {
-                if (vm.Read())
+                if (vm.Tape.Read())
                 {
-                    vm.Write(false);
-                    vm.Left();
-                    vm.State = State.B;
+                    vm.Tape.Write(false);
+                    vm.Tape.Left();
+                    vm.NextInstruction = Instruction.B;
                 }
                 else
                 {
-                    vm.Write(true);
-                    vm.Right();
-                    vm.State = State.B;
+                    vm.Tape.Write(true);
+                    vm.Tape.Right();
+                    vm.NextInstruction = Instruction.B;
                 }
             };
-            instructionSet[State.B] = vm =>
+            instructionSet[Instruction.B] = vm =>
             {
-                if (vm.Read())
+                if (vm.Tape.Read())
                 {
-                    vm.Right();
-                    vm.State = State.A;
+                    vm.Tape.Right();
+                    vm.NextInstruction = Instruction.A;
                 }
                 else
                 {
-                    vm.Write(true);
-                    vm.Left();
-                    vm.State = State.A;
+                    vm.Tape.Write(true);
+                    vm.Tape.Left();
+                    vm.NextInstruction = Instruction.A;
                 }
             };
 
-            var _vm = new VM(instructionSet, 4, State.A);
+            var _vm = new Executor<Instruction, VmState>(instructionSet, new Program(), new VmState(4));
             _vm.Execute(6);
-            _vm.CheckSum().Should().Be(3);
+            _vm.State.CheckSum().Should().Be(3);
         }
 
-        VM CreateVm(int tapeSize)
+        Executor<Instruction, VmState> CreateVm(int tapeSize)
         {
-            var instructionSet = new Dictionary<State, Action<VM>>();
-            instructionSet[State.A] = vm =>
+            var instructionSet = new InstructionSet<Instruction, VmState>();
+            instructionSet[Instruction.A] = vm =>
             {
-                if (vm.Read())
+                if (vm.Tape.Read())
                 {
-                    vm.Left();
-                    vm.State = State.E;
+                    vm.Tape.Left();
+                    vm.NextInstruction = Instruction.E;
                 }
                 else
                 {
-                    vm.Write(true);
-                    vm.Right();
-                    vm.State = State.B;
+                    vm.Tape.Write(true);
+                    vm.Tape.Right();
+                    vm.NextInstruction = Instruction.B;
                 }
             };
-            instructionSet[State.B] = vm =>
+            instructionSet[Instruction.B] = vm =>
             {
-                if (vm.Read())
+                if (vm.Tape.Read())
                 {
-                    vm.Right();
-                    vm.State = State.F;
+                    vm.Tape.Right();
+                    vm.NextInstruction = Instruction.F;
                 }
                 else
                 {
-                    vm.Write(true);
-                    vm.Right();
-                    vm.State = State.C;
+                    vm.Tape.Write(true);
+                    vm.Tape.Right();
+                    vm.NextInstruction = Instruction.C;
                 }
             };
-            instructionSet[State.C] = vm =>
+            instructionSet[Instruction.C] = vm =>
             {
-                if (vm.Read())
+                if (vm.Tape.Read())
                 {
-                    vm.Write(false);
-                    vm.Right();
-                    vm.State = State.B;
+                    vm.Tape.Write(false);
+                    vm.Tape.Right();
+                    vm.NextInstruction = Instruction.B;
                 }
                 else
                 {
-                    vm.Write(true);
-                    vm.Left();
-                    vm.State = State.D;
+                    vm.Tape.Write(true);
+                    vm.Tape.Left();
+                    vm.NextInstruction = Instruction.D;
                 }
             };
-            instructionSet[State.D] = vm =>
+            instructionSet[Instruction.D] = vm =>
             {
-                if (vm.Read())
+                if (vm.Tape.Read())
                 {
-                    vm.Write(false);
-                    vm.Left();
-                    vm.State = State.C;
+                    vm.Tape.Write(false);
+                    vm.Tape.Left();
+                    vm.NextInstruction = Instruction.C;
                 }
                 else
                 {
-                    vm.Write(true);
-                    vm.Right();
-                    vm.State = State.E;
+                    vm.Tape.Write(true);
+                    vm.Tape.Right();
+                    vm.NextInstruction = Instruction.E;
                 }
             };
-            instructionSet[State.E] = vm =>
+            instructionSet[Instruction.E] = vm =>
             {
-                if (vm.Read())
+                if (vm.Tape.Read())
                 {
-                    vm.Write(false);
-                    vm.Right();
-                    vm.State = State.D;
+                    vm.Tape.Write(false);
+                    vm.Tape.Right();
+                    vm.NextInstruction = Instruction.D;
                 }
                 else
                 {
-                    vm.Write(true);
-                    vm.Left();
-                    vm.State = State.A;
+                    vm.Tape.Write(true);
+                    vm.Tape.Left();
+                    vm.NextInstruction = Instruction.A;
                 }
             };
-            instructionSet[State.F] = vm =>
+            instructionSet[Instruction.F] = vm =>
             {
-                if (vm.Read())
+                if (vm.Tape.Read())
                 {
-                    vm.Right();
-                    vm.State = State.C;
+                    vm.Tape.Right();
+                    vm.NextInstruction = Instruction.C;
                 }
                 else
                 {
-                    vm.Write(true);
-                    vm.Right();
-                    vm.State = State.A;
+                    vm.Tape.Write(true);
+                    vm.Tape.Right();
+                    vm.NextInstruction = Instruction.A;
                 }
             };
 
-            return new VM(instructionSet, tapeSize, State.A);
+            return new Executor<Instruction, VmState>(instructionSet, new Program(), new VmState(tapeSize));
         }
 
         [Fact]
@@ -187,7 +175,7 @@ namespace Advent2017
         {
             var vm = CreateVm(17*1024);
             vm.Execute(12523873);
-            vm.CheckSum().Should().Be(4225);
+            vm.State.CheckSum().Should().Be(4225);
         }
     }
 }
