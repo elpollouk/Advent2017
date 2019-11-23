@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using System.Linq;
 using Xunit;
 using Utils.VM;
 
@@ -21,15 +22,7 @@ namespace Advent2017
                 Tape = new Tape<bool>(tapeSize);
             }
 
-            public int CheckSum()
-            {
-                var sum = 0;
-                for (var i = 0; i < Tape.Length; i++)
-                    if (Tape[i])
-                        sum++;
-
-                return sum;
-            }
+            public int CheckSum() => Tape.Where(v => v).Count();
         }
 
         class Program : IProgram<Instruction, VmState>

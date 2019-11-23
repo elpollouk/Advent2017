@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 
 namespace Utils.VM
 {
-    public class Tape<DataType>
+    public class Tape<DataType> : IEnumerable<DataType>
     {
         public int Position
         {
@@ -29,5 +30,13 @@ namespace Utils.VM
         public void Write(DataType value) => _Data[Position] = value;
         public void Left(int count = 1) => Position -= count;
         public void Right(int count = 1) => Position += count;
+
+        public IEnumerator<DataType> GetEnumerator()
+        {
+            for (var i = 0; i < _Data.Length; i++)
+                yield return _Data[i];
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => _Data.GetEnumerator();
     }
 }
