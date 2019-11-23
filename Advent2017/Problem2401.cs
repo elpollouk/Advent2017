@@ -59,7 +59,7 @@ namespace Advent2017
 
         private HashSet<int> _used;
 
-        void Walk(Dictionary<int, List<Connector>> connectors, int output, int currentValue, ref int maxValue)
+        void WalkMaximum(Dictionary<int, List<Connector>> connectors, int output, int currentValue, ref int maxValue)
         {
             var validConnectors = connectors.GetOrDefault(output);
             if (validConnectors == null) return;
@@ -76,7 +76,7 @@ namespace Advent2017
                     if (maxValue < currentValue)
                         maxValue = currentValue;
 
-                    Walk(connectors, connector.Output, currentValue, ref maxValue);
+                    WalkMaximum(connectors, connector.Output, currentValue, ref maxValue);
 
                     currentValue -= connector.Value;
                     _used.Remove(id);
@@ -90,7 +90,52 @@ namespace Advent2017
             var connectors = LoadConnectors(datafile);
             int maxValue = 0;
 
-            Walk(connectors, 0, 0, ref maxValue);
+            WalkMaximum(connectors, 0, 0, ref maxValue);
+
+            return maxValue;
+        }
+
+        void WalkLongest(Dictionary<int, List<Connector>> connectors, int output, int count, int currentValue, ref int longest, ref int maxValue)
+        {
+            var validConnectors = connectors.GetOrDefault(output);
+            if (validConnectors == null) return;
+
+            for (var i = 0; i < validConnectors.Count; i++)
+            {
+                var connector = validConnectors[i];
+                var id = connector.Id;
+                if (!_used.Contains(id))
+                {
+                    _used.Add(id);
+                    count++;
+                    currentValue += connector.Value;
+                    if (longest == count && maxValue < currentValue)
+                    {
+                        maxValue = currentValue;
+                    }
+                    else if (longest < count)
+                    {
+                        longest = count;
+                        maxValue = currentValue;
+                    }
+
+                    WalkLongest(connectors, connector.Output, count, currentValue, ref longest, ref maxValue);
+
+                    currentValue -= connector.Value;
+                    count--;
+                    _used.Remove(id);
+                }
+            }
+        }
+
+        int LongestBridge(string datafile)
+        {
+            _used = new HashSet<int>();
+            var connectors = LoadConnectors(datafile);
+            int longest = 0;
+            int maxValue = 0;
+
+            WalkLongest(connectors, 0, 0, 0, ref longest, ref maxValue);
 
             return maxValue;
         }
@@ -100,10 +145,9 @@ namespace Advent2017
         [InlineData("Data/2401.txt", 1940)]
         public void Part1(string datafile, int answer) => MaximumBridge(datafile).Should().Be(answer);
 
-        [Fact]
-        public void Part2()
-        {
-
-        }
+        [Theory]
+        [InlineData("Data/2401-example.txt", 19)]
+        [InlineData("Data/2401.txt", 1928)]
+        public void Part2(string datafile, int answer) => LongestBridge(datafile).Should().Be(answer);
     }
 }
