@@ -2,12 +2,13 @@
 using FluentAssertions;
 using Xunit;
 using System.Collections.Generic;
+using System;
 
 namespace Advent2017
 {
     public class Problem2401
     {
-        struct Connector
+        class Connector
         {
             public Connector(int id, int input, int output)
             {
@@ -51,51 +52,12 @@ namespace Advent2017
                 }
             });
 
-            foreach (var outputs in connectors.Values)
-                outputs.Sort((a, b) => b.Output - a.Output);
-
             return connectors;
         }
 
         private HashSet<int> _used;
 
-        void WalkMaximum(Dictionary<int, List<Connector>> connectors, int output, int currentValue, ref int maxValue)
-        {
-            var validConnectors = connectors.GetOrDefault(output);
-            if (validConnectors == null) return;
-
-
-            for (var i = 0; i < validConnectors.Count; i++)
-            {
-                var connector = validConnectors[i];
-                var id = connector.Id;
-                if (!_used.Contains(id))
-                {
-                    _used.Add(id);
-                    currentValue += connector.Value;
-                    if (maxValue < currentValue)
-                        maxValue = currentValue;
-
-                    WalkMaximum(connectors, connector.Output, currentValue, ref maxValue);
-
-                    currentValue -= connector.Value;
-                    _used.Remove(id);
-                }
-            }
-        }
-
-        int MaximumBridge(string datafile)
-        {
-            _used = new HashSet<int>();
-            var connectors = LoadConnectors(datafile);
-            int maxValue = 0;
-
-            WalkMaximum(connectors, 0, 0, ref maxValue);
-
-            return maxValue;
-        }
-
-        void WalkLongest(Dictionary<int, List<Connector>> connectors, int output, int count, int currentValue, ref int longest, ref int maxValue)
+        void Walk(Dictionary<int, List<Connector>> connectors, int output, int count, int currentValue, Action<int, int> stateCallback)
         {
             var validConnectors = connectors.GetOrDefault(output);
             if (validConnectors == null) return;
@@ -109,23 +71,29 @@ namespace Advent2017
                     _used.Add(id);
                     count++;
                     currentValue += connector.Value;
-                    if (longest == count && maxValue < currentValue)
-                    {
-                        maxValue = currentValue;
-                    }
-                    else if (longest < count)
-                    {
-                        longest = count;
-                        maxValue = currentValue;
-                    }
+                    stateCallback(count, currentValue);
 
-                    WalkLongest(connectors, connector.Output, count, currentValue, ref longest, ref maxValue);
+                    Walk(connectors, connector.Output, count, currentValue, stateCallback);
 
                     currentValue -= connector.Value;
                     count--;
                     _used.Remove(id);
                 }
             }
+        }
+
+        int MaximumBridge(string datafile)
+        {
+            _used = new HashSet<int>();
+            var connectors = LoadConnectors(datafile);
+            int maxValue = 0;
+
+            Walk(connectors, 0, 0, 0, (count, value) => {
+                if (maxValue < value)
+                    maxValue = value;
+            });
+
+            return maxValue;
         }
 
         int LongestBridge(string datafile)
@@ -135,7 +103,17 @@ namespace Advent2017
             int longest = 0;
             int maxValue = 0;
 
-            WalkLongest(connectors, 0, 0, 0, ref longest, ref maxValue);
+            Walk(connectors, 0, 0, 0, (count, value) => {
+                if (count == longest && maxValue < value)
+                {
+                    maxValue = value;
+                }
+                else if (longest < count)
+                {
+                    longest = count;
+                    maxValue = value;
+                }
+            });
 
             return maxValue;
         }
