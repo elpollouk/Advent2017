@@ -1,5 +1,4 @@
-﻿using Utils;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Xunit;
 using System.Collections.Generic;
 using System;
@@ -18,7 +17,7 @@ namespace Advent2017
             public VM(Dictionary<State, Action<VM>> instructionSet, int tapeSize, State initialState)
             {
                 InstructionSet = instructionSet;
-                Tape = new int[tapeSize];
+                Tape = new bool[tapeSize];
                 TapeIndex = tapeSize / 2;
                 State = initialState;
             }
@@ -33,20 +32,20 @@ namespace Advent2017
             {
                 var sum = 0;
                 for (var i = 0; i < Tape.Length; i++)
-                    if (Tape[i] == 1)
+                    if (Tape[i])
                         sum++;
 
                 return sum;
             }
 
-            public int Read() => Tape[TapeIndex];
-            public int Write(int value) => Tape[TapeIndex] = value;
-            public int Left(int count = 1) => TapeIndex -= count;
-            public int Right(int count = 1) => TapeIndex += count;
+            public bool Read() => Tape[TapeIndex];
+            public void Write(bool value) => Tape[TapeIndex] = value;
+            public void Left(int count = 1) => TapeIndex -= count;
+            public void Right(int count = 1) => TapeIndex += count;
 
             public Dictionary<State, Action<VM>> InstructionSet;
             public State State;
-            public int[] Tape;
+            public bool[] Tape;
             public int TapeIndex;
         }
 
@@ -56,37 +55,31 @@ namespace Advent2017
             var instructionSet = new Dictionary<State, Action<VM>>();
             instructionSet[State.A] = vm =>
             {
-                var value = vm.Read();
-                switch (value)
+                if (vm.Read())
                 {
-                    case 0:
-                        vm.Write(1);
-                        vm.Right();
-                        vm.State = State.B;
-                        break;
-
-                    case 1:
-                        vm.Write(0);
-                        vm.Left();
-                        vm.State = State.B;
-                        break;
+                    vm.Write(false);
+                    vm.Left();
+                    vm.State = State.B;
+                }
+                else
+                {
+                    vm.Write(true);
+                    vm.Right();
+                    vm.State = State.B;
                 }
             };
             instructionSet[State.B] = vm =>
             {
-                var value = vm.Read();
-                switch (value)
+                if (vm.Read())
                 {
-                    case 0:
-                        vm.Write(1);
-                        vm.Left();
-                        vm.State = State.A;
-                        break;
-
-                    case 1:
-                        vm.Right();
-                        vm.State = State.A;
-                        break;
+                    vm.Right();
+                    vm.State = State.A;
+                }
+                else
+                {
+                    vm.Write(true);
+                    vm.Left();
+                    vm.State = State.A;
                 }
             };
 
@@ -100,100 +93,89 @@ namespace Advent2017
             var instructionSet = new Dictionary<State, Action<VM>>();
             instructionSet[State.A] = vm =>
             {
-                switch (vm.Read())
+                if (vm.Read())
                 {
-                    case 0:
-                        vm.Write(1);
-                        vm.Right();
-                        vm.State = State.B;
-                        break;
-
-                    case 1:
-                        vm.Left();
-                        vm.State = State.E;
-                        break;
+                    vm.Left();
+                    vm.State = State.E;
+                }
+                else
+                {
+                    vm.Write(true);
+                    vm.Right();
+                    vm.State = State.B;
                 }
             };
             instructionSet[State.B] = vm =>
             {
-                switch (vm.Read())
+                if (vm.Read())
                 {
-                    case 0:
-                        vm.Write(1);
-                        vm.Right();
-                        vm.State = State.C;
-                        break;
-                    case 1:
-                        vm.Right();
-                        vm.State = State.F;
-                        break;
+                    vm.Right();
+                    vm.State = State.F;
+                }
+                else
+                {
+                    vm.Write(true);
+                    vm.Right();
+                    vm.State = State.C;
                 }
             };
             instructionSet[State.C] = vm =>
             {
-                switch (vm.Read())
+                if (vm.Read())
                 {
-                    case 0:
-                        vm.Write(1);
-                        vm.Left();
-                        vm.State = State.D;
-                        break;
-
-                    case 1:
-                        vm.Write(0);
-                        vm.Right();
-                        vm.State = State.B;
-                        break;
+                    vm.Write(false);
+                    vm.Right();
+                    vm.State = State.B;
+                }
+                else
+                {
+                    vm.Write(true);
+                    vm.Left();
+                    vm.State = State.D;
                 }
             };
             instructionSet[State.D] = vm =>
             {
-                switch (vm.Read())
+                if (vm.Read())
                 {
-                    case 0:
-                        vm.Write(1);
-                        vm.Right();
-                        vm.State = State.E;
-                        break;
-
-                    case 1:
-                        vm.Write(0);
-                        vm.Left();
-                        vm.State = State.C;
-                        break;
+                    vm.Write(false);
+                    vm.Left();
+                    vm.State = State.C;
+                }
+                else
+                {
+                    vm.Write(true);
+                    vm.Right();
+                    vm.State = State.E;
                 }
             };
             instructionSet[State.E] = vm =>
             {
-                switch (vm.Read())
+                if (vm.Read())
                 {
-                    case 0:
-                        vm.Write(1);
-                        vm.Left();
-                        vm.State = State.A;
-                        break;
-
-                    case 1:
-                        vm.Write(0);
-                        vm.Right();
-                        vm.State = State.D;
-                        break;
+                    vm.Write(false);
+                    vm.Right();
+                    vm.State = State.D;
+                }
+                else
+                {
+                    vm.Write(true);
+                    vm.Left();
+                    vm.State = State.A;
                 }
             };
             instructionSet[State.F] = vm =>
             {
-                switch (vm.Read())
+                if (vm.Read())
                 {
-                    case 0:
-                        vm.Write(1);
-                        vm.Right();
-                        vm.State = State.A;
-                        break;
-
-                    case 1:
-                        vm.Right();
-                        vm.State = State.C;
-                        break;
+                    vm.Right();
+                    vm.State = State.C;
+                }
+                else
+                {
+                    vm.Write(true);
+                    vm.Right();
+                    vm.State = State.A;
                 }
             };
 
