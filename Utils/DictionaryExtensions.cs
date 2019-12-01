@@ -5,7 +5,7 @@ namespace Utils
 {
     public static class DictionaryExtentions
     {
-        public static V GetOrDefault<K, V>(this IDictionary<K, V> dic, K key, V def = default(V))
+        public static V GetOrDefault<K, V>(this IDictionary<K, V> dic, K key, V def = default)
         {
             if (dic.TryGetValue(key, out V v))
                 return v;
@@ -14,8 +14,7 @@ namespace Utils
 
         public static V GetOrCreate<K, V>(this IDictionary<K, V> dic, K key, Func<V> creator)
         {
-            V value;
-            if (!dic.TryGetValue(key, out value))
+            if (!dic.TryGetValue(key, out V value))
             {
                 value = creator();
                 dic[key] = value;

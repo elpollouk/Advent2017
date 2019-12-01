@@ -1,11 +1,11 @@
 ﻿namespace Utils.VM
 {
-    public interface IProgram<Instruction, VmState>
+    public interface IProgram<VmState, Instruction, Operands>
     {
-        Instruction Fetch(VmState vmState);
+        (Instruction, Operands) Fetch(VmState vmState);
     }
 
-    public class Executor<Instruction, VmState>
+    public class Executor<VmState, Instruction, Operands>
     {
         public VmState State
         {
@@ -13,10 +13,10 @@
             private set;
         }
 
-        private readonly InstructionSet<Instruction, VmState> _InstructionSet;
-        private readonly IProgram<Instruction, VmState> _Program;
+        private readonly InstructionSet<VmState, Instruction, Operands> _InstructionSet;
+        private readonly IProgram<VmState, Instruction, Operands> _Program;
 
-        public Executor(InstructionSet<Instruction, VmState> instructionSet, IProgram<Instruction, VmState> program, VmState vmState)
+        public Executor(InstructionSet<VmState, Instruction, Operands> instructionSet, IProgram<VmState, Instruction, Operands> program, VmState vmState)
         {
             _InstructionSet = instructionSet;
             _Program = program;
@@ -27,8 +27,8 @@
         {
             for (var i = 0; i < numCycles; i++)
             {
-                var instruction = _Program.Fetch(State);
-                _InstructionSet[instruction](State);
+                var (instruction, operands) = _Program.Fetch(State);
+                _InstructionSet[instruction](State, operands);
             }
         }
     }

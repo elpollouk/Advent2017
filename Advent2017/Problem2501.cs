@@ -25,16 +25,16 @@ namespace Advent2017
             public int CheckSum() => Tape.Where(v => v).Count();
         }
 
-        class Program : IProgram<Instruction, VmState>
+        class Program : IProgram<VmState, Instruction, object>
         {
-            public Instruction Fetch(VmState vmState) => vmState.NextInstruction;
+            public (Instruction, object) Fetch(VmState vmState) => (vmState.NextInstruction, null);
         }
 
         [Fact]
         public void TestPart1()
         {
-            var instructionSet = new InstructionSet<Instruction, VmState>();
-            instructionSet[Instruction.A] = vm =>
+            var instructionSet = new InstructionSet<VmState, Instruction, object>();
+            instructionSet[Instruction.A] = (vm, _) =>
             {
                 if (vm.Tape.Read())
                 {
@@ -49,7 +49,7 @@ namespace Advent2017
                     vm.NextInstruction = Instruction.B;
                 }
             };
-            instructionSet[Instruction.B] = vm =>
+            instructionSet[Instruction.B] = (vm, _) =>
             {
                 if (vm.Tape.Read())
                 {
@@ -64,15 +64,15 @@ namespace Advent2017
                 }
             };
 
-            var _vm = new Executor<Instruction, VmState>(instructionSet, new Program(), new VmState(4));
+            var _vm = new Executor<VmState, Instruction, object>(instructionSet, new Program(), new VmState(4));
             _vm.Execute(6);
             _vm.State.CheckSum().Should().Be(3);
         }
 
-        Executor<Instruction, VmState> CreateVm(int tapeSize)
+        Executor<VmState, Instruction, object> CreateVm(int tapeSize)
         {
-            var instructionSet = new InstructionSet<Instruction, VmState>();
-            instructionSet[Instruction.A] = vm =>
+            var instructionSet = new InstructionSet<VmState, Instruction, object>();
+            instructionSet[Instruction.A] = (vm, _) =>
             {
                 if (vm.Tape.Read())
                 {
@@ -86,7 +86,7 @@ namespace Advent2017
                     vm.NextInstruction = Instruction.B;
                 }
             };
-            instructionSet[Instruction.B] = vm =>
+            instructionSet[Instruction.B] = (vm, _) =>
             {
                 if (vm.Tape.Read())
                 {
@@ -100,7 +100,7 @@ namespace Advent2017
                     vm.NextInstruction = Instruction.C;
                 }
             };
-            instructionSet[Instruction.C] = vm =>
+            instructionSet[Instruction.C] = (vm, _) =>
             {
                 if (vm.Tape.Read())
                 {
@@ -115,7 +115,7 @@ namespace Advent2017
                     vm.NextInstruction = Instruction.D;
                 }
             };
-            instructionSet[Instruction.D] = vm =>
+            instructionSet[Instruction.D] = (vm, _) =>
             {
                 if (vm.Tape.Read())
                 {
@@ -130,7 +130,7 @@ namespace Advent2017
                     vm.NextInstruction = Instruction.E;
                 }
             };
-            instructionSet[Instruction.E] = vm =>
+            instructionSet[Instruction.E] = (vm, _) =>
             {
                 if (vm.Tape.Read())
                 {
@@ -145,7 +145,7 @@ namespace Advent2017
                     vm.NextInstruction = Instruction.A;
                 }
             };
-            instructionSet[Instruction.F] = vm =>
+            instructionSet[Instruction.F] = (vm, _) =>
             {
                 if (vm.Tape.Read())
                 {
@@ -160,7 +160,7 @@ namespace Advent2017
                 }
             };
 
-            return new Executor<Instruction, VmState>(instructionSet, new Program(), new VmState(tapeSize));
+            return new Executor<VmState, Instruction, object>(instructionSet, new Program(), new VmState(tapeSize));
         }
 
         [Fact]

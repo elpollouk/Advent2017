@@ -59,6 +59,8 @@ namespace Advent2017
 
         void Walk(Dictionary<int, List<Connector>> connectors, int output, int count, int currentValue, Action<int, int> stateCallback)
         {
+            stateCallback(count, currentValue);
+
             var validConnectors = connectors.GetOrDefault(output);
             if (validConnectors == null) return;
 
@@ -69,14 +71,7 @@ namespace Advent2017
                 if (!_used.Contains(id))
                 {
                     _used.Add(id);
-                    count++;
-                    currentValue += connector.Value;
-                    stateCallback(count, currentValue);
-
-                    Walk(connectors, connector.Output, count, currentValue, stateCallback);
-
-                    currentValue -= connector.Value;
-                    count--;
+                    Walk(connectors, connector.Output, count + 1, currentValue + connector.Value, stateCallback);
                     _used.Remove(id);
                 }
             }

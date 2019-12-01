@@ -3,13 +3,13 @@ using System.Collections.Generic;
 
 namespace Utils.VM
 {
-    public class InstructionSet<Instruction, VmState>
+    public class InstructionSet<VmState, Instruction, Operands>
     {
-        public Action<VmState> this[Instruction key]
+        public Action<VmState, Operands> this[Instruction key]
         {
             set => _Instructions[key] = value;
             get => _Instructions[key];
         }
-        private readonly Dictionary<Instruction, Action<VmState>> _Instructions = new Dictionary<Instruction, Action<VmState>>();
+        private readonly Dictionary<Instruction, Action<VmState, Operands>> _Instructions = new Dictionary<Instruction, Action<VmState, Operands>>();
     }
 }
