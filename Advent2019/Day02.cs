@@ -51,7 +51,7 @@ namespace Advent2019
         [InlineData("Data/Day02-example.txt", 3500)]
         [InlineData("Data/Day02-example2.txt", 30)]
         [InlineData("Data/Day02.txt", 3654868)]
-        void Problem1(string input, int answer)
+        public void Problem1(string input, int answer)
         {
             var prog = FileIterator.LoadCSV<int>(input);
             // Patch as per problem instructions
@@ -64,15 +64,33 @@ namespace Advent2019
             Exec(prog).Should().Be(answer);
         }
 
-        [Theory]
-        [InlineData("Data/Day02.txt", 70, 14, 19690720)]
-        void Problem2(string input, int noun, int verb, int target)
+        int ExecWithPatch(int[] prog, int noun, int verb)
         {
-            var prog = FileIterator.LoadCSV<int>(input);
+            prog = (int[])prog.Clone();
             prog[1] = noun;
             prog[2] = verb;
+            return Exec(prog);
+        }
 
-            Exec(prog).Should().Be(target);
+        [Theory]
+        [InlineData("Data/Day02.txt", 19690720, 7014)]
+        public void Problem2(string input, int target, int answer)
+        {
+            var prog = FileIterator.LoadCSV<int>(input);
+
+            var baseValue = ExecWithPatch(prog, 0, 0);
+            // Calculate the deltas for verb and noun changes
+            var dNoun = ExecWithPatch(prog, 1, 0) - baseValue;
+            var dVerb = ExecWithPatch(prog, 0, 1) - baseValue;
+
+            // Calculate the verb and noun values required to hit the target
+            var noun = (target - baseValue) / dNoun;
+            var verb = target - (baseValue + dNoun * noun);
+            verb /= dVerb;
+
+            // Verify we have correct verb/noun values and calculate the final answer
+            ExecWithPatch(prog, noun, verb).Should().Be(target);
+            (100 * noun + verb).Should().Be(answer);
         }
     }
 }
