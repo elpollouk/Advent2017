@@ -5,9 +5,9 @@ using Xunit;
 
 namespace Advent2019
 {
-    public class Day02
+    public static class IntCode
     {
-        class VmState
+        public class VmState
         {
             public readonly int[] Mem;
             public int IP = 0;
@@ -25,6 +25,7 @@ namespace Advent2019
                 var mem = vmState.Mem;
                 var ip = vmState.IP;
                 var instruction = mem[ip];
+
                 if (instruction == 99) throw new Halt();
                 vmState.IP += 4;
 
@@ -32,16 +33,28 @@ namespace Advent2019
             }
         }
 
+        private static InstructionSet<VmState, int, (int a, int b, int c)> s_InstructionSet = new InstructionSet<VmState, int, (int a, int b, int c)>();
+        private static Program s_Program = new Program();
+
+        static IntCode()
+        {
+            s_InstructionSet[1] = (vm, ops) => vm.Mem[ops.c] = vm.Mem[ops.a] + vm.Mem[ops.b];
+            s_InstructionSet[2] = (vm, ops) => vm.Mem[ops.c] = vm.Mem[ops.a] * vm.Mem[ops.b];
+        }
+
+        public static Executor<VmState, int, (int, int, int)> CreateVM(int[] mem)
+        {
+            var vmState = new VmState(mem);
+
+            return new Executor<VmState, int, (int, int, int)>(s_InstructionSet, s_Program, vmState);
+        }
+    }
+
+    public class Day02
+    {
         int Exec(int[] prog)
         {
-            var instructionSet = new InstructionSet<VmState, int, (int a, int b, int c)>();
-            instructionSet[1] = (vm, ops) => vm.Mem[ops.c] = vm.Mem[ops.a] + vm.Mem[ops.b];
-            instructionSet[2] = (vm, ops) => vm.Mem[ops.c] = vm.Mem[ops.a] * vm.Mem[ops.b];
-
-            var program = new Program();
-            var vmState = new VmState(prog);
-
-            var vm = new Executor<VmState, int, (int, int, int)>(instructionSet, program, vmState);
+            var vm = IntCode.CreateVM(prog);
             vm.Execute();
 
             return vm.State.Mem[0];
@@ -74,6 +87,7 @@ namespace Advent2019
 
         [Theory]
         [InlineData("Data/Day02.txt", 19690720, 7014)]
+        [InlineData("Data/Day02.txt", 3654868, 1202)]
         public void Problem2(string input, int target, int answer)
         {
             var prog = FileIterator.LoadCSV<int>(input);
