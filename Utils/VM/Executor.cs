@@ -5,6 +5,8 @@
         (Instruction, Operands) Fetch(VmState vmState);
     }
 
+    public class Halt : System.Exception { }
+
     public class Executor<VmState, Instruction, Operands>
     {
         public VmState State
@@ -25,11 +27,28 @@
 
         public void Execute(int numCycles)
         {
-            for (var i = 0; i < numCycles; i++)
+            try
             {
-                var (instruction, operands) = _Program.Fetch(State);
-                _InstructionSet[instruction](State, operands);
+                for (var i = 0; i < numCycles; i++)
+                {
+                    var (instruction, operands) = _Program.Fetch(State);
+                    _InstructionSet[instruction](State, operands);
+                }
             }
+            catch (Halt) { }
+        }
+
+        public void Execute()
+        {
+            try
+            {
+                while (true)
+                {
+                    var (instruction, operands) = _Program.Fetch(State);
+                    _InstructionSet[instruction](State, operands);
+                }
+            }
+            catch (Halt) { }
         }
     }
 }
