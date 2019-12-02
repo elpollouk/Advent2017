@@ -9,13 +9,18 @@ namespace Advent2019
     {
         class VmState
         {
-            public int[] Mem;
+            public readonly int[] Mem;
             public int IP = 0;
+
+            public VmState(int[] mem)
+            {
+                Mem = mem;
+            }
         }
 
-        class Program : IProgram<VmState, int, (int a, int b, int c)>
+        class Program : IProgram<VmState, int, (int, int, int)>
         {
-            public (int, (int a, int b, int c)) Fetch(VmState vmState)
+            public (int, (int, int, int)) Fetch(VmState vmState)
             {
                 var mem = vmState.Mem;
                 var ip = vmState.IP;
@@ -34,10 +39,9 @@ namespace Advent2019
             instructionSet[2] = (vm, ops) => vm.Mem[ops.c] = vm.Mem[ops.a] * vm.Mem[ops.b];
 
             var program = new Program();
-            var vmState = new VmState();
-            vmState.Mem = prog;
+            var vmState = new VmState(prog);
 
-            var vm = new Executor<VmState, int, (int a, int b, int c)>(instructionSet, program, vmState);
+            var vm = new Executor<VmState, int, (int, int, int)>(instructionSet, program, vmState);
             vm.Execute();
 
             return vm.State.Mem[0];
