@@ -60,29 +60,22 @@ namespace Advent2019
             return vm.State.Mem[0];
         }
 
-        [Theory]
-        [InlineData("Data/Day02-example.txt", 3500)]
-        [InlineData("Data/Day02-example2.txt", 30)]
-        [InlineData("Data/Day02.txt", 3654868)]
-        public void Problem1(string input, int answer)
-        {
-            var prog = FileIterator.LoadCSV<int>(input);
-            // Patch as per problem instructions
-            if (input.EndsWith("/Day02.txt"))
-            {
-                prog[1] = 12;
-                prog[2] = 2;
-            }
-
-            Exec(prog).Should().Be(answer);
-        }
-
         int ExecWithPatch(int[] prog, int noun, int verb)
         {
             prog = (int[])prog.Clone();
             prog[1] = noun;
             prog[2] = verb;
             return Exec(prog);
+        }
+
+        [Theory]
+        [InlineData("Data/Day02-example.txt", 9, 10, 3500)]
+        [InlineData("Data/Day02-example2.txt", 1, 1, 30)]
+        [InlineData("Data/Day02.txt", 12, 2, 3654868)]
+        public void Problem1(string input, int verb, int noun, int answer)
+        {
+            var prog = FileIterator.LoadCSV<int>(input);
+            ExecWithPatch(prog, verb, noun).Should().Be(answer);
         }
 
         [Theory]
