@@ -1,4 +1,6 @@
-﻿namespace Utils.VM
+﻿using System;
+
+namespace Utils.VM
 {
     public interface IProgram<VmState, Instruction, Operands>
     {
@@ -25,30 +27,22 @@
             State = vmState;
         }
 
-        public void Execute(int numCycles)
+        private void ExecuteCycle()
+        {
+            var (instruction, operands) = _Program.Fetch(State);
+            _InstructionSet[instruction](State, operands);
+        }
+
+        public void Execute(Action<Action> runloop)
         {
             try
             {
-                for (var i = 0; i < numCycles; i++)
-                {
-                    var (instruction, operands) = _Program.Fetch(State);
-                    _InstructionSet[instruction](State, operands);
-                }
+                runloop(ExecuteCycle);
             }
             catch (Halt) { }
         }
 
-        public void Execute()
-        {
-            try
-            {
-                while (true)
-                {
-                    var (instruction, operands) = _Program.Fetch(State);
-                    _InstructionSet[instruction](State, operands);
-                }
-            }
-            catch (Halt) { }
-        }
+        public void Execute(int numCycles) => Execute(step => { for (var i = 0; i < numCycles; i++) step(); });
+        public void Execute() => Execute(step => { while (true) step(); });
     }
 }
