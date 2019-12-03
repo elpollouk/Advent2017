@@ -7,83 +7,40 @@ using Xunit;
 
 namespace Advent2019
 {
-    using Grid = Dictionary<(int, int), (int count, int time)>;
+    using Grid = Dictionary<(int, int), (int pathId, int time)>;
 
     public class Day03
     {
-        void PaintLine(Grid grid, int x1, int y1, int x2, int y2, ref int time)
-        {
-            if (x1 == x2)
-                for (var y = y1; y <= y2; y++)
-                {
-                    grid[(x1, y)] = (1, time++);
-                }
-            else
-                for (var x = x1; x <= x2; x++)
-                {
-                    grid[(x, y1)] = (1, time++);
-                }
-        }
+        const int INTERSECTION = -1;
 
-        void PaintLineReverse(Grid grid, int x1, int y1, int x2, int y2, ref int time)
+        void PaintPath(Grid grid, string path, int pathId)
         {
-            if (x1 == x2)
-                for (var y = y1; y >= y2; y--)
-                {
-                    grid[(x1, y)] = (1, time++);
-                }
-            else
-                for (var x = x1; x >= x2; x--)
-                {
-                    grid[(x, y1)] = (1, time++);
-                }
-        }
-
-        void PaintPath(Grid grid, string path)
-        {
-            var pathGrid = new Grid();
             var movements = path.Split(',');
-            int x1 = 0, y1 = 0;
+            int x = 0, y = 0;
             int time = 0;
 
             foreach (var movement in movements)
             {
-                int x2 = x1, y2 = y1;
-                int distance = int.Parse(movement.Substring(1));
-                switch (movement[0])
+                var (dX, dY) = movement[0] switch
                 {
-                    case 'U':
-                        y2 += distance;
-                        PaintLine(pathGrid, x1, y1, x2, y2, ref time);
-                        break;
-                    case 'D':
-                        y2 -= distance;
-                        PaintLineReverse(pathGrid, x1, y1, x2, y2, ref time);
-                        break;
-                    case 'L':
-                        x2 -= distance;
-                        PaintLineReverse(pathGrid, x1, y1, x2, y2, ref time);
-                        break;
-                    case 'R':
-                        x2 += distance;
-                        PaintLine(pathGrid, x1, y1, x2, y2, ref time);
-                        break;
-                    default:
-                        Oh.Bugger();
-                        break;
+                    'U' => (0, 1),
+                    'D' => (0, -1),
+                    'L' => (-1, 0),
+                    'R' => (1, 0),
+                    _ => throw new InvalidOperationException()
+                };
+
+                int distance = int.Parse(movement.Substring(1));
+                for (var i = 0; i < distance; i++)
+                {
+                    x += dX;
+                    y += dY;
+                    time++;
+                    var key = (x, y);
+                    var (p, t) = grid.GetOrDefault(key, (pathId, 0));
+                    grid[key] = (p == pathId ? pathId : INTERSECTION, t + time);
                 }
-                x1 = x2;
-                y1 = y2;
-                time--;
             }
-
-            foreach (var key in pathGrid.Keys)
-            {
-                var (count, t) = grid.GetOrDefault(key, (0, 0));
-                grid[key] = (count + 1, pathGrid[key].time + t);
-            }
-
-            grid[(0, 0)] = (0, 0);
         }
 
         [Theory]
@@ -93,10 +50,11 @@ namespace Advent2019
         [InlineData("Data/Day03.txt", 896, 16524)]
         public void Problem(string input, int answer1, int answer2)
         {
+            var pathId = 1;
             var grid = new Grid();
-            FileIterator.ForEachLine<string>(input, path => PaintPath(grid, path));
+            FileIterator.ForEachLine<string>(input, path => PaintPath(grid, path, pathId++));
 
-            var crosses = grid.Keys.Where(k => grid[k].count > 1).ToList();
+            var crosses = grid.Keys.Where(k => grid[k].pathId == INTERSECTION).ToList();
             var nearest = crosses.Select(k => Math.Abs(k.Item1) + Math.Abs(k.Item2)).Min();
             nearest.Should().Be(answer1);
 
