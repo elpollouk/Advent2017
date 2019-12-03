@@ -33,8 +33,8 @@ namespace Advent2019
             }
         }
 
-        private static InstructionSet<VmState, int, (int a, int b, int c)> s_InstructionSet = new InstructionSet<VmState, int, (int a, int b, int c)>();
-        private static Program s_Program = new Program();
+        private static readonly InstructionSet<VmState, int, (int a, int b, int c)> s_InstructionSet = new InstructionSet<VmState, int, (int a, int b, int c)>();
+        private static readonly Program s_Program = new Program();
 
         static IntCode()
         {
