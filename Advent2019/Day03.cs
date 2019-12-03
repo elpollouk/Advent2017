@@ -54,11 +54,11 @@ namespace Advent2019
             var grid = new Grid();
             FileIterator.ForEachLine<string>(input, path => PaintPath(grid, path, pathId++));
 
-            var crosses = grid.Keys.Where(k => grid[k].pathId == INTERSECTION).ToList();
-            var nearest = crosses.Select(k => Math.Abs(k.Item1) + Math.Abs(k.Item2)).Min();
+            var intersections = grid.Keys.Where(k => grid[k].pathId == INTERSECTION);
+            var nearest = intersections.Select(i => Math.Abs(i.Item1) + Math.Abs(i.Item2)).Min();
             nearest.Should().Be(answer1);
 
-            var shortest = crosses.Select(c => grid[c].time).Min();
+            var shortest = intersections.Select(i => grid[i].time).Min();
             shortest.Should().Be(answer2);
         }
     }
