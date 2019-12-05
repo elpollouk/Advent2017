@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using System;
 using Utils;
 using Utils.VM;
 using Xunit;
@@ -11,6 +12,8 @@ namespace Advent2019
         {
             public readonly int[] Mem;
             public int IP = 0;
+            public Func<int> Input;
+            public Action<int> Output;
 
             public VmState(int[] mem)
             {
@@ -26,10 +29,31 @@ namespace Advent2019
                 var ip = vmState.IP;
                 var instruction = mem[ip];
 
-                if (instruction == 99) throw new Halt();
-                vmState.IP += 4;
+                switch (instruction % 100)
+                {
+                    case 1: // ADD
+                    case 2: // MUL
+                    case 7: // LT
+                    case 8: // EQ
+                        vmState.IP += 4;
+                        return (instruction, (mem[ip + 1], mem[ip + 2], mem[ip + 3]));
 
-                return (mem[ip], (mem[ip + 1], mem[ip + 2], mem[ip + 3]));
+                    case 3: // JNZ
+                    case 4: // JZ
+                        vmState.IP += 2;
+                        return (instruction, (mem[ip + 1], 0, 0));
+
+                    case 5: // IN
+                    case 6: // OUT
+                        vmState.IP += 3;
+                        return (instruction, (mem[ip + 1], mem[ip + 2], 0));
+
+                    case 99: // HALT
+                        throw new Halt();
+
+                    default:
+                        throw new InvalidOperationException();
+                }
             }
         }
 
@@ -40,6 +64,34 @@ namespace Advent2019
         {
             s_InstructionSet[1] = (vm, ops) => vm.Mem[ops.c] = vm.Mem[ops.a] + vm.Mem[ops.b];
             s_InstructionSet[2] = (vm, ops) => vm.Mem[ops.c] = vm.Mem[ops.a] * vm.Mem[ops.b];
+            s_InstructionSet[1001] = (vm, ops) => vm.Mem[ops.c] = vm.Mem[ops.a] + ops.b;
+            s_InstructionSet[101] = (vm, ops) => vm.Mem[ops.c] = ops.a + vm.Mem[ops.b];
+            s_InstructionSet[1101] = (vm, ops) => vm.Mem[ops.c] = ops.a + ops.b;
+            s_InstructionSet[1002] = (vm, ops) => vm.Mem[ops.c] = vm.Mem[ops.a] * ops.b;
+            s_InstructionSet[102] = (vm, ops) => vm.Mem[ops.c] = ops.a * vm.Mem[ops.b];
+            s_InstructionSet[1102] = (vm, ops) => vm.Mem[ops.c] = ops.a * ops.b;
+
+            s_InstructionSet[3] = (vm, ops) => vm.Mem[ops.a] = vm.Input();
+            s_InstructionSet[4] = (vm, ops) => vm.Output(vm.Mem[ops.a]);
+            s_InstructionSet[104] = (vm, ops) => vm.Output(ops.a);
+
+            s_InstructionSet[5] = (vm, ops) => { if (vm.Mem[ops.a] != 0) { vm.IP = vm.Mem[ops.b]; } };
+            s_InstructionSet[6] = (vm, ops) => { if (vm.Mem[ops.a] == 0) { vm.IP = vm.Mem[ops.b]; } };
+            s_InstructionSet[105] = (vm, ops) => { if (ops.a != 0) { vm.IP = vm.Mem[ops.b]; } };
+            s_InstructionSet[106] = (vm, ops) => { if (ops.a == 0) { vm.IP = vm.Mem[ops.b]; } };
+            s_InstructionSet[1005] = (vm, ops) => { if (vm.Mem[ops.a] != 0) { vm.IP = ops.b; } };
+            s_InstructionSet[1006] = (vm, ops) => { if (vm.Mem[ops.a] == 0) { vm.IP = ops.b; } };
+            s_InstructionSet[1105] = (vm, ops) => { if (ops.a != 0) { vm.IP = ops.b; } };
+            s_InstructionSet[1106] = (vm, ops) => { if (ops.a == 0) { vm.IP = ops.b; } };
+
+            s_InstructionSet[7] = (vm, ops) => vm.Mem[ops.c] = vm.Mem[ops.a] < vm.Mem[ops.b] ? 1 : 0;
+            s_InstructionSet[8] = (vm, ops) => vm.Mem[ops.c] = vm.Mem[ops.a] == vm.Mem[ops.b] ? 1 : 0;
+            s_InstructionSet[107] = (vm, ops) => vm.Mem[ops.c] = ops.a < vm.Mem[ops.b] ? 1 : 0;
+            s_InstructionSet[108] = (vm, ops) => vm.Mem[ops.c] = ops.a == vm.Mem[ops.b] ? 1 : 0;
+            s_InstructionSet[1007] = (vm, ops) => vm.Mem[ops.c] = vm.Mem[ops.a] < ops.b ? 1 : 0;
+            s_InstructionSet[1008] = (vm, ops) => vm.Mem[ops.c] = vm.Mem[ops.a] == ops.b ? 1 : 0;
+            s_InstructionSet[1107] = (vm, ops) => vm.Mem[ops.c] = ops.a < ops.b ? 1 : 0;
+            s_InstructionSet[1108] = (vm, ops) => vm.Mem[ops.c] = ops.a == ops.b ? 1 : 0;
         }
 
         public static Executor<VmState, int, (int, int, int)> CreateVM(int[] mem)
