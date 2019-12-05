@@ -8,10 +8,24 @@ namespace Advent2019
 {
     public static class IntCode
     {
+        const int ADD = 1;
+        const int MUL = 2;
+        const int JNZ = 5;
+        const int JZ = 6;
+        const int IN = 3;
+        const int OUT = 4;
+        const int LT = 7;
+        const int EQ = 8;
+        const int HALT = 99;
+
+        const int MODE_POSITION = 0;
+        const int MODE_IMMEDIATE = 1;
+
         public class VmState
         {
             public readonly int[] Mem;
             public int IP = 0;
+            public readonly int[] Modes = { MODE_POSITION, MODE_POSITION };
             public Func<int> Input;
             public Action<int> Output;
 
@@ -19,6 +33,8 @@ namespace Advent2019
             {
                 Mem = mem;
             }
+
+            public int Fetch(int value, int modeReg) => Modes[modeReg] == MODE_IMMEDIATE ? value : Mem[value];
         }
 
         class Program : IProgram<VmState, int, (int, int, int)>
@@ -27,28 +43,55 @@ namespace Advent2019
             {
                 var mem = vmState.Mem;
                 var ip = vmState.IP;
-                var instruction = mem[ip];
+                var instruction = mem[ip] % 100;
+                var modes = mem[ip] / 100;
 
-                switch (instruction % 100)
+                switch (modes)
                 {
-                    case 1: // ADD
-                    case 2: // MUL
-                    case 7: // LT
-                    case 8: // EQ
+                    case 0:
+                        vmState.Modes[0] = MODE_POSITION;
+                        vmState.Modes[1] = MODE_POSITION;
+                        break;
+
+                    case 1:
+                        vmState.Modes[0] = MODE_IMMEDIATE;
+                        vmState.Modes[1] = MODE_POSITION;
+                        break;
+
+                    case 10:
+                        vmState.Modes[0] = MODE_POSITION;
+                        vmState.Modes[1] = MODE_IMMEDIATE;
+                        break;
+
+                    case 11:
+                        vmState.Modes[0] = MODE_IMMEDIATE;
+                        vmState.Modes[1] = MODE_IMMEDIATE;
+                        break;
+
+                    default:
+                        throw new InvalidOperationException("Invalid mode");
+                }
+
+                switch (instruction)
+                {
+                    case ADD:
+                    case MUL:
+                    case LT:
+                    case EQ:
                         vmState.IP += 4;
                         return (instruction, (mem[ip + 1], mem[ip + 2], mem[ip + 3]));
 
-                    case 3: // JNZ
-                    case 4: // JZ
+                    case IN:
+                    case OUT:
                         vmState.IP += 2;
                         return (instruction, (mem[ip + 1], 0, 0));
 
-                    case 5: // IN
-                    case 6: // OUT
+                    case JNZ:
+                    case JZ:
                         vmState.IP += 3;
                         return (instruction, (mem[ip + 1], mem[ip + 2], 0));
 
-                    case 99: // HALT
+                    case HALT:
                         throw new Halt();
 
                     default:
@@ -62,36 +105,14 @@ namespace Advent2019
 
         static IntCode()
         {
-            s_InstructionSet[1] = (vm, ops) => vm.Mem[ops.c] = vm.Mem[ops.a] + vm.Mem[ops.b];
-            s_InstructionSet[2] = (vm, ops) => vm.Mem[ops.c] = vm.Mem[ops.a] * vm.Mem[ops.b];
-            s_InstructionSet[1001] = (vm, ops) => vm.Mem[ops.c] = vm.Mem[ops.a] + ops.b;
-            s_InstructionSet[101] = (vm, ops) => vm.Mem[ops.c] = ops.a + vm.Mem[ops.b];
-            s_InstructionSet[1101] = (vm, ops) => vm.Mem[ops.c] = ops.a + ops.b;
-            s_InstructionSet[1002] = (vm, ops) => vm.Mem[ops.c] = vm.Mem[ops.a] * ops.b;
-            s_InstructionSet[102] = (vm, ops) => vm.Mem[ops.c] = ops.a * vm.Mem[ops.b];
-            s_InstructionSet[1102] = (vm, ops) => vm.Mem[ops.c] = ops.a * ops.b;
-
-            s_InstructionSet[3] = (vm, ops) => vm.Mem[ops.a] = vm.Input();
-            s_InstructionSet[4] = (vm, ops) => vm.Output(vm.Mem[ops.a]);
-            s_InstructionSet[104] = (vm, ops) => vm.Output(ops.a);
-
-            s_InstructionSet[5] = (vm, ops) => { if (vm.Mem[ops.a] != 0) { vm.IP = vm.Mem[ops.b]; } };
-            s_InstructionSet[6] = (vm, ops) => { if (vm.Mem[ops.a] == 0) { vm.IP = vm.Mem[ops.b]; } };
-            s_InstructionSet[105] = (vm, ops) => { if (ops.a != 0) { vm.IP = vm.Mem[ops.b]; } };
-            s_InstructionSet[106] = (vm, ops) => { if (ops.a == 0) { vm.IP = vm.Mem[ops.b]; } };
-            s_InstructionSet[1005] = (vm, ops) => { if (vm.Mem[ops.a] != 0) { vm.IP = ops.b; } };
-            s_InstructionSet[1006] = (vm, ops) => { if (vm.Mem[ops.a] == 0) { vm.IP = ops.b; } };
-            s_InstructionSet[1105] = (vm, ops) => { if (ops.a != 0) { vm.IP = ops.b; } };
-            s_InstructionSet[1106] = (vm, ops) => { if (ops.a == 0) { vm.IP = ops.b; } };
-
-            s_InstructionSet[7] = (vm, ops) => vm.Mem[ops.c] = vm.Mem[ops.a] < vm.Mem[ops.b] ? 1 : 0;
-            s_InstructionSet[8] = (vm, ops) => vm.Mem[ops.c] = vm.Mem[ops.a] == vm.Mem[ops.b] ? 1 : 0;
-            s_InstructionSet[107] = (vm, ops) => vm.Mem[ops.c] = ops.a < vm.Mem[ops.b] ? 1 : 0;
-            s_InstructionSet[108] = (vm, ops) => vm.Mem[ops.c] = ops.a == vm.Mem[ops.b] ? 1 : 0;
-            s_InstructionSet[1007] = (vm, ops) => vm.Mem[ops.c] = vm.Mem[ops.a] < ops.b ? 1 : 0;
-            s_InstructionSet[1008] = (vm, ops) => vm.Mem[ops.c] = vm.Mem[ops.a] == ops.b ? 1 : 0;
-            s_InstructionSet[1107] = (vm, ops) => vm.Mem[ops.c] = ops.a < ops.b ? 1 : 0;
-            s_InstructionSet[1108] = (vm, ops) => vm.Mem[ops.c] = ops.a == ops.b ? 1 : 0;
+            s_InstructionSet[ADD] = (vm, ops) => vm.Mem[ops.c] = vm.Fetch(ops.a, 0) + vm.Fetch(ops.b, 1);
+            s_InstructionSet[MUL] = (vm, ops) => vm.Mem[ops.c] = vm.Fetch(ops.a, 0) * vm.Fetch(ops.b, 1);
+            s_InstructionSet[IN] = (vm, ops) => vm.Mem[ops.a] = vm.Input();
+            s_InstructionSet[OUT] = (vm, ops) => vm.Output(vm.Fetch(ops.a, 0));
+            s_InstructionSet[JNZ] = (vm, ops) => { if (vm.Fetch(ops.a, 0) != 0) { vm.IP = vm.Fetch(ops.b, 1); } };
+            s_InstructionSet[JZ] = (vm, ops) => { if (vm.Fetch(ops.a, 0) == 0) { vm.IP = vm.Fetch(ops.b, 1); } };
+            s_InstructionSet[LT] = (vm, ops) => vm.Mem[ops.c] = vm.Fetch(ops.a, 0) < vm.Fetch(ops.b, 1) ? 1 : 0;
+            s_InstructionSet[EQ] = (vm, ops) => vm.Mem[ops.c] = vm.Fetch(ops.a, 0) == vm.Fetch(ops.b, 1) ? 1 : 0;
         }
 
         public static Executor<VmState, int, (int, int, int)> CreateVM(int[] mem)
