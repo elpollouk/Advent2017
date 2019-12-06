@@ -1,7 +1,5 @@
 ﻿using FluentAssertions;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using Utils;
 using Utils.DataStructures;
 using Xunit;
@@ -23,28 +21,22 @@ namespace Advent2019
             public override string ToString() => $"\"{Name}\"={Depth}";
         }
 
-        (Graph<Orbit>, Dictionary<string, Orbit>) BuildOrbits(Dictionary<string, string> orbitsDef)
+        IndexedGraph<string, Orbit> BuildOrbits(Dictionary<string, string> orbitsDef)
         {
-            var orbitMap = new Dictionary<string, Orbit>();
-            var orbits = new Graph<Orbit>();
-            var com = new Orbit("COM");
-            orbitMap["COM"] = com;
-            orbits.AddNode(com);
+            var orbits = new IndexedGraph<string, Orbit>();
+            orbits["COM"] = new Orbit("COM");
             foreach (var orbit in orbitsDef.Keys)
-            {
-                orbitMap[orbit] = new Orbit(orbit);
-                orbits.AddNode(orbitMap[orbit]);
-            }
+                orbits[orbit] = new Orbit(orbit);
 
             foreach (var orbit in orbitsDef)
-                orbits.AddParentChildLink(orbitMap[orbit.Value], orbitMap[orbit.Key]);
+                orbits.AddParentChildLink(orbit.Value, orbit.Key);
 
-            orbits.Root = com;
+            orbits.Root = orbits["COM"];
 
-            return (orbits, orbitMap);
+            return orbits;
         }
 
-        int CalculateNodeDepth(Graph<Orbit> orbits)
+        int CalculateNodeDepth(IndexedGraph<string, Orbit> orbits)
         {
             orbits.DepthFirstWalk(orbit =>
             {
@@ -57,19 +49,19 @@ namespace Advent2019
             return total;
         }
 
-        int PathLength(Graph<Orbit> orbits, Dictionary<string, Orbit> orbitMap)
+        int PathLength(IndexedGraph<string, Orbit> orbits)
         {
             var youChain = new LinkedList<Orbit>();
             var sanChain = new LinkedList<Orbit>();
 
-            var orbit = orbitMap["YOU"];
+            var orbit = orbits["YOU"];
             while (orbit.Name != "COM")
             {
                 orbit = orbits.GetParent(orbit);
                 youChain.AddFirst(orbit);
             }
 
-            orbit = orbitMap["SAN"];
+            orbit = orbits["SAN"];
             while (orbit.Name != "COM")
             {
                 orbit = orbits.GetParent(orbit);
@@ -97,10 +89,10 @@ namespace Advent2019
                 orbitsDef[pair[1]] = pair[0];
             });
 
-            var (orbits, orbitMap) = BuildOrbits(orbitsDef);
+            var orbits = BuildOrbits(orbitsDef);
 
             CalculateNodeDepth(orbits).Should().Be(answer1);
-            PathLength(orbits, orbitMap).Should().Be(answer2);
+            PathLength(orbits).Should().Be(answer2);
         }
     }
 }

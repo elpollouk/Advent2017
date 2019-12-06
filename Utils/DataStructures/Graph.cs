@@ -231,4 +231,21 @@ namespace Utils.DataStructures
             }
         }
     }
+
+    public class IndexedGraph<IndexKeyType, NodeType> : Graph<NodeType>
+    {
+        private Dictionary<IndexKeyType, NodeType> _Index = new Dictionary<IndexKeyType, NodeType>();
+
+        public NodeType this[IndexKeyType key]
+        {
+            set
+            {
+                _Index[key] = value;
+                AddNode(value);
+            }
+            get => _Index[key];
+        }
+
+        public void AddParentChildLink(IndexKeyType parent, IndexKeyType child) => AddParentChildLink(_Index[parent], _Index[child]);
+    }
 }
