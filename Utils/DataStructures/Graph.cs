@@ -234,7 +234,7 @@ namespace Utils.DataStructures
 
     public class IndexedGraph<IndexKeyType, NodeType> : Graph<NodeType>
     {
-        private Dictionary<IndexKeyType, NodeType> _Index = new Dictionary<IndexKeyType, NodeType>();
+        private readonly Dictionary<IndexKeyType, NodeType> _Index = new Dictionary<IndexKeyType, NodeType>();
 
         public NodeType this[IndexKeyType key]
         {
