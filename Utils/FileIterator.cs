@@ -16,6 +16,12 @@ namespace Utils
             }
         }
 
+        public static IEnumerable<T> Lines<T>(string filename)
+        {
+            foreach (var line in Lines(filename))
+                yield return (T)Convert.ChangeType(line, typeof(T));
+        }
+
         public static IEnumerable<string> Lines(string filename)
         {
             using (var reader = new StreamReader(filename))

@@ -10,10 +10,8 @@ namespace Advent2019
         void Problem1()
         {
             var total = 0;
-            FileIterator.ForEachLine<int>("Data/Day01.txt", v =>
-            {
-                total += (v / 3) - 2;
-            });
+            foreach (var value in FileIterator.Lines<int>("Data/Day01.txt"))
+                total += (value / 3) - 2;
 
             total.Should().Be(3239503);
         }
@@ -30,10 +28,8 @@ namespace Advent2019
         void Problem2()
         {
             var total = 0;
-            FileIterator.ForEachLine<int>("Data/Day01.txt", v =>
-            {
-                total += CalculateFuel(v);
-            });
+            foreach (var value in FileIterator.Lines<int>("Data/Day01.txt"))
+                total += CalculateFuel(value);
 
             total.Should().Be(4856390);
         }
