@@ -38,14 +38,14 @@ namespace Advent2019
 
         int CalculateNodeDepth(IndexedGraph<string, Orbit> orbits)
         {
-            orbits.DepthFirstWalk(orbit =>
-            {
+            foreach (var orbit in orbits.DepthFirstWalk())
                 if (orbit.Name != "COM")
                     orbit.Depth = orbits.GetParent(orbit).Depth + 1;
-            });
 
             var total = 0;
-            orbits.DepthFirstWalk(orbit => total += orbit.Depth);
+            foreach (var orbit in orbits.DepthFirstWalk())
+                total += orbit.Depth;
+
             return total;
         }
 

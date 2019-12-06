@@ -156,59 +156,82 @@ namespace Utils.DataStructures
             return node.Item;
         }
 
+        [Obsolete]
         public void DepthFirstWalk(Action<T> onItem) => DepthFirstWalk(Root, onItem);
 
+        [Obsolete]
         public void DepthFirstWalk(T fromItem, Action<T> onItem)
         {
             var seen = new HashSet<T>();
             try
             {
-                InternalDepthFirstWalk(fromItem, onItem, seen);
+                foreach (var item in InternalDepthFirstWalk(fromItem, seen))
+                    onItem(item);
             }
             catch (StopIteration) { }
         }
 
-        private void InternalDepthFirstWalk(T fromItem, Action<T> onItem, HashSet<T> seen)
+        public IEnumerable<T> DepthFirstWalk() => DepthFirstWalk(Root);
+
+        public IEnumerable<T> DepthFirstWalk(T fromItem)
         {
-            if (seen.Contains(fromItem)) return;
+            var seen = new HashSet<T>();
+            return InternalDepthFirstWalk(fromItem, seen);
+        }
+
+        private IEnumerable<T> InternalDepthFirstWalk(T fromItem, HashSet<T> seen)
+        {
+            if (seen.Contains(fromItem)) yield break;
             seen.Add(fromItem);
 
             var node = GetNode(fromItem);
-            onItem(node.Item);
+            yield return node.Item;
 
             foreach (var linkId in node.Links)
-                InternalDepthFirstWalk(linkId, onItem, seen);
+                foreach (var item in InternalDepthFirstWalk(linkId, seen))
+                    yield return item;
         }
 
+        [Obsolete]
         public void BreadthFirstWalk(Action<T> onItem) => BreadthFirstWalk(Root, onItem);
 
+        [Obsolete]
         public void BreadthFirstWalk(T fromItem, Action<T> onItem)
+        {
+            try
+            {
+                foreach (var item in BreadthFirstWalk(fromItem))
+                    onItem(item);
+            }
+            catch (StopIteration) { }
+        }
+
+        public IEnumerable<T> BreadthFirstWalk() => BreadthFirstWalk(Root);
+
+        public IEnumerable<T> BreadthFirstWalk(T fromItem)
         {
             var seen = new HashSet<T>();
             var walkQueue = new Queue<T>();
             walkQueue.Enqueue(fromItem);
 
-            try
+            while (walkQueue.Count != 0)
             {
-                while (walkQueue.Count != 0)
-                {
-                    var nodeItem = walkQueue.Dequeue();
-                    if (seen.Contains(nodeItem)) continue;
+                var nodeItem = walkQueue.Dequeue();
+                if (seen.Contains(nodeItem)) continue;
 
-                    onItem(nodeItem);
-                    var node = GetNode(nodeItem);
+                yield return nodeItem;
+                var node = GetNode(nodeItem);
 
-                    foreach (var linked in node.Links)
-                        walkQueue.Enqueue(linked);
-                }
+                foreach (var linked in node.Links)
+                    walkQueue.Enqueue(linked);
             }
-            catch (StopIteration) { }
         }
 
         public int CountGroupSize(T fromItem)
         {
             var total = 0;
-            DepthFirstWalk(fromItem, node => total++);
+            foreach (var _ in DepthFirstWalk(fromItem))
+                total++;
             return total;
         }
 
@@ -223,7 +246,7 @@ namespace Utils.DataStructures
                     if (!seen.Contains(item))
                     {
                         total++;
-                        InternalDepthFirstWalk(item, n => { }, seen);
+                        foreach (var _ in InternalDepthFirstWalk(item, seen)) { }
                     }
                 }
 
