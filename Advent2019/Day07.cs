@@ -57,10 +57,26 @@ namespace Advent2019
         [InlineData("Data/Day07-example.txt", 43210)]
         [InlineData("Data/Day07-example2.txt", 54321)]
         [InlineData("Data/Day07-example3.txt", 65210)]
-        [InlineData("Data/Day07.txt", 0)]
+        [InlineData("Data/Day07.txt", 116680)]
         public void Problem(string input, int answer)
         {
-            throw new NotImplementedException();
+            var max = 0;
+            var prog = FileIterator.LoadCSV<int>(input);
+            foreach (var perm in Permutations(0, 1, 2, 3, 4))
+            {
+                var o = 0;
+                foreach (var p in perm)
+                {
+                    var vm = IntCode.CreateVM(prog);
+                    vm.State.Input = Generators.Reader(p, o);
+                    vm.State.Output = _o => o = _o;
+                    vm.Execute();
+                }
+
+                if (max < o) max = o;
+            }
+
+            max.Should().Be(answer);
         }
     }
 }
