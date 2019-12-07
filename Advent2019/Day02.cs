@@ -127,6 +127,28 @@ namespace Advent2019
 
             return new Executor<VmState, int, (int, int, int)>(s_InstructionSet, s_Program, vmState);
         }
+
+        public static bool ExecuteUntilOutput(this Executor<VmState, int, (int, int, int)> executor, ref int output)
+        {
+            int _output = 0;
+            bool hasOutput = false;
+
+            executor.State.Output = o =>
+            {
+                _output = o;
+                hasOutput = true;
+            };
+
+            executor.Execute(step => {
+                while (!hasOutput)
+                    step();
+            });
+
+            if (hasOutput)
+                output = _output;
+            return hasOutput;
+        }
+
     }
 
     public class Day02

@@ -64,16 +64,16 @@ namespace Advent2019
             var prog = FileIterator.LoadCSV<int>(input);
             foreach (var perm in Permutations(0, 1, 2, 3, 4))
             {
-                var o = 0;
+                var output = 0;
                 foreach (var p in perm)
                 {
                     var vm = IntCode.CreateVM(prog);
-                    vm.State.Input = Generators.Reader(p, o);
-                    vm.State.Output = _o => o = _o;
+                    vm.State.Input = Generators.Reader(p, output);
+                    vm.State.Output = o => output = o;
                     vm.Execute();
                 }
 
-                if (max < o) max = o;
+                if (max < output) max = output;
             }
 
             max.Should().Be(answer);
@@ -89,8 +89,6 @@ namespace Advent2019
             var prog = FileIterator.LoadCSV<int>(input);
             foreach (var perm in Permutations(5, 6, 7, 8, 9))
             {
-                var _out = 0;
-
                 var vms = new List<Executor<IntCode.VmState, int, (int, int, int)>>();
                 foreach (var p in perm)
                 {
@@ -100,25 +98,16 @@ namespace Advent2019
                     vms.Add(vm);
                 }
 
+                var output = 0;
                 foreach (var vm in vms.Cycler())
                 {
-                    vm.State.OutputQueue.Count.Should().Be(0);
-                    vm.State.InputQueue.Enqueue(_out);
-                    vm.Execute(step =>
-                    {
-                        while (vm.State.OutputQueue.Count == 0)
-                            step();
-                    });
+                    vm.State.InputQueue.Enqueue(output);
 
-                    if (vm.State.OutputQueue.Count == 0)
+                    if (!vm.ExecuteUntilOutput(ref output))
                     {
-                        if (max < _out)
-                            max = _out;
+                        if (max < output)
+                            max = output;
                         break;
-                    }
-                    else
-                    {
-                        _out = vm.State.OutputQueue.Dequeue();
                     }
                 }
             }
