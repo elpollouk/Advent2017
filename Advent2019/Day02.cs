@@ -117,7 +117,7 @@ namespace Advent2019
 
         public static Executor<VmState, int, (int, int, int)> CreateVM(int[] mem)
         {
-            var vmState = new VmState(mem);
+            var vmState = new VmState((int[])mem.Clone());
 
             return new Executor<VmState, int, (int, int, int)>(s_InstructionSet, s_Program, vmState);
         }
