@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using System;
+using System.Collections.Generic;
 using Utils;
 using Utils.VM;
 using Xunit;
@@ -29,9 +30,14 @@ namespace Advent2019
             public Func<int> Input;
             public Action<int> Output;
 
+            public readonly Queue<int> InputQueue = new Queue<int>();
+            public readonly Queue<int> OutputQueue = new Queue<int>();
+
             public VmState(int[] mem)
             {
                 Mem = mem;
+                Input = InputQueue.Dequeue;
+                Output = OutputQueue.Enqueue;
             }
 
             public int Fetch(int value, int modeReg) => Modes[modeReg] == MODE_IMMEDIATE ? value : Mem[value];

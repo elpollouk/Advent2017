@@ -11,6 +11,13 @@ namespace Utils
             return () => current++ % range;
         }
 
+        public static IEnumerable<T> Cycler<T>(this IEnumerable<T> range)
+        {
+            while (true)
+                foreach (var v in range)
+                    yield return v;
+        }
+
         public static Func<T> Reader<T>(this IList<T> collection)
         {
             var current = 0;
