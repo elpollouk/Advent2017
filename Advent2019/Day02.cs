@@ -20,6 +20,8 @@ namespace Advent2019
 
         const int PUSH = 20;
         const int POP = 21;
+        const int CALL = 22;
+        const int RET = 23;
 
         const int HALT = 99;
 
@@ -96,6 +98,7 @@ namespace Advent2019
                     case OUT:
                     case PUSH:
                     case POP:
+                    case CALL:
                         vmState.IP += 2;
                         return (instruction, (mem[ip + 1], 0, 0));
 
@@ -103,6 +106,10 @@ namespace Advent2019
                     case JZ:
                         vmState.IP += 3;
                         return (instruction, (mem[ip + 1], mem[ip + 2], 0));
+
+                    case RET:
+                        vmState.IP += 1;
+                        return (instruction, (0, 0, 0));
 
                     case HALT:
                         throw new Halt();
@@ -128,6 +135,12 @@ namespace Advent2019
             s_InstructionSet[EQ] = (vm, ops) => vm.Mem[ops.c] = vm.Fetch(ops.a, 0) == vm.Fetch(ops.b, 1) ? 1 : 0;
             s_InstructionSet[PUSH] = (vm, ops) => vm.Stack.Push(vm.Fetch(ops.a, 0));
             s_InstructionSet[POP] = (vm, ops) => vm.Mem[ops.a] = vm.Stack.Pop();
+            s_InstructionSet[CALL] = (vm, ops) =>
+            {
+                vm.Stack.Push(vm.IP);
+                vm.IP = vm.Fetch(ops.a, 0);
+            };
+            s_InstructionSet[RET] = (vm, ops) => vm.IP = vm.Stack.Pop();
         }
 
         public static Executor<VmState, int, (int, int, int)> CreateVM(int[] mem)
