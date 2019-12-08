@@ -17,6 +17,10 @@ namespace Advent2019
         const int OUT = 4;
         const int LT = 7;
         const int EQ = 8;
+
+        const int PUSH = 20;
+        const int POP = 21;
+
         const int HALT = 99;
 
         const int MODE_POSITION = 0;
@@ -25,6 +29,7 @@ namespace Advent2019
         public class VmState
         {
             public readonly int[] Mem;
+            public readonly Stack<int> Stack;
             public int IP = 0;
             public readonly int[] Modes = { MODE_POSITION, MODE_POSITION };
             public Func<int> Input;
@@ -89,6 +94,8 @@ namespace Advent2019
 
                     case IN:
                     case OUT:
+                    case PUSH:
+                    case POP:
                         vmState.IP += 2;
                         return (instruction, (mem[ip + 1], 0, 0));
 
@@ -119,6 +126,8 @@ namespace Advent2019
             s_InstructionSet[JZ] = (vm, ops) => { if (vm.Fetch(ops.a, 0) == 0) { vm.IP = vm.Fetch(ops.b, 1); } };
             s_InstructionSet[LT] = (vm, ops) => vm.Mem[ops.c] = vm.Fetch(ops.a, 0) < vm.Fetch(ops.b, 1) ? 1 : 0;
             s_InstructionSet[EQ] = (vm, ops) => vm.Mem[ops.c] = vm.Fetch(ops.a, 0) == vm.Fetch(ops.b, 1) ? 1 : 0;
+            s_InstructionSet[PUSH] = (vm, ops) => vm.Stack.Push(vm.Fetch(ops.a, 0));
+            s_InstructionSet[POP] = (vm, ops) => vm.Mem[ops.a] = vm.Stack.Pop();
         }
 
         public static Executor<VmState, int, (int, int, int)> CreateVM(int[] mem)
