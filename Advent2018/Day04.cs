@@ -51,9 +51,9 @@ namespace Advent2018
         }
 
         [Theory]
-        [InlineData("[1518-11-01 00:00] Guard #10 begins shift", GuardEventType.BeginShift, "1518-11-01T00:00:00Z", 10)]
-        [InlineData("[1518-11-03 00:24] falls asleep", GuardEventType.Asleep, "1518-11-03T00:24:00Z", -1)]
-        [InlineData("[1518-11-05 00:55] wakes up", GuardEventType.Awake, "1518-11-05T00:55:00Z", -1)]
+        [InlineData("[1518-11-01 00:00] Guard #10 begins shift", GuardEventType.BeginShift, "1518-11-01T00:00:00", 10)]
+        [InlineData("[1518-11-03 00:24] falls asleep", GuardEventType.Asleep, "1518-11-03T00:24:00", -1)]
+        [InlineData("[1518-11-05 00:55] wakes up", GuardEventType.Awake, "1518-11-05T00:55:00", -1)]
         public void Test_EventParsing(string details, GuardEventType expectedType, string expectedTime, int expectedId)
         {
             var time = DateTime.Parse(expectedTime);

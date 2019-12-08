@@ -28,7 +28,7 @@ namespace Advent2019
 
                 if (offset == output.Length - 1)
                 {
-                    yield return (int[])output.Clone();
+                    yield return output;
                 }
                 else
                 {
@@ -43,7 +43,7 @@ namespace Advent2019
         [Fact]
         void TestPermutations()
         {
-            var perms = Permutations(1, 2, 3).ToArray();
+            var perms = Permutations(1, 2, 3).Select(p => (int[])p.Clone()).ToArray();
             perms.Length.Should().Be(6);
             perms.Should().ContainSingle(p => p.SequenceEqual(new int[] { 1, 2, 3 }));
             perms.Should().ContainSingle(p => p.SequenceEqual(new int[] { 1, 3, 2 }));
@@ -99,7 +99,7 @@ namespace Advent2019
                 }
 
                 var output = 0;
-                foreach (var vm in vms.Cycler())
+                foreach (var vm in vms.Cycle())
                 {
                     vm.State.InputQueue.Enqueue(output);
 

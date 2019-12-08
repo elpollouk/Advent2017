@@ -11,7 +11,7 @@ namespace Utils
             return () => current++ % range;
         }
 
-        public static IEnumerable<T> Cycler<T>(this IEnumerable<T> range)
+        public static IEnumerable<T> Cycle<T>(this IEnumerable<T> range)
         {
             while (true)
                 foreach (var v in range)
