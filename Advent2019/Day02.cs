@@ -17,66 +17,77 @@ namespace Advent2019
         const int OUT = 4;
         const int LT = 7;
         const int EQ = 8;
+        const int GP = 9;
         const int HALT = 99;
 
         const int MODE_POSITION = 0;
         const int MODE_IMMEDIATE = 1;
+        const int MODE_RELATIVE = 2;
+
+        public class VmMem
+        {
+            private Dictionary<long, long> _Mem = new Dictionary<long, long>();
+            public long this[long address]
+            {
+                get => _Mem.GetOrDefault(address, 0);
+                set => _Mem[address] = value;
+            }
+        }
 
         public class VmState
         {
-            public readonly int[] Mem;
-            public int IP = 0;
-            public readonly int[] Modes = { MODE_POSITION, MODE_POSITION };
-            public Func<int> Input;
-            public Action<int> Output;
+            public readonly VmMem Mem = new VmMem();
+            public long IP = 0;
+            public long GP = 0;
+            public readonly int[] Modes = { MODE_POSITION, MODE_POSITION, MODE_POSITION };
+            public Func<long> Input;
+            public Action<long> Output;
 
-            public readonly Queue<int> InputQueue = new Queue<int>();
-            public readonly Queue<int> OutputQueue = new Queue<int>();
+            public readonly Queue<long> InputQueue = new Queue<long>();
+            public readonly Queue<long> OutputQueue = new Queue<long>();
 
             public VmState(int[] mem)
             {
-                Mem = mem;
+                for (var i = 0; i < mem.Length; i++)
+                    Mem[i] = mem[i];
                 Input = InputQueue.Dequeue;
                 Output = OutputQueue.Enqueue;
             }
 
-            public int Fetch(int value, int modeReg) => Modes[modeReg] == MODE_IMMEDIATE ? value : Mem[value];
+            public VmState(long[] mem)
+            {
+                for (var i = 0; i < mem.Length; i++)
+                    Mem[i] = mem[i];
+                Input = InputQueue.Dequeue;
+                Output = OutputQueue.Enqueue;
+            }
+
+            public long Fetch(long value, long modeReg) => Modes[modeReg] switch
+            {
+                MODE_IMMEDIATE => value,
+                MODE_POSITION => Mem[value],
+                MODE_RELATIVE => Mem[GP + value]
+            };
+
+            public long FetchOutput(long value, long modeReg) => Modes[modeReg] switch
+            {
+                MODE_POSITION => value,
+                MODE_RELATIVE => GP + value
+            };
         }
 
-        class Program : IProgram<VmState, int, (int, int, int)>
+        class Program : IProgram<VmState, int, (long, long, long)>
         {
-            public (int, (int, int, int)) Fetch(VmState vmState)
+            public (int, (long, long, long)) Fetch(VmState vmState)
             {
                 var mem = vmState.Mem;
                 var ip = vmState.IP;
-                var instruction = mem[ip] % 100;
+                var instruction = (int)mem[ip] % 100;
                 var modes = mem[ip] / 100;
 
-                switch (modes)
-                {
-                    case 0:
-                        vmState.Modes[0] = MODE_POSITION;
-                        vmState.Modes[1] = MODE_POSITION;
-                        break;
-
-                    case 1:
-                        vmState.Modes[0] = MODE_IMMEDIATE;
-                        vmState.Modes[1] = MODE_POSITION;
-                        break;
-
-                    case 10:
-                        vmState.Modes[0] = MODE_POSITION;
-                        vmState.Modes[1] = MODE_IMMEDIATE;
-                        break;
-
-                    case 11:
-                        vmState.Modes[0] = MODE_IMMEDIATE;
-                        vmState.Modes[1] = MODE_IMMEDIATE;
-                        break;
-
-                    default:
-                        throw new InvalidOperationException("Invalid mode");
-                }
+                vmState.Modes[0] = (int)modes % 10;
+                vmState.Modes[1] = (int)(modes / 10) % 10;
+                vmState.Modes[2] = (int)modes / 100;
 
                 switch (instruction)
                 {
@@ -89,6 +100,7 @@ namespace Advent2019
 
                     case IN:
                     case OUT:
+                    case GP:
                         vmState.IP += 2;
                         return (instruction, (mem[ip + 1], 0, 0));
 
@@ -106,31 +118,39 @@ namespace Advent2019
             }
         }
 
-        private static readonly InstructionSet<VmState, int, (int a, int b, int c)> s_InstructionSet = new InstructionSet<VmState, int, (int a, int b, int c)>();
+        private static readonly InstructionSet<VmState, int, (long a, long b, long c)> s_InstructionSet = new InstructionSet<VmState, int, (long a, long b, long c)>();
         private static readonly Program s_Program = new Program();
 
         static IntCode()
         {
-            s_InstructionSet[ADD] = (vm, ops) => vm.Mem[ops.c] = vm.Fetch(ops.a, 0) + vm.Fetch(ops.b, 1);
-            s_InstructionSet[MUL] = (vm, ops) => vm.Mem[ops.c] = vm.Fetch(ops.a, 0) * vm.Fetch(ops.b, 1);
-            s_InstructionSet[IN] = (vm, ops) => vm.Mem[ops.a] = vm.Input();
+            s_InstructionSet[ADD] = (vm, ops) => vm.Mem[vm.FetchOutput(ops.c, 2)] = vm.Fetch(ops.a, 0) + vm.Fetch(ops.b, 1);
+            s_InstructionSet[MUL] = (vm, ops) => vm.Mem[vm.FetchOutput(ops.c, 2)] = vm.Fetch(ops.a, 0) * vm.Fetch(ops.b, 1);
+            s_InstructionSet[IN] = (vm, ops) => vm.Mem[vm.FetchOutput(ops.a, 0)] = vm.Input();
             s_InstructionSet[OUT] = (vm, ops) => vm.Output(vm.Fetch(ops.a, 0));
             s_InstructionSet[JNZ] = (vm, ops) => { if (vm.Fetch(ops.a, 0) != 0) { vm.IP = vm.Fetch(ops.b, 1); } };
             s_InstructionSet[JZ] = (vm, ops) => { if (vm.Fetch(ops.a, 0) == 0) { vm.IP = vm.Fetch(ops.b, 1); } };
-            s_InstructionSet[LT] = (vm, ops) => vm.Mem[ops.c] = vm.Fetch(ops.a, 0) < vm.Fetch(ops.b, 1) ? 1 : 0;
-            s_InstructionSet[EQ] = (vm, ops) => vm.Mem[ops.c] = vm.Fetch(ops.a, 0) == vm.Fetch(ops.b, 1) ? 1 : 0;
+            s_InstructionSet[LT] = (vm, ops) => vm.Mem[vm.FetchOutput(ops.c, 2)] = vm.Fetch(ops.a, 0) < vm.Fetch(ops.b, 1) ? 1 : 0;
+            s_InstructionSet[EQ] = (vm, ops) => vm.Mem[vm.FetchOutput(ops.c, 2)] = vm.Fetch(ops.a, 0) == vm.Fetch(ops.b, 1) ? 1 : 0;
+            s_InstructionSet[GP] = (vm, ops) => vm.GP += vm.Fetch(ops.a, 0);
         }
 
-        public static Executor<VmState, int, (int, int, int)> CreateVM(int[] mem)
+        public static Executor<VmState, int, (long, long, long)> CreateVM(int[] mem)
         {
             var vmState = new VmState((int[])mem.Clone());
 
-            return new Executor<VmState, int, (int, int, int)>(s_InstructionSet, s_Program, vmState);
+            return new Executor<VmState, int, (long, long, long)>(s_InstructionSet, s_Program, vmState);
         }
 
-        public static bool ExecuteUntilOutput(this Executor<VmState, int, (int, int, int)> executor, ref int output)
+        public static Executor<VmState, int, (long, long, long)> CreateVM(long[] mem)
         {
-            int _output = 0;
+            var vmState = new VmState((long[])mem.Clone());
+
+            return new Executor<VmState, int, (long, long, long)>(s_InstructionSet, s_Program, vmState);
+        }
+
+        public static bool ExecuteUntilOutput(this Executor<VmState, int, (long, long, long)> executor, ref long output)
+        {
+            long _output = 0;
             bool hasOutput = false;
 
             executor.State.Output = o =>
@@ -153,7 +173,7 @@ namespace Advent2019
 
     public class Day02
     {
-        int Exec(int[] prog)
+        long Exec(int[] prog)
         {
             var vm = IntCode.CreateVM(prog);
             vm.Execute();
@@ -161,7 +181,7 @@ namespace Advent2019
             return vm.State.Mem[0];
         }
 
-        int ExecWithPatch(int[] prog, int noun, int verb)
+        long ExecWithPatch(int[] prog, int noun, int verb)
         {
             prog = (int[])prog.Clone();
             prog[1] = noun;
@@ -186,14 +206,14 @@ namespace Advent2019
         {
             var prog = FileIterator.LoadCSV<int>(input);
 
-            var baseValue = ExecWithPatch(prog, 0, 0);
+            var baseValue = (int)ExecWithPatch(prog, 0, 0);
             // Calculate the deltas for verb and noun changes
-            var dNoun = ExecWithPatch(prog, 1, 0) - baseValue;
-            var dVerb = ExecWithPatch(prog, 0, 1) - baseValue;
+            var dNoun = (int)ExecWithPatch(prog, 1, 0) - baseValue;
+            var dVerb = (int)ExecWithPatch(prog, 0, 1) - baseValue;
 
             // Calculate the verb and noun values required to hit the target
-            var noun = (target - baseValue) / dNoun;
-            var verb = target - (baseValue + dNoun * noun);
+            int noun = (target - baseValue) / dNoun;
+            int verb = target - (baseValue + dNoun * noun);
             verb /= dVerb;
 
             // Verify we have correct verb/noun values and calculate the final answer

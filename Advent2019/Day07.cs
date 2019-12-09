@@ -60,11 +60,11 @@ namespace Advent2019
         [InlineData("Data/Day07.txt", 116680)]
         public void Part1(string input, int answer)
         {
-            var max = 0;
+            long max = 0;
             var prog = FileIterator.LoadCSV<int>(input);
             foreach (var perm in Permutations(0, 1, 2, 3, 4))
             {
-                var output = 0;
+                long output = 0;
                 foreach (var p in perm)
                 {
                     var vm = IntCode.CreateVM(prog);
@@ -85,11 +85,11 @@ namespace Advent2019
         [InlineData("Data/Day07.txt", 89603079)]
         public void Part2(string input, int answer)
         {
-            var max = 0;
+            long max = 0;
             var prog = FileIterator.LoadCSV<int>(input);
             foreach (var perm in Permutations(5, 6, 7, 8, 9))
             {
-                var vms = new List<Executor<IntCode.VmState, int, (int, int, int)>>();
+                var vms = new List<Executor<IntCode.VmState, int, (long, long, long)>>();
                 foreach (var p in perm)
                 {
                     var vm = IntCode.CreateVM(prog);
@@ -98,7 +98,7 @@ namespace Advent2019
                     vms.Add(vm);
                 }
 
-                var output = 0;
+                long output = 0;
                 foreach (var vm in vms.Cycle())
                 {
                     vm.State.InputQueue.Enqueue(output);

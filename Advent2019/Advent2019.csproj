@@ -29,10 +29,26 @@
     <None Remove="Data\Day08-example.txt" />
     <None Remove="Data\Day08-example2.txt" />
     <None Remove="Data\Day08.txt" />
+    <None Remove="Data\Day09-example.txt" />
+    <None Remove="Data\Day09-example2.txt" />
+    <None Remove="Data\Day09-example3.txt" />
+    <None Remove="Data\Day09.txt" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="Data\Day01.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\Day09-example3.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\Day09-example2.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\Day09.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\Day09-example.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Data\Day08-example2.txt">
