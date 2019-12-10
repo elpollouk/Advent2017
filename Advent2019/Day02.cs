@@ -26,7 +26,7 @@ namespace Advent2019
 
         public class VmMem
         {
-            private Dictionary<long, long> _Mem = new Dictionary<long, long>();
+            private readonly Dictionary<long, long> _Mem = new Dictionary<long, long>();
             public long this[long address]
             {
                 get => _Mem.GetOrDefault(address, 0);
