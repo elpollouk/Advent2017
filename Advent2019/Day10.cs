@@ -9,18 +9,18 @@ namespace Advent2019
 {
     public class Day10
     {
-        Dictionary<(int, int), int> LoadAsteroids(string input)
+        Dictionary<(int, int), List<(int, int)>> LoadAsteroids(string input)
         {
             var x = 0;
             var y = 0;
-            var asteroids = new Dictionary<(int, int), int>();
+            var asteroids = new Dictionary<(int, int), List<(int, int)>>();
             foreach (var line in FileIterator.Lines(input))
             {
                 foreach (var c in line)
                 {
                     if (c == '#')
                     {
-                        asteroids[(x, y)] = 0;
+                        asteroids[(x, y)] = null;
                     }
                     x++;
                 }
@@ -40,23 +40,15 @@ namespace Advent2019
             return angle;
         }
 
-        void CalcVisibility(Dictionary<(int, int), int> asteroids)
+        void CalcVisibility(Dictionary<(int, int), List<(int, int)>> asteroids)
         {
-            foreach (var (x, y) in asteroids.Keys.ToList())
+            foreach (var asteroid in asteroids.Keys.ToList())
             {
-                var angles = new HashSet<double>();
-                foreach (var (x2, y2) in asteroids.Keys)
-                {
-                    if (x == x2 && y == y2) continue;
-                    var dX = x2 - x;
-                    var dY = y2 - y;
-                    angles.Add(Atan2Fudge(dY, dX));
-                }
-                asteroids[(x, y)] = angles.Count();
+                asteroids[asteroid] = BuildVisibilityList(asteroid, asteroids);
             }
         }
 
-        List<(int, int)> BuildVisibilityList((int x, int y) asterroid, Dictionary<(int, int), int> asteroids)
+        List<(int, int)> BuildVisibilityList((int x, int y) asterroid, Dictionary<(int, int), List<(int, int)>> asteroids)
         {
             var otherAsteroids = new Dictionary<double, List<(int, int, int)>>();
 
@@ -107,17 +99,16 @@ namespace Advent2019
         {
             var asteroids = LoadAsteroids(input);
             CalcVisibility(asteroids);
-            var maxVis = asteroids.Values.Max();
+            var maxVis = asteroids.Values.Select(l => l.Count).Max();
             maxVis.Should().Be(answer);
 
-            var maxAsteroids = asteroids.Keys.Where(k => asteroids[k] == maxVis);
+            var maxAsteroids = asteroids.Keys.Where(k => asteroids[k].Count() == maxVis).Select(k => asteroids[k]);
             maxAsteroids.Count().Should().Be(1);
             var maxAsteroid = maxAsteroids.First();
-            var visibility = BuildVisibilityList(maxAsteroid, asteroids);
 
-            if (visibility.Count() >= 200)
+            if (maxAsteroid.Count() >= 200)
             {
-                var (x, y) = visibility[199];
+                var (x, y) = maxAsteroid[199];
                 (x * 100 + y).Should().Be(806);
             }
         }
