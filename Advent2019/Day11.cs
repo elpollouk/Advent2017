@@ -11,8 +11,8 @@ namespace Advent2019
     {
         class Robot
         {
-            const int BLACK = 0;
-            const int WHITE = 1;
+            public const int BLACK = 0;
+            public const int WHITE = 1;
 
             const int FACING_UP = 0;
             const int FACING_RIGHT = 1;
@@ -88,7 +88,6 @@ namespace Advent2019
         }
 
         [Theory]
-        //[InlineData("Data/Day10-example.txt", 8)]
         [InlineData("Data/Day11.txt", 2343)]
         public void Part1(string input, int answer)
         {
@@ -101,6 +100,39 @@ namespace Advent2019
             vm.Execute();
 
             robot.Hull.Count.Should().Be(answer);
+        }
+
+        [Theory]
+        [InlineData("Data/Day11.txt", 249)]
+        public void Part2(string input, int answer)
+        {
+            var prog = FileIterator.LoadCSV<long>(input);
+            var vm = IntCode.CreateVM(prog);
+            var robot = new Robot();
+            robot.Hull[(0, 0)] = Robot.WHITE;
+            vm.State.Input = robot.Camera;
+            vm.State.Output = robot.Act;
+
+            vm.Execute();
+
+            robot.Hull.Count.Should().Be(answer);
+
+            var minX = robot.Hull.Keys.Select(k => k.Item1).Min();
+            var maxX = robot.Hull.Keys.Select(k => k.Item1).Max();
+            var minY = robot.Hull.Keys.Select(k => k.Item2).Min();
+            var maxY = robot.Hull.Keys.Select(k => k.Item2).Max();
+
+            var output = "";
+            for (var y = minY; y <= maxY; y++)
+            {
+                for (var x = minX; x <= maxX; x++)
+                {
+                    output += robot.Hull.GetOrDefault((x, y), Robot.BLACK) == Robot.BLACK ? ' ' : '#';
+                }
+                output += '\n';
+            }
+
+            System.Diagnostics.Debug.Write(output);
         }
     }
 }
