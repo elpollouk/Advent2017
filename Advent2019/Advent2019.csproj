@@ -35,10 +35,14 @@
     <None Remove="Data\Day09.txt" />
     <None Remove="Data\Day10-example.txt" />
     <None Remove="Data\Day10.txt" />
+    <None Remove="Data\Day11.txt" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="Data\Day01.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\Day11.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Data\Day10.txt">
