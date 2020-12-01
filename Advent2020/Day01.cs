@@ -26,8 +26,7 @@ namespace Advent2020
             {
                 var target = 2020 - value;
                 var result = Calc2(values, target);
-                if (result == -1) continue;
-                return result * value;
+                if (result != -1) return result * value;
             }
 
             return -1;
