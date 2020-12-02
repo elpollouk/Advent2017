@@ -56,17 +56,11 @@ namespace Advent2020
         [Theory]
         [InlineData("Data/Day02_test.txt", 2)]
         [InlineData("Data/Day02.txt", 655)]
-        public void Problem1(string input, int expected)
-        {
-            CountValid(input, PasswordEntry.IsValidPart1).Should().Be(expected);
-        }
+        public void Problem1(string input, int expected) => CountValid(input, PasswordEntry.IsValidPart1).Should().Be(expected);
 
         [Theory]
         [InlineData("Data/Day02_test.txt", 1)]
         [InlineData("Data/Day02.txt", 673)]
-        public void Problem2(string input, int expected)
-        {
-            CountValid(input, PasswordEntry.IsValidPart2).Should().Be(expected);
-        }
+        public void Problem2(string input, int expected) => CountValid(input, PasswordEntry.IsValidPart2).Should().Be(expected);
     }
 }
