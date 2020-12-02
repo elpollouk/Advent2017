@@ -43,6 +43,16 @@ namespace Utils
             return _regex.Match(s);
         }
 
+        public static string[] Groups(this string s, string regex)
+        {
+            var _regex = new Regex(regex);
+            var groups =_regex.Match(s).Groups;
+            var result = new string[groups.Count - 1];
+            for (var i = 0; i < result.Length; i++)
+                result[i] = groups[i + 1].Value;
+            return result;
+        }
+
         public static string ToHexString(this byte[] buffer)
         {
             StringBuilder hex = new StringBuilder(buffer.Length * 2);

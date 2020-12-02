@@ -17,11 +17,11 @@ namespace Advent2020
 
             public PasswordEntry(string raw)
             {
-                var groups = raw.Match("^(\\d+)-(\\d+) (.): (.+)$").Groups;
-                RequiredLetter = groups[3].Value[0];
-                Min = int.Parse(groups[1].Value);
-                Max = int.Parse(groups[2].Value);
-                Password = groups[4].Value;
+                var groups = raw.Groups("^(\\d+)-(\\d+) (.): (.+)$");
+                RequiredLetter = groups[2][0];
+                Min = int.Parse(groups[0]);
+                Max = int.Parse(groups[1]);
+                Password = groups[3];
             }
 
             public static bool IsValidPart1(PasswordEntry entry)
