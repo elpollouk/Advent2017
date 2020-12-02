@@ -26,10 +26,9 @@ namespace Advent2020
 
             public static bool IsValidPart1(PasswordEntry entry)
             {
-                var count = 0;
-                foreach (var letter in entry.Password)
-                    if (entry.RequiredLetter == letter)
-                        count++;
+                var count = entry.Password
+                    .Where((l) => l == entry.RequiredLetter)
+                    .Count();
 
                 return entry.Min <= count && count <= entry.Max;
             }
