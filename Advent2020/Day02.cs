@@ -38,10 +38,7 @@ namespace Advent2020
             {
                 var letter1 = entry.Password[entry.Min - 1];
                 var letter2 = entry.Password[entry.Max - 1];
-
-                if (letter1 == entry.RequiredLetter && letter2 != entry.RequiredLetter) return true;
-                if (letter1 != entry.RequiredLetter && letter2 == entry.RequiredLetter) return true;
-                return false;
+                return letter1 == entry.RequiredLetter ^ letter2 == entry.RequiredLetter;
             }
         }
 
