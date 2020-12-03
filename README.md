@@ -1,2 +1,2 @@
-# Advent2017
-Advent of Code 2017
+# Advent of Code
+Advent of Code solutions across the years (and days I've bothered to participate).
