@@ -6,7 +6,7 @@ namespace Advent2020
 {
     public class Day03
     {
-         int HitCount(int[,] grid, int dX, int dY)
+        int HitCount(int[,] grid, int dX, int dY)
         {
             var x = 0;
             var count = 0;
