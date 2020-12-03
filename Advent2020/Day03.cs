@@ -42,7 +42,7 @@ namespace Advent2020
                 (1, 2)
             };
 
-            long product = 1;
+            var product = 1L;
             foreach (var (dX, dY) in deltas)
                 product *= HitCount(grid, dX, dY);
 
