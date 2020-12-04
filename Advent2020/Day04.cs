@@ -70,13 +70,11 @@ namespace Advent2020
             }
             else return false;
 
-            var hcl = passport.GetOrDefault("hcl", "").Match("^#[a-f0-9][a-f0-9][a-f0-9][a-f0-9][a-f0-9][a-f0-9]$");
-            if (!hcl.Success) return false;
+            if (!passport.GetOrDefault("hcl", "").IsMatch("^#[a-f0-9][a-f0-9][a-f0-9][a-f0-9][a-f0-9][a-f0-9]$")) return false;
 
             if (!ValidHairColours.Contains(passport.GetOrDefault("ecl", ""))) return false;
 
-            var pid = passport.GetOrDefault("pid", "").Match("^\\d\\d\\d\\d\\d\\d\\d\\d\\d$");
-            if (!pid.Success) return false;
+            if (!passport.GetOrDefault("pid", "").IsMatch("^\\d\\d\\d\\d\\d\\d\\d\\d\\d$")) return false;
 
             return true;
         }

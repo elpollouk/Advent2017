@@ -43,6 +43,12 @@ namespace Utils
             return _regex.Match(s);
         }
 
+        public static bool IsMatch(this string s, string regex)
+        {
+            var _regex = new Regex(regex);
+            return _regex.IsMatch(s);
+        }
+
         public static string[] Groups(this string s, string regex)
         {
             var _regex = new Regex(regex);
