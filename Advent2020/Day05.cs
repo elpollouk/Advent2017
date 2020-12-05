@@ -9,6 +9,7 @@ namespace Advent2020
 {
     public class Day05
     {
+/*
         int ParseSeatId(string raw)
         {
             // Decode row
@@ -38,6 +39,17 @@ namespace Advent2020
 
             // Encode seat id
             return (row * 8) + mid;
+        }
+*/
+        int ParseSeatId(string raw)
+        {
+            var result = 0;
+            foreach (var c in raw)
+            {
+                result <<= 1;
+                if (c == 'B' || c == 'R') result |= 1;
+            }
+            return result;
         }
 
         [Theory]
