@@ -16,26 +16,22 @@ namespace Advent2020
         {
             var answers = new List<Answers>();
             var currentGroup = new Answers();
-            var currentGroupSize = 0L;
             answers.Add(currentGroup);
 
             FileIterator.ForEachLine(input, (string line) =>
             {
                 if (line == "")
                 {
-                    currentGroup[GROUP_SIZE] = currentGroupSize;
                     currentGroup = new Answers();
                     answers.Add(currentGroup);
-                    currentGroupSize = 0;
                     return;
                 }
 
-                currentGroupSize++;
+                currentGroup.Increment(GROUP_SIZE);
                 foreach (var c in line)
                     currentGroup.Increment(c);
             });
 
-            currentGroup[GROUP_SIZE] = currentGroupSize;
             return answers;
         }
 
