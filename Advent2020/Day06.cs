@@ -11,6 +11,7 @@ namespace Advent2020
     public class Day06
     {
         const char GROUP_SIZE = '#';
+
         List<Answers> LoadAnswers(string input)
         {
             var answers = new List<Answers>();
@@ -57,9 +58,8 @@ namespace Advent2020
             LoadAnswers(input)
                 // Filter down to keys that have the same count as the group size excluding the GROUP_SIZE key iteslf
                 .Select(a => a.Keys
-                    .Where(k => k != GROUP_SIZE)
                     .Where(k => a[k] == a[GROUP_SIZE])
-                    .Count()
+                    .Count() - 1
                 )
                 .Sum()
                 .Should().Be(expected);
