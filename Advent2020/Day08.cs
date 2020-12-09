@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Utils;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Advent2020
 {
@@ -30,6 +31,14 @@ namespace Advent2020
         {
             public long Acc = 0;
             public long Ip = 0;
+        }
+
+        readonly ITestOutputHelper Output;
+        long OpCodeCount = 0;
+
+        public Day08(ITestOutputHelper output)
+        {
+            Output = output;
         }
 
         Instruction[] LoadProgram(string input)
@@ -63,6 +72,8 @@ namespace Advent2020
                 if (visited.Contains(vmState.Ip)) throw new Utils.VM.Halt();
                 visited.Add(vmState.Ip);
                 var instruction = program[vmState.Ip];
+
+                OpCodeCount++;
 
                 switch (instruction.OpCode)
                 {
@@ -115,6 +126,56 @@ namespace Advent2020
             throw new Expletive("Fuck");
         }
 
+        long ExecutionGraph(Instruction[] program, HashSet<long> visited, long ip, long acc, bool branching)
+        {
+            if (ip >= program.Length) return acc;
+            if (visited.Contains(ip)) throw new Utils.VM.Halt();
+            visited.Add(ip);
+            var instuction = program[ip];
+            try
+            {
+                OpCodeCount++;
+                switch (instuction.OpCode)
+                {
+                    case OpCode.NOP:
+                        try
+                        {
+                            return ExecutionGraph(program, visited, ip + 1, acc, branching);
+                        }
+                        catch (Utils.VM.Halt)
+                        {
+                            if (!branching)
+                                return ExecutionGraph(program, visited, ip + instuction.Value, acc, true);
+                            else
+                                throw;
+                        }
+
+                    case OpCode.JMP:
+                        try
+                        {
+                            return ExecutionGraph(program, visited, ip + instuction.Value, acc, branching);
+                        }
+                        catch (Utils.VM.Halt)
+                        {
+                            if (!branching)
+                                return ExecutionGraph(program, visited, ip + 1, acc, true);
+                            else
+                                throw;
+                        }
+
+                    case OpCode.ACC:
+                        return ExecutionGraph(program, visited, ip + 1, acc + instuction.Value, branching);
+
+                    default:
+                        throw new Expletive("Shit");
+                }
+            }
+            finally
+            {
+                visited.Remove(ip);
+            }
+        }
+
         [Theory]
         [InlineData("Data/Day08_test.txt", 5)]
         [InlineData("Data/Day08.txt", 1420)]
@@ -139,8 +200,24 @@ namespace Advent2020
         [InlineData("Data/Day08.txt", 1245)]
         public void Problem2(string input, int expected)
         {
+            OpCodeCount = 0;
             var program = LoadProgram(input);
             PatchAndExecute(program).Should().Be(expected);
+
+            Output.WriteLine($"Op Code Count = {OpCodeCount}");
+        }
+
+        [Theory]
+        [InlineData("Data/Day08_test.txt", 8)]
+        [InlineData("Data/Day08.txt", 1245)]
+        public void Problem2_Smart(string input, int expected)
+        {
+            OpCodeCount = 0;
+            var visited = new HashSet<long>();
+            var program = LoadProgram(input);
+            ExecutionGraph(program, visited, 0, 0, false).Should().Be(expected);
+
+            Output.WriteLine($"Op Code Count = {OpCodeCount}");
         }
     }
 }
