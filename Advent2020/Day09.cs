@@ -59,14 +59,7 @@ namespace Advent2020
         public void Problem2(string input, long target, long expected)
         {
             var set = ContiguousSet(input, target);
-            var min = long.MaxValue;
-            var max = long.MinValue;
-            foreach (var value in set)
-            {
-                if (value < min) min = value;
-                if (value > max) max = value;
-            }
-
+            var (min, max) = set.MinAndMax();
             (min + max).Should().Be(expected);
         }
     }

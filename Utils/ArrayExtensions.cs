@@ -24,7 +24,7 @@ namespace Utils
 
         public static T GetAtMod<T>(this IList<T> a, int index) => a[index % a.Count];
 
-        public static void SetAtMod<T>(this T[] a, int index, T value) => a[index % a.Length] = value;
+        public static void SetAtMod<T>(this IList<T> a, int index, T value) => a[index % a.Count] = value;
 
         // I know IList isn't an array. Fuck you.
         public static T Shift<T>(this IList<T> list)
@@ -76,6 +76,19 @@ namespace Utils
             }
 
             return maxItem;
+        }
+
+        public static (T, T) MinAndMax<T>(this IEnumerable<T> list) where T: IComparable
+        {
+            var min = list.First();
+            var max = list.First();
+            foreach (var value in list)
+            {
+                if (value.CompareTo(min) < 0) min = value;
+                if (value.CompareTo(max) > 0) max = value;
+            }
+
+            return (min, max);
         }
 
         public static IEnumerable<T> GetNeighbours<T>(this T[,] grid, int x, int y)
