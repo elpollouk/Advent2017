@@ -145,7 +145,10 @@ namespace Advent2020
                         catch (Utils.VM.Halt)
                         {
                             if (!branching)
+                            {
+                                OpCodeCount++;
                                 return ExecutionGraph(program, visited, ip + instuction.Value, acc, true);
+                            }
                             else
                                 throw;
                         }
@@ -158,7 +161,10 @@ namespace Advent2020
                         catch (Utils.VM.Halt)
                         {
                             if (!branching)
+                            {
+                                OpCodeCount++;
                                 return ExecutionGraph(program, visited, ip + 1, acc, true);
+                            }
                             else
                                 throw;
                         }
