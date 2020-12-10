@@ -44,7 +44,7 @@ namespace Advent2020
             var graph = new Dictionary<int, long>();
             var adapters = FileIterator.Lines<int>(input);
 
-            // Populate the graph with uncalculated values, we'll populate it in the next step
+            // Populate the graph with initial values, we'll calculate them in the next step
             foreach (var adapter in adapters)
                 graph[adapter] = 0;
 
@@ -53,7 +53,7 @@ namespace Advent2020
 
             // Loop through the adapters in order, cascading up the total number of routes to reach each node in the graph.
             // A node's total route value is the sum of the route values of all the nodes that link to the current node.
-            // We traverse the graph in adapter value order and back tracking to find the incoming links.
+            // We traverse the graph in adapter value order and then back tracking to find the incoming links.
             foreach (var adapter in adapters.OrderBy((v) => v))
             {
                 var total = 0L;
@@ -65,7 +65,7 @@ namespace Advent2020
             }
 
             // Find the maximum total route value in the graph, this should be the last node, but the nodes aren't in order
-            return graph.Values.Max((n) => n);
+            return graph.Values.Max();
         }
 
         [Theory]
