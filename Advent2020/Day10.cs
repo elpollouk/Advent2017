@@ -1,5 +1,4 @@
 ﻿using FluentAssertions;
-using System.Collections.Generic;
 using System.Linq;
 using Utils;
 using Xunit;
@@ -40,31 +39,30 @@ namespace Advent2020
 
         long CountRoutes(string input)
         {
-            // Graph nodes are just the total number of valid routes to reach the node
-            var graph = new Dictionary<int, long>();
             var adapters = FileIterator.Lines<int>(input);
+            var pathTotals = new long[adapters.Max() + 1];
 
-            // Populate the graph with initial values, we'll calculate them in the next step
-            foreach (var adapter in adapters)
-                graph[adapter] = 0;
+            // All path start at 0 which has an implicit single path
+            pathTotals[0] = 1;
 
-            // All graphs start at 0 which has an implicit single route in
-            graph[0] = 1;
-
-            // Loop through the adapters in order, cascading up the total number of routes to reach each node in the graph.
-            // A node's total route value is the sum of the route values of all the nodes that link to the current node.
+            // Loop through the adapters in order, cascading up the total number of path to reach each node in the graph.
+            // An adapter's total path value is the sum of the path values of all the adapters that link to the current adapter.
             // We traverse the graph in adapter value order and then back track to find the incoming links.
             foreach (var adapter in adapters.OrderBy((v) => v))
             {
                 var total = 0L;
                 for (var i = 1; i < 4; i++)
-                    total += graph.GetOrDefault(adapter - i, 0);
-
-                graph[adapter] = total;
+                {
+                    if (adapter - i < 0) break;
+                    // As we're not using a sparse array and the array is zero-initialised, it's safe to sum up all three previous elements.
+                    // Because we traverse in order, we are guaranteed to have calculated the previous values if they have non-zero total path count.
+                    total += pathTotals[adapter - i];
+                }
+                pathTotals[adapter] = total;
             }
 
-            // Find the maximum total route value in the graph, this should be the last node, but the nodes aren't in order
-            return graph.Values.Max();
+            // The answer should have cascaded up into the last element of the graph array
+            return pathTotals.Last();
         }
 
         [Theory]
