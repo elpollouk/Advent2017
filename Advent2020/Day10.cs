@@ -53,13 +53,12 @@ namespace Advent2020
 
             // Loop through the adapters in order, cascading up the total number of routes to reach each node in the graph.
             // A node's total route value is the sum of the route values of all the nodes that link to the current node.
-            // We traverse the graph in adapter value order and then back tracking to find the incoming links.
+            // We traverse the graph in adapter value order and then back track to find the incoming links.
             foreach (var adapter in adapters.OrderBy((v) => v))
             {
                 var total = 0L;
                 for (var i = 1; i < 4; i++)
-                    if (graph.TryGetValue(adapter - i, out long incomingTotal))
-                        total += incomingTotal;
+                    total += graph.GetOrDefault(adapter - i, 0);
 
                 graph[adapter] = total;
             }
