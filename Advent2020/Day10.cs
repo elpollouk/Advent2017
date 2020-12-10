@@ -42,12 +42,12 @@ namespace Advent2020
             var adapters = FileIterator.Lines<int>(input);
             var pathTotals = new long[adapters.Max() + 1];
 
-            // All path start at 0 which has an implicit single path
+            // All path start at 0 which has an implicit single path.
             pathTotals[0] = 1;
 
-            // Loop through the adapters in order, cascading up the total number of path to reach each node in the graph.
+            // Loop through the adapters in order, cascading up the total number of paths to reach each adapter.
             // An adapter's total path value is the sum of the path values of all the adapters that link to the current adapter.
-            // We traverse the graph in adapter value order and then back track to find the incoming links.
+            // We traverse the adapters in order and then back track to find the incoming totals.
             foreach (var adapter in adapters.OrderBy((v) => v))
             {
                 var total = 0L;
@@ -61,7 +61,7 @@ namespace Advent2020
                 pathTotals[adapter] = total;
             }
 
-            // The answer should have cascaded up into the last element of the graph array
+            // The answer should have cascaded up into the last element of the graph array.
             return pathTotals.Last();
         }
 
