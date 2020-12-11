@@ -104,7 +104,7 @@ namespace Advent2020
             }
         });
 
-        int Solve(string input, Func<Cell[,], Cell[,], int, int, bool> solver)
+        int Solve(string input, Func<Cell[,], Cell[,], int, int, bool> update)
         {
             var inputGrid = LoadGrid(input);
             var outputGrid = new Cell[inputGrid.GetLength(0), inputGrid.GetLength(1)];
@@ -114,19 +114,16 @@ namespace Advent2020
             {
                 hasChanged = false;
                 foreach (var (x, y) in inputGrid.Rectangle())
-                    hasChanged |= solver(inputGrid, outputGrid, x, y);
+                    hasChanged |= update(inputGrid, outputGrid, x, y);
 
                 var t = inputGrid;
                 inputGrid = outputGrid;
                 outputGrid = t;
             }
 
-            var count = 0;
-            foreach (var cell in inputGrid)
-                if (cell == Cell.TAKEN_SEAT)
-                    count++;
-
-            return count;
+            return inputGrid.Items()
+                .Where(c => c == Cell.TAKEN_SEAT)
+                .Count();
         }
 
         [Theory]

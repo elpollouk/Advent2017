@@ -127,6 +127,12 @@ namespace Utils
             }
         }
 
+        public static IEnumerable<T> Items<T>(this T[,] array)
+        {
+            foreach (var (x, y) in array.Rectangle())
+                yield return array[x, y];
+        }
+
         public static void DebugDump<T>(this T[,] grid, Func<T, char> charMapper)
         {
             foreach (var (x, y) in grid.Rectangle())
