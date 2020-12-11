@@ -110,10 +110,8 @@ namespace Advent2020
             var outputGrid = new Cell[inputGrid.GetLength(0), inputGrid.GetLength(1)];
 
             var hasChanged = true;
-            //var numRounds = 0;
             while (hasChanged)
             {
-                //numRounds++;
                 hasChanged = false;
                 foreach (var (x, y) in inputGrid.Rectangle())
                     hasChanged |= solver(inputGrid, outputGrid, x, y);
