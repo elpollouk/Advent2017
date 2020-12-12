@@ -24,7 +24,7 @@ namespace Advent2020
             {
                 var groups = line.Groups("^(.+) bags contain (.+)\\.$");
                 var bagType = groups[0];
-                var bagNode = graph.GetOrCreate(bagType, () => (new List<string>(), new List<(int, string)>()));
+                var bagNode = graph.GetOrCreate(bagType, () => (new(), new()));
 
                 if (groups[1] != "no other bags")
                 {
@@ -34,7 +34,7 @@ namespace Advent2020
                         groups = child.Groups("(\\d+) (.+) bag");
                         bagNode.Item2.Add((int.Parse(groups[0]), groups[1]));
 
-                        var childNode = graph.GetOrCreate(groups[1], () => (new List<string>(), new List<(int, string)>()));
+                        var childNode = graph.GetOrCreate(groups[1], () => (new(), new()));
                         childNode.Item1.Add(bagType);
                     }
                 }

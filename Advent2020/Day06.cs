@@ -12,7 +12,7 @@ namespace Advent2020
     {
         const char GROUP_SIZE = '#';
 
-        List<Answers> LoadAnswers(string input)
+        static List<Answers> LoadAnswers(string input)
         {
             var answers = new List<Answers>();
             var currentGroup = new Answers();
@@ -41,7 +41,7 @@ namespace Advent2020
         public void Problem1(string input, int expected)
         {
             LoadAnswers(input)
-                .Select(a => a.Keys.Count() - 1) // Exclude the GROUP_SIZE key from the count
+                .Select(a => a.Keys.Count - 1) // Exclude the GROUP_SIZE key from the count
                 .Sum()
                 .Should().Be(expected);
         }

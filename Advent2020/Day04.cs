@@ -26,7 +26,7 @@ namespace Advent2020
             {
                 if (details == "")
                 {
-                    currentPassport = new Passport();
+                    currentPassport = new();
                     passports.Add(currentPassport);
                     return;
                 }
@@ -45,7 +45,7 @@ namespace Advent2020
             return passport.Count == expectedFieldCount;
         }
 
-        static readonly HashSet<string> ValidHairColours = new HashSet<string>{ "amb", "blu", "brn", "gry", "grn", "hzl", "oth" };
+        static readonly HashSet<string> ValidHairColours = new(){ "amb", "blu", "brn", "gry", "grn", "hzl", "oth" };
 
         bool IsValidPart2(Passport passport)
         {

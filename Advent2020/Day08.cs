@@ -205,7 +205,6 @@ namespace Advent2020
         [InlineData("Data/Day08.txt", 1245)]
         public void Problem2(string input, int expected)
         {
-            OpCodeCount = 0;
             var program = LoadProgram(input);
             PatchAndExecute(program).Should().Be(expected);
 
@@ -217,7 +216,6 @@ namespace Advent2020
         [InlineData("Data/Day08.txt", 1245)]
         public void Problem2_Smart(string input, int expected)
         {
-            OpCodeCount = 0;
             var visited = new HashSet<long>();
             var program = LoadProgram(input);
             ExecutionGraph(program, visited, 0, 0, false).Should().Be(expected);
