@@ -47,20 +47,12 @@ namespace Advent2020
                 actions[ShipAction.Left] = v =>
                 {
                     while (v --> 0)
-                    {
-                        var t = dX;
-                        dX = -dY;
-                        dY = t;
-                    }
+                        (dX, dY) = (-dY, dX);
                 };
                 actions[ShipAction.Right] = v =>
                 {
                     while (v --> 0)
-                    {
-                        var t = dX;
-                        dX = dY;
-                        dY = -t;
-                    }
+                        (dX, dY) = (dY, -dX);
                 };
             }
 
