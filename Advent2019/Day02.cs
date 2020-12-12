@@ -66,13 +66,15 @@ namespace Advent2019
             {
                 MODE_IMMEDIATE => value,
                 MODE_POSITION => Mem[value],
-                MODE_RELATIVE => Mem[GP + value]
+                MODE_RELATIVE => Mem[GP + value],
+                _ => throw new InvalidOperationException()
             };
 
             public long FetchOutput(long value, long modeReg) => Modes[modeReg] switch
             {
                 MODE_POSITION => value,
-                MODE_RELATIVE => GP + value
+                MODE_RELATIVE => GP + value,
+                _ => throw new InvalidOperationException()
             };
         }
 
