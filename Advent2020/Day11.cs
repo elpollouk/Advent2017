@@ -112,9 +112,7 @@ namespace Advent2020
                 foreach (var (x, y) in inputGrid.Rectangle())
                     hasChanged |= update(inputGrid, outputGrid, x, y);
 
-                var t = inputGrid;
-                inputGrid = outputGrid;
-                outputGrid = t;
+                (inputGrid, outputGrid) = (outputGrid, inputGrid);
             }
 
             return inputGrid.Items()
