@@ -28,17 +28,29 @@ namespace Advent2020
 
             private readonly Dictionary<ShipAction, Action<int>> actions = new();
 
-            public Ship()
+            public Ship(bool part2)
             {
                 x = 0;
                 y = 0;
-                dX = 1;
-                dY = 0;
+                if (part2)
+                {
+                    dX = 10;
+                    dY = 1;
+                    actions[ShipAction.North] = v => dY += v;
+                    actions[ShipAction.South] = v => dY -= v;
+                    actions[ShipAction.East] = v => dX += v;
+                    actions[ShipAction.West] = v => dX -= v;
+                }
+                else
+                {
+                    dX = 1;
+                    dY = 0;
+                    actions[ShipAction.North] = v => y += v;
+                    actions[ShipAction.South] = v => y -= v;
+                    actions[ShipAction.East] = v => x += v;
+                    actions[ShipAction.West] = v => x -= v;
+                }
 
-                actions[ShipAction.North] = v => y += v;
-                actions[ShipAction.South] = v => y -= v;
-                actions[ShipAction.East] = v => x += v;
-                actions[ShipAction.West] = v => x -= v;
                 actions[ShipAction.Forward] = v =>
                 {
                     x += dX * v;
@@ -54,17 +66,6 @@ namespace Advent2020
                     while (v --> 0)
                         (dX, dY) = (dY, -dX);
                 };
-            }
-
-            public void EnableAltActions()
-            {
-                dX = 10;
-                dY = 1;
-
-                actions[ShipAction.North] = v => dY += v;
-                actions[ShipAction.South] = v => dY -= v;
-                actions[ShipAction.East] = v => dX += v;
-                actions[ShipAction.West] = v => dX -= v;
             }
 
             public void Act(ShipAction action, int value) => actions[action](value);
@@ -113,24 +114,14 @@ namespace Advent2020
         }
 
         [Theory]
-        [InlineData("Data/Day12_test.txt", 25)]
-        [InlineData("Data/Day12.txt", 1457)]
-        public void Problem1(string input, int expected)
+        [InlineData("Data/Day12_test.txt", false, 25)]
+        [InlineData("Data/Day12.txt", false, 1457)]
+        [InlineData("Data/Day12_test.txt", true, 286)]
+        [InlineData("Data/Day12.txt", true, 106860)]
+        public void Problem1(string input, bool part2, int expected)
         {
             var course = LoadCourse(input);
-            var ship = new Ship();
-            ship.Execute(course);
-            (Math.Abs(ship.x) + Math.Abs(ship.y)).Should().Be(expected);
-        }
-
-        [Theory]
-        [InlineData("Data/Day12_test.txt", 286)]
-        [InlineData("Data/Day12.txt", 106860)]
-        public void Problem2(string input, int expected)
-        {
-            var course = LoadCourse(input);
-            var ship = new Ship();
-            ship.EnableAltActions();
+            var ship = new Ship(part2);
             ship.Execute(course);
             (Math.Abs(ship.x) + Math.Abs(ship.y)).Should().Be(expected);
         }
