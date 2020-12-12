@@ -41,7 +41,7 @@ namespace Advent2020
             }
         }
 
-        int CountValid(string input, Func<PasswordEntry, bool> validator)
+        static int CountValid(string input, Func<PasswordEntry, bool> validator)
         {
             return FileIterator.Lines(input)
                 .Select((e) => new PasswordEntry(e))

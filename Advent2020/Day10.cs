@@ -7,7 +7,7 @@ namespace Advent2020
 {
     public class Day10
     {
-        int CalcJolts(string input)
+        static int CalcJolts(string input)
         {
             var prevJolt = 0;
             var jump1 = 0;
@@ -37,7 +37,7 @@ namespace Advent2020
             return jump1 * jump3;
         }
 
-        long CountRoutes(string input)
+        static long CountRoutes(string input)
         {
             var adapters = FileIterator.Lines<int>(input);
             var pathTotals = new long[adapters.Max() + 1];
@@ -69,18 +69,12 @@ namespace Advent2020
         [InlineData("Data/Day10_test1.txt", 35)]
         [InlineData("Data/Day10_test2.txt", 220)]
         [InlineData("Data/Day10.txt", 2046)]
-        public void Problem1(string input, int expected)
-        {
-            CalcJolts(input).Should().Be(expected);
-        }
+        public void Problem1(string input, int expected) => CalcJolts(input).Should().Be(expected);
 
         [Theory]
         [InlineData("Data/Day10_test1.txt", 8)]
         [InlineData("Data/Day10_test2.txt", 19208)]
         [InlineData("Data/Day10.txt", 1157018619904)]
-        public void Problem2(string input, long expected)
-        {
-            CountRoutes(input).Should().Be(expected);
-        }
+        public void Problem2(string input, long expected) => CountRoutes(input).Should().Be(expected);
     }
 }

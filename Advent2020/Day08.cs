@@ -41,19 +41,18 @@ namespace Advent2020
             Output = output;
         }
 
-        Instruction[] LoadProgram(string input)
+        static Instruction[] LoadProgram(string input)
         {
             var program = new List<Instruction>();
             
             foreach (var line in FileIterator.Lines(input))
             {
                 var split = line.Split(' ');
-                OpCode opCode = OpCode.NOP;
-                switch (split[0])
-                {
-                    case "acc": opCode = OpCode.ACC; break;
-                    case "jmp": opCode = OpCode.JMP; break;
-                }
+                OpCode opCode = split[0] switch {
+                    "acc" => OpCode.ACC,
+                    "jmp" => OpCode.JMP,
+                    _ => OpCode.NOP
+                };
 
                 var value = long.Parse(split[1]);
                 program.Add(new Instruction(opCode, value));
@@ -123,7 +122,7 @@ namespace Advent2020
                 // Restore the program
                 program[i] = patchedInstruction;
             }
-            throw new Expletive("Fuck");
+            throw new Expletive("Bugger");
         }
 
         long ExecutionGraph(Instruction[] program, HashSet<long> visited, long ip, long acc, bool branching)

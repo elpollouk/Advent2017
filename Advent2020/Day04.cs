@@ -10,13 +10,13 @@ namespace Advent2020
 {
     public class Day04
     {
-        void StoreField(Passport passport, string rawField)
+        static void StoreField(Passport passport, string rawField)
         {
             var split = rawField.Split(':');
             passport[split[0]] = split[1];
         }
 
-        List<Passport> LoadPassports(string input)
+        static List<Passport> LoadPassports(string input)
         {
             var passports = new List<Passport>();
             var currentPassport = new Passport();

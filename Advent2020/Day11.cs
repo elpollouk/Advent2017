@@ -21,7 +21,7 @@ namespace Advent2020
             var cell = inputGrid[x, y];
             if (cell == Cell.EMPTY_SEAT)
             {
-                if (inputGrid.GetNeighbours(x, y).Where(c => c == Cell.TAKEN_SEAT).Count() == 0)
+                if (!inputGrid.GetNeighbours(x, y).Where(c => c == Cell.TAKEN_SEAT).Any())
                 {
                     outputGrid[x, y] = Cell.TAKEN_SEAT;
                     return true;
@@ -45,7 +45,7 @@ namespace Advent2020
             var cell = inputGrid[x, y];
             if (cell == Cell.EMPTY_SEAT)
             {
-                if (CastNeighbours(inputGrid, x, y).Where(c => c == Cell.TAKEN_SEAT).Count() == 0)
+                if (!CastNeighbours(inputGrid, x, y).Where(c => c == Cell.TAKEN_SEAT).Any())
                 {
                     outputGrid[x, y] = Cell.TAKEN_SEAT;
                     return true;
@@ -64,7 +64,7 @@ namespace Advent2020
             return false;
         }
 
-        Cell Cast(Cell[,] grid, int x, int y, int dX, int dY)
+        static Cell Cast(Cell[,] grid, int x, int y, int dX, int dY)
         {
             var lx = grid.GetLength(0);
             var ly = grid.GetLength(1);
@@ -81,7 +81,7 @@ namespace Advent2020
             return Cell.FLOOR;
         }
 
-        IEnumerable<Cell> CastNeighbours(Cell[,] grid, int x, int y)
+        static IEnumerable<Cell> CastNeighbours(Cell[,] grid, int x, int y)
         {
             yield return Cast(grid, x, y, -1, -1);
             yield return Cast(grid, x, y,  0, -1);
@@ -93,18 +93,14 @@ namespace Advent2020
             yield return Cast(grid, x, y,  1,  1);
         }
 
-        Cell[,] LoadGrid(string input) => FileIterator.LoadGrid(input, (c, x, y) =>
-        {
-            switch (c)
-            {
-                case '.': return Cell.FLOOR;
-                case 'L': return Cell.EMPTY_SEAT;
-                case '#': return Cell.TAKEN_SEAT;
-                default: throw new Expletive("Bummer");
-            }
+        static Cell[,] LoadGrid(string input) => FileIterator.LoadGrid(input, (c, x, y) => c switch {
+            '.' => Cell.FLOOR,
+            'L' => Cell.EMPTY_SEAT,
+            '#' => Cell.TAKEN_SEAT,
+            _ => throw new Expletive("Bummer")
         });
 
-        int Solve(string input, Func<Cell[,], Cell[,], int, int, bool> update)
+        static int Solve(string input, Func<Cell[,], Cell[,], int, int, bool> update)
         {
             var inputGrid = LoadGrid(input);
             var outputGrid = new Cell[inputGrid.GetLength(0), inputGrid.GetLength(1)];

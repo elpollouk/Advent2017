@@ -16,7 +16,7 @@ namespace Advent2020
 {
     public class Day07
     {
-        Graph LoadBags(string input)
+        static Graph LoadBags(string input)
         {
             var graph = new Graph();
 

@@ -20,7 +20,7 @@ namespace Advent2020
             return -1;
         }
 
-        private long Calc3(IEnumerable<long> values)
+        private static long Calc3(IEnumerable<long> values)
         {
             foreach (var value in values)
             {
@@ -34,17 +34,11 @@ namespace Advent2020
 
         [Theory]
         [InlineData(514579, new long[] { 1721, 979, 366, 299, 675, 1456 })]
-        public void Part1_Test(int expected, long[] values)
-        {
-            Calc2(values).Should().Be(expected);
-        }
+        public void Part1_Test(int expected, long[] values) => Calc2(values).Should().Be(expected);
 
         [Theory]
         [InlineData(241861950, new long[] { 1721, 979, 366, 299, 675, 1456 })]
-        public void Part2_Test(long expected, long[] values)
-        {
-            Calc3(values).Should().Be(expected);
-        }
+        public void Part2_Test(long expected, long[] values) => Calc3(values).Should().Be(expected);
 
         [Fact]
         public void Part1_Solution()

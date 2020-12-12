@@ -7,7 +7,7 @@ namespace Advent2020
 {
     public class Day09
     {
-        long FirstInvalid(string input, int windowSize)
+        static long FirstInvalid(string input, int windowSize)
         {
             var window = new List<long>();
 
@@ -22,10 +22,10 @@ namespace Advent2020
                 window.Add(value);
             }
 
-            throw new Expletive("Fuck");
+            throw new Expletive("Arse");
         }
 
-        List<long> ContiguousSet(string input, long target)
+        static List<long> ContiguousSet(string input, long target)
         {
             var window = new List<long>();
             var windowSum = 0L;
@@ -48,18 +48,14 @@ namespace Advent2020
         [Theory]
         [InlineData("Data/Day09_test.txt", 5, 127)]
         [InlineData("Data/Day09.txt", 25, 133015568)]
-        public void Problem1(string input, int windowSize, long expected)
-        {
-            FirstInvalid(input, windowSize).Should().Be(expected);
-        }
+        public void Problem1(string input, int windowSize, long expected) => FirstInvalid(input, windowSize).Should().Be(expected);
 
         [Theory]
         [InlineData("Data/Day09_test.txt", 127, 62)]
         [InlineData("Data/Day09.txt", 133015568, 16107959)]
         public void Problem2(string input, long target, long expected)
         {
-            var set = ContiguousSet(input, target);
-            var (min, max) = set.MinAndMax();
+            var (min, max) = ContiguousSet(input, target).MinAndMax();
             (min + max).Should().Be(expected);
         }
     }
