@@ -93,7 +93,7 @@ namespace Advent2020
             yield return Cast(grid, x, y,  1,  1);
         }
 
-        static Cell[,] LoadGrid(string input) => FileIterator.LoadGrid(input, (c, x, y) => c switch {
+        static Cell[,] LoadGrid(string input) => FileIterator.LoadGrid(input, (c, _, _) => c switch {
             '.' => Cell.FLOOR,
             'L' => Cell.EMPTY_SEAT,
             '#' => Cell.TAKEN_SEAT,

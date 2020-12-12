@@ -24,7 +24,7 @@ namespace Advent2020
         [InlineData("Data/Day03.txt", 292)]
         public void Part1(string input, int expected)
         {
-            var grid = FileIterator.LoadGrid(input, (c, x, y) => c == '#' ? 1 : 0);
+            var grid = FileIterator.LoadGrid(input, (c, _, _) => c == '#' ? 1 : 0);
             HitCount(grid, 3, 1).Should().Be(expected);
         }
 
