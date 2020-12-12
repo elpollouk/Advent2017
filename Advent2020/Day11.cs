@@ -66,11 +66,10 @@ namespace Advent2020
 
         static Cell Cast(Cell[,] grid, int x, int y, int dX, int dY)
         {
-            var lx = grid.GetLength(0);
-            var ly = grid.GetLength(1);
+            var shape = grid.Shape();
             x += dX;
             y += dY;
-            while ((0 <= x) && (0 <= y) && (x < lx) && (y < ly))
+            while ((x, y).WithinRect(shape))
             {
                 var c = grid[x, y];
                 if (c != Cell.FLOOR) return c;

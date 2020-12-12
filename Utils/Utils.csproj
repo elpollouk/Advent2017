@@ -89,6 +89,7 @@
     <Compile Include="StandardGraphAdapterBase.cs" />
     <Compile Include="StopIteration.cs" />
     <Compile Include="StringExtensions.cs" />
+    <Compile Include="TupleExtensions.cs" />
     <Compile Include="VM\Executor.cs" />
     <Compile Include="VM\InstructionSet.cs" />
     <Compile Include="VM\Tape.cs" />

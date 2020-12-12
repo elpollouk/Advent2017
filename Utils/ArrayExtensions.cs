@@ -127,6 +127,11 @@ namespace Utils
             }
         }
 
+        public static (int, int) Shape<T>(this T[,] array)
+        {
+            return (array.GetLength(0), array.GetLength(1));
+        }
+
         public static IEnumerable<T> Items<T>(this T[,] array)
         {
             foreach (var (x, y) in array.Rectangle())
