@@ -11,5 +11,8 @@
         {
             return WithinRect(coord, shape.x, shape.y);
         }
+
+        public static (int x, int y) RotateLeft(this (int x, int y) vector) => (-vector.y, vector.x);
+        public static (int x, int y) RotateRight(this (int x, int y) vector) => (vector.y, -vector.x);
     }
 }

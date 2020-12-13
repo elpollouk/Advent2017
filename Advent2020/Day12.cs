@@ -21,50 +21,46 @@ namespace Advent2020
 
         class Ship
         {
-            public int x;
-            public int y;
-            public int dX;
-            public int dY;
+            public (int x, int y) pos = (0, 0);
+            public (int x, int y) facing;
 
             private readonly Dictionary<ShipAction, Action<int>> actions = new();
 
             public Ship(bool part2)
             {
-                x = 0;
-                y = 0;
                 if (part2)
                 {
-                    dX = 10;
-                    dY = 1;
-                    actions[ShipAction.North] = v => dY += v;
-                    actions[ShipAction.South] = v => dY -= v;
-                    actions[ShipAction.East] = v => dX += v;
-                    actions[ShipAction.West] = v => dX -= v;
+                    facing = (10, 1);
+                    actions[ShipAction.North] = v => facing = (facing.x, facing.y + v);
+                    actions[ShipAction.South] = v => facing = (facing.x, facing.y - v);
+                    actions[ShipAction.East] = v => facing = (facing.x + v, facing.y);
+                    actions[ShipAction.West] = v => facing = (facing.x - v, facing.y);
                 }
                 else
                 {
-                    dX = 1;
-                    dY = 0;
-                    actions[ShipAction.North] = v => y += v;
-                    actions[ShipAction.South] = v => y -= v;
-                    actions[ShipAction.East] = v => x += v;
-                    actions[ShipAction.West] = v => x -= v;
+                    facing = (1, 0);
+                    actions[ShipAction.North] = v => pos = (pos.x, pos.y + v);
+                    actions[ShipAction.South] = v => pos = (pos.x, pos.y - v);
+                    actions[ShipAction.East] = v => pos = (pos.x + v, pos.y);
+                    actions[ShipAction.West] = v => pos = (pos.x - v, pos.y);
                 }
 
                 actions[ShipAction.Forward] = v =>
                 {
-                    x += dX * v;
-                    y += dY * v;
+                    pos = (
+                        pos.x + facing.x * v,
+                        pos.y + facing.y * v
+                    );
                 };
                 actions[ShipAction.Left] = v =>
                 {
-                    while (v --> 0)
-                        (dX, dY) = (-dY, dX);
+                    while (v-- > 0)
+                        facing = facing.RotateLeft();
                 };
                 actions[ShipAction.Right] = v =>
                 {
-                    while (v --> 0)
-                        (dX, dY) = (dY, -dX);
+                    while (v-- > 0)
+                        facing = facing.RotateRight();
                 };
             }
 
@@ -123,7 +119,7 @@ namespace Advent2020
             var course = LoadCourse(input);
             var ship = new Ship(part2);
             ship.Execute(course);
-            (Math.Abs(ship.x) + Math.Abs(ship.y)).Should().Be(expected);
+            (Math.Abs(ship.pos.x) + Math.Abs(ship.pos.y)).Should().Be(expected);
         }
     }
 }
