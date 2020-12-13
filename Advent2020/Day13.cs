@@ -1,8 +1,5 @@
 ﻿using FluentAssertions;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using Utils;
 using Xunit;
 
 namespace Advent2020
