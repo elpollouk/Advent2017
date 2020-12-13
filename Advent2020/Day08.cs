@@ -213,7 +213,7 @@ namespace Advent2020
 
         [Theory]
         [InlineData("Data/Day08_test.txt", 8)]
-        [InlineData("Data/Day08.txt", 1245)]
+        //[InlineData("Data/Day08.txt", 1245)]
         public void Problem2_Smart(string input, int expected)
         {
             var visited = new HashSet<long>();
