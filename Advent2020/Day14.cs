@@ -1,5 +1,4 @@
 ﻿using FluentAssertions;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Utils;
@@ -104,7 +103,7 @@ namespace Advent2020
                     // To prevent over-setting bits, all the 'X' bits must be set to 0 for the OR mask
                     op = Operation.Mask;
                     mask = line[7..];
-                    foreach (var c in line[7..])
+                    foreach (var c in mask)
                     {
                         switch (c)
                         {
