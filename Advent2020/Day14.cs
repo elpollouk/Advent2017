@@ -40,7 +40,7 @@ namespace Advent2020
 
                         case 'X':
                             SetMemRecursive(maskIndex + 1, addressSoFar, originalAddress, value);
-                            SetMemRecursive(maskIndex + 1, addressSoFar + singleBitMask, originalAddress, value);
+                            SetMemRecursive(maskIndex + 1, addressSoFar | singleBitMask, originalAddress, value);
                             return;
                     }
 
@@ -147,6 +147,7 @@ namespace Advent2020
         [InlineData("Data/Day14_test2.txt", true, 208)]
         [InlineData("Data/Day14.txt", false, 16003257187056)]
         [InlineData("Data/Day14.txt", true, 3219837697833)]
+        [InlineData("Data/Day14_dr20.txt", true, 21884518752)]
         public void Problem(string input, bool part2, long expected)
         {
             var prog = LoadProgram(input);
