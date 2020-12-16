@@ -89,6 +89,8 @@ namespace Advent2020
         {
             HashSet<string> solvedFields = new();
 
+            // Keep looping over the the fields until we reach a point where we only have
+            // a single candidate per field
             bool needsToReduce = true;
             while (needsToReduce)
             {
@@ -97,10 +99,14 @@ namespace Advent2020
                 {
                     if (fields.Count == 1)
                     {
+                        // This is a solved field as we only have a single candidate, no further reduction of this
+                        // field is possible
                         solvedFields.Add(fields.First());
                     }
                     else
                     {
+                        // There are multiple candiates for this field, so reduce it by removing all the fields that have
+                        // be solved so far. We will need another reduction iteration in order to flag this field as solved.
                         needsToReduce = true;
                         fields.ExceptWith(solvedFields);
                     }
@@ -112,29 +118,31 @@ namespace Advent2020
 
         static IEnumerable<string> GetFieldOrder(string input, Fields fields)
         {
+            // First filter out all the tickets that are invalid due to having fields that fail to
+            // satisfy any constraints
             var allValidFields = AllValidValues(fields);
             var tickets = LoadTickets(input, false)
                 .Where(t => IsValidTicket(t, allValidFields))
                 .ToArray();
 
+            // Then gather all the candidates for all the fields
+            // Start by assuming all fields are valid and then removing them from the valid fields set
+            // as we discover ticket field values that fail to satisfy that field's contraint
             List<HashSet<string>> foundFields = new();
             for (var field = 0; field < tickets[0].Length; field++)
             {
                 HashSet<string> validFields = new(fields.Keys);
 
                 for (var ticket = 0; ticket < tickets.Length; ticket++)
-                {
                     foreach (var fieldName in validFields)
-                    {
                         if (!fields[fieldName].Contains(tickets[ticket][field]))
-                        {
                             validFields.Remove(fieldName);
-                        }
-                    }
-                }
+
                 foundFields.Add(validFields); 
             }
 
+            // At this point, we have a set per field of candidate field names, we need to reduce this down to just
+            // one candidate per field
             return Reduce(foundFields);
         }
 
