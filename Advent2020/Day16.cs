@@ -78,11 +78,9 @@ namespace Advent2020
             var allValidValues = AllValidValues(fields);
 
             foreach (var ticket in LoadTickets(input, false))
-            {
                 foreach (var i in ticket)
                     if (!allValidValues.Contains(i))
                         yield return i;
-            }
         }
 
         static IEnumerable<string> Reduce(List<HashSet<string>> foundFields)
