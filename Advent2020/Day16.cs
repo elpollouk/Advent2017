@@ -64,10 +64,10 @@ namespace Advent2020
             return allValidValues;
         }
 
-        static bool IsValidTicket(int[] ticket, HashSet<int> allValidFields)
+        static bool IsValidTicket(int[] ticket, HashSet<int> allValidValues)
         {
             foreach (var i in ticket)
-                if (!allValidFields.Contains(i))
+                if (!allValidValues.Contains(i))
                     return false;
 
             return true;
@@ -118,9 +118,9 @@ namespace Advent2020
         {
             // First filter out all the tickets that are invalid due to having fields that fail to
             // satisfy any constraints
-            var allValidFields = AllValidValues(fields);
+            var allValidValues = AllValidValues(fields);
             var tickets = LoadTickets(input, false)
-                .Where(t => IsValidTicket(t, allValidFields))
+                .Where(t => IsValidTicket(t, allValidValues))
                 .ToArray();
 
             // Then gather all the candidates for all the fields
