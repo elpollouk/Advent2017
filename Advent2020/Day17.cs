@@ -27,10 +27,10 @@ namespace Advent2020
 
         private static IEnumerable<(int x, int y, int z, int w)> Explore4d(int minx, int maxx, int miny, int maxy, int minz, int maxz, int minw, int maxw)
         {
-            for (var x = minx - 1; x <= maxx + 1; x++)
-                for (var y = miny - 1; y <= maxy + 1; y++)
-                    for (var z = minz - 1; z <= maxz + 1; z++)
-                        for (var w = minw - 1; w <= maxw + 1; w++)
+            for (var x = minx; x <= maxx; x++)
+                for (var y = miny; y <= maxy; y++)
+                    for (var z = minz; z <= maxz; z++)
+                        for (var w = minw; w <= maxw; w++)
                             yield return (x, y, z, w);
         }
 
@@ -54,12 +54,23 @@ namespace Advent2020
             var maxy = initalSlice.GetLength(1) - 1;
             var minz = 0;
             var maxz = 0;
-            var minw = limitW ? 1 : 0;
-            var maxw = limitW ? -1 : 0;
+            var minw = 0;
+            var maxw = 0;
 
             for (var i = 0; i < 6; i++)
             {
                 Space4 spaceOutput = new();
+                minx--;
+                maxx++;
+                miny--;
+                maxy++;
+                minz--;
+                maxz++;
+                if (!limitW)
+                {
+                    minw--;
+                    maxw++;
+                }
 
                 foreach (var coord in Explore4d(minx, maxx, miny, maxy, minz, maxz, minw, maxw))
                 {
@@ -72,18 +83,6 @@ namespace Advent2020
                     else if (!active && count == 3)
                     {
                         spaceOutput.Add(coord);
-                        // Increase the exploration horizon if needed
-                        if (coord.x < minx) minx = coord.x;
-                        if (coord.x > maxx) maxx = coord.x;
-                        if (coord.y < miny) miny = coord.y;
-                        if (coord.y > maxy) maxy = coord.y;
-                        if (coord.z < minz) minz = coord.z;
-                        if (coord.z > maxz) maxz = coord.z;
-                        if (!limitW)
-                        {
-                            if (coord.w < minw) minw = coord.w;
-                            if (coord.w > maxw) maxw = coord.w;
-                        }
                     }
                 }
 
