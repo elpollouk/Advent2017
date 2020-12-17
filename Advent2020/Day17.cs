@@ -65,9 +65,9 @@ namespace Advent2020
                 {
                     var count = Count4dNeighbours(spaceInput, coord);
                     var active = spaceInput.Contains(coord);
-                    if (active && count != 2 && count != 3)
+                    if (active && count is 2 or 3)
                     {
-                        // pass
+                        spaceOutput.Add(coord);
                     }
                     else if (!active && count == 3)
                     {
@@ -84,10 +84,6 @@ namespace Advent2020
                             if (coord.w < minw) minw = coord.w;
                             if (coord.w > maxw) maxw = coord.w;
                         }
-                    }
-                    else if (active)
-                    {
-                        spaceOutput.Add(coord);
                     }
                 }
 
