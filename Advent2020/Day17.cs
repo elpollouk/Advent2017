@@ -38,11 +38,7 @@ namespace Advent2020
         {
             Space4 spaceInput = new();
 
-            var initalSlice = FileIterator.LoadGrid(input, (c, x, y) => c switch
-            {
-                '#' => true,
-                _ => false
-            });
+            var initalSlice = FileIterator.LoadGrid(input, (c, x, y) => c == '#');
 
             foreach (var (x, y) in initalSlice.Rectangle())
                 if (initalSlice[x, y])
