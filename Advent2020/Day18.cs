@@ -324,6 +324,31 @@ namespace Advent2020
 
         // Incorrectly handled by Evaluate2
         // 5 + (9 + 4 * (7 + 4 * 5 + 5) + (6 + 8 * 7) + (8 + 2)) + 3 + 8 + (7 * 7 + 6 * 9 + 5)
+        // Exapnds to:
+        // (5+((9+4)*(((7+4)*(5+5))+((((((6+8)*7))+((8+2)))))+3)+8)+(7*(7+6)*(9+5)))
+        // FORTRAN expands to:
+        // (((5)+((((9)+(4))*(((((7)+(4))*((5)+(5))))+((((6)+(8))*((7))))+((((8)+(2)))))))+(3)+(8)+((((7))*((7)+(6))*((9)+(5))))))
+        [Fact]
+        public void ExpansionTest()
+        {
+            var input = "5 + (9 + 4 * (7 + 4 * 5 + 5) + (6 + 8 * 7) + (8 + 2)) + 3 + 8 + (7 * 7 + 6 * 9 + 5)";
+            var result = Evaluate2(input);
+            result.Should().Be(
+                5 + (
+                    9 + 4 * (
+                        7 + 4 * 5 + 5
+                    ) + (
+                        6 + 8 * 7
+                    ) + (
+                        8 + 2
+                    )
+                ) + 3 + 8 + (
+                    7 * 7 + 6 * 9 + 5
+                )
+            );
+            //Evaluate(FortranExpand(input)));
+        }
+
         /*[Fact]
         public void CrossCheck()
         {
