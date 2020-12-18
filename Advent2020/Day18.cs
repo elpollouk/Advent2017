@@ -321,5 +321,18 @@ namespace Advent2020
             .Select(Evaluate2)
             .Sum()
             .Should().Be(92173009047076);
+
+        // Incorrectly handled by Evaluate2
+        // 5 + (9 + 4 * (7 + 4 * 5 + 5) + (6 + 8 * 7) + (8 + 2)) + 3 + 8 + (7 * 7 + 6 * 9 + 5)
+        /*[Fact]
+        public void CrossCheck()
+        {
+            foreach(var line in FileIterator.Lines("Data/Day18.txt"))
+            {
+                var expected = Evaluate(FortranExpand(line));
+                var actual = Evaluate2(line);
+                actual.Should().Be(expected);
+            }
+        }*/
     }
 }
