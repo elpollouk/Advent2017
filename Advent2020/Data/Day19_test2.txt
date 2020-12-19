@@ -30,34 +30,36 @@
 7: 14 5 | 1 21
 24: 14 1
 
-#abbbbbabbbaaaababbaabbbbabababbbabbbbbbabaaaa
-#bbabbbbaabaabba
-#babbbbaabbbbbabbbbbbaabaaabaaa
-#aaabbbbbbaaaabaababaabababbabaaabbababababaaa
-#bbbbbbbaaaabbbbaaabbabaaa
-#bbbababbbbaaaaaaaabbababaaababaabab
-#ababaaaaaabaaab
-#ababaaaaabbbaba
-#baabbaaaabbaaaababbaababb
-#abbbbabbbbaaaababbbbbbaaaababb
-#aaaaabbaabaaaaababaa
-#aaaabbaaaabbaaa
-#aaaabbaabbaaaaaaabbbabbbaaabbaabaaa
-#babaaabbbaaabaababbaabababaaab
-#aabbbbbaabbbaaaaaabbbbbababaaaaabbaaabba
-#
-#bbabbbbaabaabba
-#babbbbaabbbbbabbbbbbaabaaabaaa
-#aaabbbbbbaaaabaababaabababbabaaabbababababaaa
-#bbbbbbbaaaabbbbaaabbabaaa
-#bbbababbbbaaaaaaaabbababaaababaabab
-#ababaaaaaabaaab
-#ababaaaaabbbaba
-#baabbaaaabbaaaababbaababb
-#abbbbabbbbaaaababbbbbbaaaababb
-#aaaaabbaabaaaaababaa
-#aaaabbaabbaaaaaaabbbabbbaaabbaabaaa
-#aabbbbbaabbbaaaaaabbbbbababaaaaabbaaabba
-#
+abbbbbabbbaaaababbaabbbbabababbbabbbbbbabaaaa
+bbabbbbaabaabba
+babbbbaabbbbbabbbbbbaabaaabaaa
+aaabbbbbbaaaabaababaabababbabaaabbababababaaa
+bbbbbbbaaaabbbbaaabbabaaa
+bbbababbbbaaaaaaaabbababaaababaabab
+ababaaaaaabaaab
+ababaaaaabbbaba
+baabbaaaabbaaaababbaababb
+abbbbabbbbaaaababbbbbbaaaababb
 aaaaabbaabaaaaababaa
+aaaabbaaaabbaaa
+aaaabbaabbaaaaaaabbbabbbaaabbaabaaa
+babaaabbbaaabaababbaabababaaab
+aabbbbbaabbbaaaaaabbbbbababaaaaabbaaabba
+#
+#bbabbbbaabaabba
+#babbbbaabbbbbabbbbbbaabaaabaaa
+#aaabbbbbbaaaabaababaabababbabaaabbababababaaa
+#bbbbbbbaaaabbbbaaabbabaaa
+#bbbababbbbaaaaaaaabbababaaababaabab
+#ababaaaaaabaaab
+#ababaaaaabbbaba
+#baabbaaaabbaaaababbaababb
+#abbbbabbbbaaaababbbbbbaaaababb
+#aaaaabbaabaaaaababaa
+#aaaabbaabbaaaaaaabbbabbbaaabbaabaaa
+#aabbbbbaabbbaaaaaabbbbbababaaaaabbaaabba
+#
+# Should match
+#aaaaabbaabaaaaababaa
+# Should not match
 #aaaabbaaaabbaaa

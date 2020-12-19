@@ -40,10 +40,9 @@ namespace Advent2020
 
         private const int NOT_MATCHED = -1;
 
-        class FuckItMatched : Exception { };
-
-        private static int ValidateMessage(Dictionary<int, Rule> rules, string message, int ruleId, int index)
+        private static int ValidateMessage(Dictionary<int, Rule> rules, string message, Stack<(int, int, int, int)> stack)
         {
+            var (index, ruleId, subRuleSetIndex, subRuleIndex) = stack.Pop();
             var rule = rules[ruleId];
 
             if (message.Length == index)
@@ -53,30 +52,43 @@ namespace Advent2020
                 return message[index] == rule.match ? index + 1 : NOT_MATCHED;
 
             var nextValidIndex = index;
-            foreach (var subRulesSet in rule.subRulesSets)
+            while (subRuleSetIndex < rule.subRulesSets.Count)
+            //foreach (var subRuleSet in rule.subRulesSets)
             {
-                foreach (var subRuleId in subRulesSet)
+                var subRuleSet = rule.subRulesSets[subRuleSetIndex];
+                while (subRuleIndex < subRuleSet.Length)
+                //foreach (var subRuleId in subRuleSet)
+                //for (var i = 0; i < subRuleSet.Length; i++)
                 {
-                    nextValidIndex = ValidateMessage(rules, message, subRuleId, nextValidIndex);
+                    var subRuleId = subRuleSet[subRuleIndex];
+                    stack.Push((nextValidIndex, subRuleId, 0, 0));
+                    nextValidIndex = ValidateMessage(rules, message, stack);
                     if (nextValidIndex == NOT_MATCHED)
                     {
                         // Roll back to the index for the next rules set in the list, we weren't able to match any of these sub rules
                         nextValidIndex = index;
                         break;
                     }
+                    subRuleIndex++;
                 }
 
                 // We advanced the message index, so we much have found a matching sub rules set
                 if (index < nextValidIndex) return nextValidIndex;
+                subRuleSetIndex++;
+                subRuleIndex = 0;
             }
 
             // If we dropped out of the bottom of the loop, no sub rules sets must have matched so this rule isn't a match
             return NOT_MATCHED;
         }
 
+        
+
         private static bool ValidateMessage(Dictionary<int, Rule> rules, string message)
         {
-            var index = ValidateMessage(rules, message, 0, 0);
+            Stack<(int, int, int, int)> stack = new();
+            stack.Push((0, 0, 0, 0));
+            var index = ValidateMessage(rules, message, stack);
             return index == message.Length;
         }
 
