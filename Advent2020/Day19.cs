@@ -53,12 +53,9 @@ namespace Advent2020
 
             var nextValidIndex = index;
             while (subRuleSetIndex < rule.subRulesSets.Count)
-            //foreach (var subRuleSet in rule.subRulesSets)
             {
                 var subRuleSet = rule.subRulesSets[subRuleSetIndex];
                 while (subRuleIndex < subRuleSet.Length)
-                //foreach (var subRuleId in subRuleSet)
-                //for (var i = 0; i < subRuleSet.Length; i++)
                 {
                     var subRuleId = subRuleSet[subRuleIndex];
                     stack.Push((nextValidIndex, subRuleId, 0, 0));
@@ -68,6 +65,10 @@ namespace Advent2020
                         // Roll back to the index for the next rules set in the list, we weren't able to match any of these sub rules
                         nextValidIndex = index;
                         break;
+                    }
+                    else
+                    {
+                        stack.Push((index, ruleId, subRuleSetIndex + 1, 0));
                     }
                     subRuleIndex++;
                 }
@@ -88,8 +89,13 @@ namespace Advent2020
         {
             Stack<(int, int, int, int)> stack = new();
             stack.Push((0, 0, 0, 0));
-            var index = ValidateMessage(rules, message, stack);
-            return index == message.Length;
+            while (stack.Count != 0)
+            {
+                var index = ValidateMessage(rules, message, stack);
+                if (index == message.Length)
+                    return true;
+            }
+            return false;
         }
 
         private static Dictionary<int, Rule> LoadRules(string input)
@@ -157,15 +163,15 @@ namespace Advent2020
         }
 
         // 145 - Too low
+        // 220 - Too low
         [Theory]
         [InlineData("Data/Day19_test2.txt", 12)]
-        //[InlineData("Data/Day19.txt", 0)]
+        [InlineData("Data/Day19.txt", 0)]
         public void Problem2(string input, int expected)
         {
             var rules = LoadRules(input);
             rules[8] = new Rule("8: 42 | 42 8");
             rules[11] = new Rule("11: 42 31 | 42 11 31");
-            var messages = LoadMessages(input);
             LoadMessages(input)
                 .Where(m => ValidateMessage(rules, m))
                 .Count()
