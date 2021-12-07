@@ -133,7 +133,7 @@ namespace Advent2020
 
         [Theory]
         [InlineData("Data/Day19_test.txt", 2)]
-        [InlineData("Data/Day19_test2.txt", 3)]
+        //[InlineData("Data/Day19_test2.txt", 3)]
         [InlineData("Data/Day19.txt", 102)]
         public void Problem1(string input, int expected)
         {
@@ -145,7 +145,7 @@ namespace Advent2020
         }
 
         // 145 - Too low
-        [Theory]
+        /*[Theory]
         [InlineData("Data/Day19_test2.txt", 12)]
         //[InlineData("Data/Day19.txt", 0)]
         public void Problem2(string input, int expected)
@@ -158,6 +158,6 @@ namespace Advent2020
                 .Where(m => ValidateMessage(rules, m))
                 .Count()
                 .Should().Be(expected);
-        }
+        }*/
     }
 }
