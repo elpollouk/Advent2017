@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Utils
 {
@@ -85,6 +86,17 @@ namespace Utils
                 grid[x, y] = cellMapper(lines[y][x], x, y);
 
             return grid;
+        }
+
+        public static Func<string> CreateLineReader(string filename)
+        {
+            var lines = Lines(filename).ToArray();
+            var index = 0;
+            return () =>
+            {
+                if (index == lines.Length) return null;
+                return lines[index++];
+            };
         }
     }
 }
