@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using System.Collections.Generic;
+using System.Linq;
 using Utils;
 using Xunit;
 
@@ -58,7 +59,7 @@ namespace Advent2021
         [InlineData("Data/Day06_Test.txt", 256, 26984457539)]
         [InlineData("Data/Day06.txt", 80, 374994)]
         [InlineData("Data/Day06.txt", 256, 1686252324092)]
-        public void Part1(string filename, int days, long expectedAnswer)
+        public void RecursiveSolution(string filename, int days, long expectedAnswer)
         {
             var numbers = FileIterator.LoadCSV<int>(filename);
             long total = 0;
@@ -68,6 +69,31 @@ namespace Advent2021
             }
 
             total.Should().Be(expectedAnswer);
+        }
+
+        [Theory]
+        [InlineData("Data/Day06_Test.txt", 18, 26)]
+        [InlineData("Data/Day06_Test.txt", 80, 5934)]
+        [InlineData("Data/Day06_Test.txt", 256, 26984457539)]
+        [InlineData("Data/Day06.txt", 80, 374994)]
+        [InlineData("Data/Day06.txt", 256, 1686252324092)]
+        public void MatrixSolution(string filename, int days, long expectedAnswer)
+        {
+            var fish = new long[9];
+            var numbers = FileIterator.LoadCSV<int>(filename);
+            foreach (var number in numbers)
+                fish[number]++;
+
+            while (days-- > 0)
+            {
+                var newFish = fish[0];
+                for (int i = 1; i < fish.Length; i++)
+                    fish[i - 1] = fish[i];
+                fish[6] += newFish;
+                fish[8] = newFish;
+            }
+
+            fish.Sum().Should().Be(expectedAnswer);
         }
     }
 }

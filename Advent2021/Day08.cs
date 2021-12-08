@@ -90,7 +90,7 @@ namespace Advent2021
 
             // Deduce 2, 5
             DeduceXor(numbersToDetect, detectedNumbers, reverseDetectedNumbers, 5, 4, 5, 2);
-            DeduceXor(numbersToDetect, detectedNumbers, reverseDetectedNumbers, 5, 4, 3, 5);
+            DeduceUnique(numbersToDetect, detectedNumbers, reverseDetectedNumbers, 5, 5);
 
             // Deduce 9, 0
             DeduceXor(numbersToDetect, detectedNumbers, reverseDetectedNumbers, 6, 3, 1, 9);
