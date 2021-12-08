@@ -1,5 +1,4 @@
 ﻿using FluentAssertions;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Utils;
@@ -37,13 +36,8 @@ namespace Advent2021
             FileIterator.ForEachLine<string>(filename, line =>
             {
                 var parts = line.Split(" | ");
-                var init = parts[0].Split(" ");
-                for (var i = 0; i < init.Length; i++)
-                    init[i] = StringSort(init[i]);
-
-                var display = parts[1].Split(" ");
-                for (var i = 0; i < display.Length; i++)
-                    display[i] = StringSort(display[i]);
+                var init = parts[0].Split(" ").Select(s => StringSort(s)).ToArray();
+                var display = parts[1].Split(" ").Select(s => StringSort(s)).ToArray();
 
                 entries.Add(new(init, display));
             });
@@ -51,50 +45,31 @@ namespace Advent2021
             return entries.ToArray();
         }
 
-        static void DeduceUnique(HashSet<string> numbersToDetect, Dictionary<string, int> output, Dictionary<int, string> reverseOutput, int count, int number)
+        static void RegisterFound(HashSet<string> numbersToDetect, Dictionary<string, int> output, Dictionary<int, string> reverseOutput, string sequence, int number)
         {
-            foreach (var s in numbersToDetect)
-            {
-                if (s.Length == count)
-                {
-                    output[s] = number;
-                    reverseOutput[number] = s;
-                    numbersToDetect.Remove(s);
-                    return;
-                }
-            }
-            throw new InvalidOperationException();
+            output[sequence] = number;
+            reverseOutput[number] = sequence;
+            numbersToDetect.Remove(sequence);
         }
+
+        static void DeduceUnique(HashSet<string> numbersToDetect, Dictionary<string, int> output, Dictionary<int, string> reverseOutput, int length, int detectedNumber)
+        {
+            var s = numbersToDetect.Where(s => s.Length == length).First();
+            RegisterFound(numbersToDetect, output, reverseOutput, s, detectedNumber);
+        }
+
         static void Deduce3(HashSet<string> numbersToDetect, Dictionary<string, int> output, Dictionary<int, string> reverseOutput)
         {
             var seven = reverseOutput[7];
-            foreach (var s in numbersToDetect)
-            {
-                if (s.Length == 5 && StringContains(s, seven))
-                {
-                    output[s] = 3;
-                    reverseOutput[3] = s;
-                    numbersToDetect.Remove(s);
-                    return;
-                }
-            }
-            throw new InvalidOperationException();
+            var s = numbersToDetect.Where(s => s.Length == 5 && StringContains(s, seven)).First();
+            RegisterFound(numbersToDetect, output, reverseOutput, s, 3);
         }
 
         static void DeduceXor(HashSet<string> numbersToDetect, Dictionary<string, int> output, Dictionary<int, string> reverseOutput, int length, int knownNumber, int xorResult, int detectedNumber)
         {
             var kn = reverseOutput[knownNumber];
-            foreach (var s in numbersToDetect)
-            {
-                if (s.Length == length && StringXor(s, kn) == xorResult)
-                {
-                    output[s] = detectedNumber;
-                    reverseOutput[detectedNumber] = s;
-                    numbersToDetect.Remove(s);
-                    return;
-                }
-            }
-            throw new InvalidOperationException();
+            var s = numbersToDetect.Where(s => s.Length == length && StringXor(s, kn) == xorResult).First();
+            RegisterFound(numbersToDetect, output, reverseOutput, s, detectedNumber);
         }
 
 
@@ -160,13 +135,10 @@ namespace Advent2021
         public void Part2(string filename, long expectedAnswer)
         {
             var entries = LoadEntries(filename);
-            long total = 0;
-            foreach (var entry in entries)
-            {
-                var numberKey = Detect(entry.Init);
-                var number = DecodeNumber(numberKey, entry.Display);
-                total += number;
-            }
+
+            long total = entries
+                .Select(e => DecodeNumber(Detect(e.Init), e.Display))
+                .Sum();
 
             total.Should().Be(expectedAnswer);
         }
