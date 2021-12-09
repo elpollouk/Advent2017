@@ -21,11 +21,8 @@ namespace Advent2021
             return locationHeight + 1;
         }
 
-        static int Fill(HashSet<(int, int)> visited, int[,] area, (int x, int y) pos)
+        static int Fill(int[,] area, (int x, int y) pos)
         {
-            if (visited.Contains(pos)) return 0;
-            if (area[pos.x, pos.y] == 9) return 0;
-
             int size = 0;
             Queue<(int x, int y)> q = new();
             q.Enqueue(pos);
@@ -33,10 +30,10 @@ namespace Advent2021
             while (q.Count != 0)
             {
                 pos = q.Dequeue();
-                if (visited.Contains(pos)) continue;
                 if (area[pos.x, pos.y] == 9) continue;
                 size++;
-                visited.Add(pos);
+                area[pos.x, pos.y] = 9;
+
 
                 if (pos.x != 0) q.Enqueue((pos.x -1, pos.y));
                 if (pos.x != area.GetLength(0) - 1) q.Enqueue((pos.x + 1, pos.y));
@@ -65,14 +62,12 @@ namespace Advent2021
         public void Part2(string filename, int expectedAnswer)
         {
             var area = FileIterator.LoadGrid(filename, (c, _, _) => c - '0');
-            HashSet<(int, int)> visited = new();
-
             area.Rectangle()
-                .Select(pos => Fill(visited, area, pos))
+                .Select(pos => Fill(area, pos))
                 .Where(size => size != 0)
                 .OrderByDescending(size => size)
                 .Take(3)
-                .Aggregate((x, y) => x * y)
+                .Aggregate((a, b) => a * b)
                 .Should().Be(expectedAnswer);
         }
     }
