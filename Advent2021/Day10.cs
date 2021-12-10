@@ -109,15 +109,11 @@ namespace Advent2021
                     case '{':
                     case '<':
                         var result = ParsePart2(text, ref index);
-                        if (result != OK)
-                        {
-                            return result == CORRUPT ? result : (result * 5) + ScoreIncomplete(opener);
-                        }
-
+                        if (result != OK) return result == CORRUPT ? result : (result * 5) + ScoreIncomplete(opener);
                         break;
 
                     default:
-                        return  CORRUPT;
+                        return CORRUPT;
                 }
 
             }
