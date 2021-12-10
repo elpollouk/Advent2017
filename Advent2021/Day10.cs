@@ -1,6 +1,5 @@
 ﻿using FluentAssertions;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Utils;
 using Xunit;
@@ -48,8 +47,9 @@ namespace Advent2021
             };
         }
 
-        static long ParseChunk(string text, ref int index, char opener, bool part1)
+        static long ParsePart1(string text, ref int index)
         {
+            var opener = text[index];
             var closer = GetCloser(opener);
             while (++index < text.Length)
             {
@@ -65,22 +65,87 @@ namespace Advent2021
                     case '[':
                     case '{':
                     case '<':
-                        var result = ParseChunk(text, ref index, current, part1);
+                        var result = ParsePart1(text, ref index);
+                        if (result != OK) return result;
+                        break;
+
+                    default:
+                        return ScoreCorrupt(current);
+                }
+
+            }
+
+            return INCOMPLETE;
+        }
+
+        static long ParsePart1(string text)
+        {
+            int index = 0;
+            do
+            {
+                var result = ParsePart1(text, ref index);
+                if (result != OK) return result;
+            }
+            while (++index < text.Length);
+            return OK;
+        }
+
+        static long ParsePart2(string text, ref int index)
+        {
+            var opener = text[index];
+            var closer = GetCloser(opener);
+            while (++index < text.Length)
+            {
+                char current = text[index];
+                if (current == closer)
+                {
+                    return OK;
+                }
+
+                switch (current)
+                {
+                    case '(':
+                    case '[':
+                    case '{':
+                    case '<':
+                        var result = ParsePart2(text, ref index);
                         if (result != OK)
                         {
-                            if (part1) return result;
                             return result == CORRUPT ? result : (result * 5) + ScoreIncomplete(opener);
                         }
 
                         break;
 
                     default:
-                        return part1 ? ScoreCorrupt(current) : CORRUPT;
+                        return  CORRUPT;
                 }
 
             }
 
-            return part1 ? INCOMPLETE : ScoreIncomplete(opener);
+            return ScoreIncomplete(opener);
+        }
+
+        static long ParsePart2(string text)
+        {
+            int index = 0;
+            do
+            {
+                var result = ParsePart2(text, ref index);
+                if (result != OK) return result;
+            }
+            while (++index < text.Length);
+            return OK;
+        }
+
+        [Theory]
+        [InlineData("[({(<(())[]>[[{[]{<()<>>", 288957)]
+        [InlineData("[(()[<>])]({[<{<<[]>>(", 5566)]
+        [InlineData("(((({<>}<{<{<>}{[]{[]{}", 1480781)]
+        [InlineData("{<[[]]>}<{[{[{[]{()[[[]", 995444)]
+        [InlineData("<{([{{}}[<[[[<>{}]]]>[]]", 294)]
+        public void Part2Examples(string example, long expectedAnswer)
+        {
+            ParsePart2(example).Should().Be(expectedAnswer);
         }
 
         [Theory]
@@ -88,15 +153,11 @@ namespace Advent2021
         [InlineData("Data/Day10.txt", 364389)]
         public void Part1(string filename, long expectedAnswer)
         {
-            long total = 0;
-            FileIterator.ForEachLine<string>(filename, line =>
-            {
-                int index = 0;
-                var result = ParseChunk(line, ref index, line[0], true);
-                if (result > 0) total += result;
-            });
-
-            total.Should().Be(expectedAnswer);
+            FileIterator.Lines<string>(filename)
+                .Select(line => ParsePart1(line))
+                .Where(v => v > 0)
+                .Sum()
+                .Should().Be(expectedAnswer);
         }
 
         [Theory]
@@ -104,15 +165,12 @@ namespace Advent2021
         [InlineData("Data/Day10.txt", 2870201088)]
         public void Part2(string filename, long expectedAnswer)
         {
-            List<long> scores = new();
-            FileIterator.ForEachLine<string>(filename, line =>
-            {
-                int index = 0;
-                var result = ParseChunk(line, ref index, line[0], false);
-                if (result != CORRUPT && result != OK) scores.Add(result);
-            });
+            var scores = FileIterator.Lines<string>(filename)
+                .Select(line => ParsePart2(line))
+                .Where(v => v > 0)
+                .OrderBy(v => v)
+                .ToList();
 
-            scores = scores.OrderBy(x => x).ToList();
             scores[scores.Count / 2].Should().Be(expectedAnswer);
         }
     }
