@@ -93,37 +93,43 @@ namespace Utils
 
         public static IEnumerable<T> GetNeighbours<T>(this T[,] grid, int x, int y)
         {
+            foreach (var pos in grid.GetNeighbourPos(x, y))
+                yield return grid[pos.x, pos.y];
+        }
+
+        public static IEnumerable<(int x, int y)> GetNeighbourPos<T>(this T[,] grid, int x, int y)
+        {
             if (1 <= y && y <= grid.GetLength(1))
             {
                 if (1 <= x && x <= grid.GetLength(0))
-                    yield return grid[x - 1, y - 1];
+                    yield return (x - 1, y - 1);
 
                 if (0 <= x && x <= grid.GetLength(0) - 1)
-                    yield return grid[x, y - 1];
+                    yield return (x, y - 1);
 
                 if (-1 <= x && x <= grid.GetLength(0) - 2)
-                    yield return grid[x + 1, y - 1];
+                    yield return (x + 1, y - 1);
             }
 
             if (0 <= y && y <= grid.GetLength(1) - 1)
             {
                 if (1 <= x && x <= grid.GetLength(0))
-                    yield return grid[x - 1, y];
+                    yield return (x - 1, y);
 
                 if (-1 <= x && x <= grid.GetLength(0) - 2)
-                    yield return grid[x + 1, y];
+                    yield return (x + 1, y);
             }
 
             if (-1 <= y && y <= grid.GetLength(1) - 2)
             {
                 if (1 <= x && x <= grid.GetLength(0))
-                    yield return grid[x - 1, y + 1];
+                    yield return (x - 1, y + 1);
 
                 if (0 <= x && x <= grid.GetLength(0) - 1)
-                    yield return grid[x, y + 1];
+                    yield return (x, y + 1);
 
                 if (-1 <= x && x <= grid.GetLength(0) - 2)
-                    yield return grid[x + 1, y + 1];
+                    yield return (x + 1, y + 1);
             }
         }
 
