@@ -8,6 +8,9 @@ namespace Utils
 {
     public static class ArrayExtensions
     {
+        public static int CharToInt(char c, int x, int y) => c - '0';
+        public static char IntToChar(int v) => (char)(v + '0');
+
         public static string Join<T>(this T[] a, string joiner = ",")
         {
             if (a.Length == 0) return string.Empty;
@@ -142,6 +145,16 @@ namespace Utils
         {
             foreach (var (x, y) in array.Rectangle())
                 yield return array[x, y];
+        }
+
+        public static string FlattenToString<T>(this T[,] grid, Func<T, char> converter)
+        {
+            var builder = new StringBuilder();
+
+            foreach (var value in grid.Items())
+                builder.Append(converter(value));
+
+            return builder.ToString();
         }
 
         public static void DebugDump<T>(this T[,] grid, Func<T, char> charMapper)

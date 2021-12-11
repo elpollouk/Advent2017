@@ -1,29 +1,14 @@
 ﻿using FluentAssertions;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Utils;
 using Xunit;
+using static Utils.ArrayExtensions;
 
 namespace Advent2021
 {
     public class Day11
     {
-        static int CharToInt(char c, int x, int y) => c - '0';
-
-        static string Flatten(int[,] grid)
-        {
-            StringBuilder builder = new();
-
-            foreach (var value in grid.Items())
-            {
-                builder.Append((char)('0' + value));
-            }
-
-            return builder.ToString();
-        }
-
         static void Pulse(HashSet<(int, int)> flashed, int[,] grid, (int x, int y) pos, ref long flashCount)
         {
             if (flashed.Contains(pos)) return;
@@ -45,9 +30,7 @@ namespace Advent2021
             long flashCount = 0;
 
             foreach (var pos in grid.Rectangle())
-            {
                 Pulse(flashed, grid, pos, ref flashCount);
-            }
 
             return flashCount;
         }
@@ -57,26 +40,23 @@ namespace Advent2021
         [InlineData("Data/Day11_Test2.txt", 2, "4565451115611165111545654")]
         public void Examples(string filename, int iterations, string expectedState)
         {
-            var grid = FileIterator.LoadGrid<int>(filename, CharToInt);
+            var grid = FileIterator.LoadGrid(filename, CharToInt);
             while (iterations --> 0)
-            {
                 Step(grid);
-            }
-            Flatten(grid).Should().Be(expectedState);
+
+            grid.FlattenToString(IntToChar).Should().Be(expectedState);
         }
 
         [Theory]
-        [InlineData("Data/Day11.txt", 100, 1697)]
-        [InlineData("Data/Day11_Test1.txt", 100, 1656)]
-        public void Part1(string filename, int iterations, long expectedAnswer)
+        [InlineData("Data/Day11.txt", 1697)]
+        [InlineData("Data/Day11_Test1.txt", 1656)]
+        public void Part1(string filename, long expectedAnswer)
         {
-            var grid = FileIterator.LoadGrid<int>(filename, CharToInt);
-            long flashCount = 0;
-            while (iterations --> 0)
-            {
-                flashCount += Step(grid);
-            }
-            flashCount.Should().Be(expectedAnswer);
+            var grid = FileIterator.LoadGrid(filename, CharToInt);
+            Enumerable.Range(0, 100)
+                .Select(_ => Step(grid))
+                .Sum()
+                .Should().Be(expectedAnswer);
         }
 
         [Theory]
@@ -84,14 +64,15 @@ namespace Advent2021
         [InlineData("Data/Day11_Test1.txt", 195)]
         public void Part2(string filename, long expectedAnswer)
         {
-            var grid = FileIterator.LoadGrid<int>(filename, CharToInt);
+            var grid = FileIterator.LoadGrid(filename, CharToInt);
             long allFlashCount = grid.GetLength(0) * grid.GetLength(1);
             long iterationCount = 0;
             long flashCount;
+
             do
             {
-                iterationCount++;
                 flashCount = Step(grid);
+                iterationCount++;
             }
             while (allFlashCount != flashCount);
 
