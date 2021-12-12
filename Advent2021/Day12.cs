@@ -24,13 +24,7 @@ namespace Advent2021
             return graph;
         }
 
-        static bool IsSmall(string node)
-        {
-            foreach (var c in node)
-                if ('A' <= c && c <= 'Z') return false;
-
-            return true;
-        }
+        static bool IsSmall(string node) => 'a' <= node[0] && node[0] <= 'z';
 
         static void Traverse(Graph<string> graph, HashSet<string> visited, string node, ref long totalPaths)
         {
