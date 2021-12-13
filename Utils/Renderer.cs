@@ -8,11 +8,13 @@ namespace Utils
     {
         public static void RenderGrid<T>(string outputFile, T[,] grid, Func<T, Color> itemToPixelColour)
         {
+#pragma warning disable CA1416 // Validate platform compatibility
             var bitmap = new Bitmap(grid.GetLength(0), grid.GetLength(1), PixelFormat.Format24bppRgb);
             foreach (var (x, y) in grid.Rectangle())
                 bitmap.SetPixel(x, y, itemToPixelColour(grid[x, y]));
 
             bitmap.Save(outputFile, ImageFormat.Png);
+#pragma warning restore CA1416 // Validate platform compatibility
         }
     }
 }
