@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Utils;
-using Utils.DataStructures;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -71,7 +70,7 @@ namespace Advent2021
             {
                 // Fold along Y
                 axis = -axis;
-                for (var y = axis+1; y < paper.GetLength(1); y++)
+                for (var y = axis + 1; y < paper.GetLength(1); y++)
                 {
                     var newY = axis - (y - axis);
                     for (var x = 0; x < paper.GetLength(0); x++)
@@ -148,6 +147,7 @@ namespace Advent2021
         [Theory]
         [InlineData("Data/Day13_Test.txt", 16)]
         [InlineData("Data/Day13.txt", 98)]
+        [InlineData("Data/Day13_Gee.txt", 102)]
         public void Part2(string filename, int expectedAnswer)
         {
             var paper = LoadPaper(filename);
@@ -162,7 +162,7 @@ namespace Advent2021
                 .Should()
                 .Be(expectedAnswer);
 
-            Crop(paper).DebugDump(output.WriteLine, b => b ? '#' : ' ');
+            Crop(paper).DebugDump(output.WriteLine, b => b ? '█' : ' ');
         }
     }
 }
