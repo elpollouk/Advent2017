@@ -159,15 +159,22 @@ namespace Utils
 
         public static void DebugDump<T>(this T[,] grid, Func<T, char> charMapper)
         {
-            foreach (var (x, y) in grid.Rectangle())
+            DebugDump(grid, s => Debug.WriteLine(s), charMapper);
+        }
+
+        public static void DebugDump<T>(this T[,] grid, Action<string> output, Func<T, char> charMapper)
+        {
+            var builder = new StringBuilder();
+
+            for (var y = 0; y < grid.GetLength(1); y++)
             {
-                if (x == 0)
-                    Debug.WriteLine("");
-
-                Debug.Write(charMapper(grid[x, y]));
+                builder.Clear();
+                for (var x = 0; x < grid.GetLength(0); x++)
+                {
+                    builder.Append(charMapper(grid[x, y]));
+                }
+                output(builder.ToString());
             }
-
-            Debug.WriteLine("");
         }
     }
 }
