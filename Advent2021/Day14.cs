@@ -54,12 +54,11 @@ namespace Advent2021
         }
 
         [Theory]
-        [InlineData("Data/Day14_Test.txt", 2, 5)]
         [InlineData("Data/Day14_Test.txt", 10, 1588)]
         [InlineData("Data/Day14_Test.txt", 40, 2188189693529)]
         [InlineData("Data/Day14.txt", 10, 3095)]
         [InlineData("Data/Day14.txt", 40, 3152788426516)]
-        public void Part1(string filename, int iterations, long expectedAnswer)
+        public void Recusive(string filename, int iterations, long expectedAnswer)
         {
             cache.Clear();
             (var p, var rules) = LoadData(filename);
@@ -74,6 +73,40 @@ namespace Advent2021
             (var min, var max) = counts.Where(v => v != 0).MinAndMax();
             (max - min).Should().Be(expectedAnswer);
         }
-        
+
+        [Theory]
+        [InlineData("Data/Day14_Test.txt", 10, 1588)]
+        [InlineData("Data/Day14_Test.txt", 40, 2188189693529)]
+        [InlineData("Data/Day14.txt", 10, 3095)]
+        [InlineData("Data/Day14.txt", 40, 3152788426516)]
+        public void Iterative(string filename, int iterations, long expectedAnswer)
+        {
+            (var p, var rules) = LoadData(filename);
+            var counts = new long[26];
+            var pairs = new Dictionary<(char, char), long>();
+            counts[p[0] - 'A']++;
+            for (int i = 1; i < p.Length; i++)
+            {
+                pairs.Increment((p[i - 1], p[i]));
+                counts[p[i] - 'A']++;
+            }
+
+            while (iterations --> 0)
+            {
+                var newPairs = new Dictionary<(char, char), long>();
+                foreach (KeyValuePair<(char c1, char c2), char> kv in rules)
+                {
+                    var pairCount = pairs.GetOrDefault(kv.Key, 0);
+                    counts[kv.Value - 'A'] += pairCount;
+                    newPairs.Sum((kv.Key.c1, kv.Value), pairCount);
+                    newPairs.Sum((kv.Value, kv.Key.c2), pairCount);
+                }
+                pairs = newPairs;
+            }
+
+
+            (var min, var max) = counts.Where(v => v != 0).MinAndMax();
+            (max - min).Should().Be(expectedAnswer);
+        }
     }
 }
