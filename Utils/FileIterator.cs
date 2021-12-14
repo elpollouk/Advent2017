@@ -33,6 +33,12 @@ namespace Utils
             }
         }
 
+        public static IEnumerable<string> Lines(Func<string> reader)
+        {
+            for (var line = reader(); line != null; line = reader())
+                    yield return line;
+        }
+
         public static T[] LoadLines<T>(string filename)
         {
             var lines = new List<T>();
