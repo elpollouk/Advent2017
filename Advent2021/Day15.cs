@@ -1,5 +1,4 @@
 ﻿using FluentAssertions;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Utils;
@@ -21,20 +20,11 @@ namespace Advent2021
                 Area = area;
             }
 
-            public IEnumerable<(int x, int y)> GetLinked((int x, int y) node)
-            {
-                return Area.GetAdjecentPos(node.x, node.y);
-            }
+            public IEnumerable<(int x, int y)> GetLinked((int x, int y) node) => Area.GetAdjecentPos(node.x, node.y);
 
-            public int GetMoveCost((int x, int y) from, (int x, int y) to)
-            {
-                return Area[to.x, to.y];
-            }
+            public int GetMoveCost((int x, int y) from, (int x, int y) to) => Area[to.x, to.y];
 
-            public int GetScore((int x, int y) from, (int x, int y) to)
-            {
-                return (to.x - from.x) + (to.y - from.y);
-            }
+            public int GetScore((int x, int y) from, (int x, int y) to) => (to.x - from.x) + (to.y - from.y);
         }
 
         static Grid LoadGrid(string filename)
