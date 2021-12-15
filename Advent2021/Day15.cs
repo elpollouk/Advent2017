@@ -70,8 +70,8 @@ namespace Advent2021
             var grid = LoadGrid(filename);
             grid.Area[0, 0] = 0;
 
-            Astar.FindPath(grid, (0, 0), grid.Exit)
-                .Select(p => grid.Area[p.Item1, p.Item2])
+            Astar.FindPath(grid, (x:0, y:0), grid.Exit)
+                .Select(p => grid.Area[p.x, p.y])
                 .Sum()
                 .Should().Be(expectedAnswer);
         }
@@ -85,8 +85,8 @@ namespace Advent2021
             grid = Expand(grid);
             grid.Area[0, 0] = 0;
 
-            Astar.FindPath(grid, (0, 0), grid.Exit)
-                .Select(p => grid.Area[p.Item1, p.Item2])
+            Astar.FindPath(grid, (x:0, y:0), grid.Exit)
+                .Select(p => grid.Area[p.x, p.y])
                 .Sum()
                 .Should().Be(expectedAnswer);
         }
