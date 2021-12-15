@@ -7,8 +7,13 @@ namespace Utils.Alogrithms
     {
         public interface IGraphAdapter<Node>
         {
+            // Return list of nodes connected to the specified node
             IEnumerable<Node> GetLinked(Node node);
+            // Return the cost of moving from one node to another
+            // Usually 1 for simple grids
             int GetMoveCost(Node from, Node to);
+            // Get rough estimated score for moving from one node to another
+            // Lower is better, Manhatten distance is a suitable score for simple grids
             int GetScore(Node from, Node to);
         }
 

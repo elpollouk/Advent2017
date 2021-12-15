@@ -5,8 +5,8 @@ namespace Utils.DataStructures
 {
     class Heap<Key, Item> where Key : IComparable<Key>
     {
-        private List<KeyValuePair<Key, Item>> _heap = new List<KeyValuePair<Key, Item>>();
-        private Func<int, int, bool> ShouldPromote;
+        private readonly List<KeyValuePair<Key, Item>> _heap = new();
+        private readonly Func<int, int, bool> ShouldPromote;
 
         public Heap() : this(false)
         {

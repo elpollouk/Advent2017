@@ -4,7 +4,7 @@ namespace Utils.DataStructures
 {
     public class PriorityQueue<T, PriorityType> where PriorityType : IComparable<PriorityType>
     {
-        private Heap<PriorityType, T> _heap = new Heap<PriorityType, T>();
+        private readonly Heap<PriorityType, T> _heap = new();
 
         public int Count => _heap.Count;
 
@@ -22,7 +22,7 @@ namespace Utils.DataStructures
         {
             if (Count == 0)
             {
-                item = default(T);
+                item = default;
                 return false;
             }
 
