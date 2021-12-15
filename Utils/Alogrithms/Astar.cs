@@ -36,7 +36,7 @@ namespace Utils.Alogrithms
                 foreach (var linkedNode in linked)
                 {
                     var newCost = costSoFar[current] + graph.GetMoveCost(current, linkedNode);
-                    if (!costSoFar.ContainsKey(linkedNode) || newCost < costSoFar[linkedNode])
+                    if (newCost < costSoFar.GetOrDefault(linkedNode, int.MaxValue))
                     {
                         costSoFar[linkedNode] = newCost;
                         searchSpace.Enqueue(linkedNode, newCost + graph.GetScore(linkedNode, goal));
