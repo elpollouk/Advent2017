@@ -35,7 +35,6 @@ namespace Advent2021
 
         static void Expand(Dictionary<(char, char), char> rules, long[] counts, char c1, char c2, int iteration)
         {
-            if (iteration == 0) return;
             if (cache.TryGetValue((c1, c2, iteration), out long[] delta))
             {
                 Add(counts, delta);
@@ -46,8 +45,11 @@ namespace Advent2021
 
             delta = new long[26];
             delta[cM - 'A']++;
-            Expand(rules, delta, c1, cM, iteration - 1);
-            Expand(rules, delta, cM, c2, iteration - 1);
+            if (iteration != 1)
+            {
+                Expand(rules, delta, c1, cM, iteration - 1);
+                Expand(rules, delta, cM, c2, iteration - 1);
+            }
             Add(counts, delta);
 
             cache[(c1, c2, iteration)] = delta;
@@ -96,7 +98,7 @@ namespace Advent2021
                 var newPairs = new Dictionary<(char, char), long>();
                 foreach (KeyValuePair<(char c1, char c2), char> kv in rules)
                 {
-                    var pairCount = pairs.GetOrDefault(kv.Key, 0);
+                    var pairCount = pairs.GetOrDefault(kv.Key);
                     counts[kv.Value - 'A'] += pairCount;
                     newPairs.Sum((kv.Key.c1, kv.Value), pairCount);
                     newPairs.Sum((kv.Value, kv.Key.c2), pairCount);

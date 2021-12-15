@@ -42,8 +42,7 @@ namespace Utils
         public static T[] LoadLines<T>(string filename)
         {
             var lines = new List<T>();
-            Action<T> handler = line => lines.Add(line);
-            ForEachLine(filename, handler);
+            ForEachLine<T>(filename, line => lines.Add(line));
             return lines.ToArray();
         }
 

@@ -24,14 +24,12 @@ namespace Utils
 
         public static long Increment<K>(this IDictionary<K, long> dic, K key)
         {
-            var count = dic.GetOrDefault(key, 0) + 1;
-            dic[key] = count;
-            return count;
+            return Sum(dic, key, 1);
         }
 
         public static long Sum<K>(this IDictionary<K, long> dic, K key, long value)
         {
-            var count = dic.GetOrDefault(key, 0) + value;
+            var count = dic.GetOrDefault(key) + value;
             dic[key] = count;
             return count;
         }
