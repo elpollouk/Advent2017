@@ -106,7 +106,6 @@ namespace Advent2021
                 pairs = newPairs;
             }
 
-
             (var min, var max) = counts.Where(v => v != 0).MinAndMax();
             (max - min).Should().Be(expectedAnswer);
         }

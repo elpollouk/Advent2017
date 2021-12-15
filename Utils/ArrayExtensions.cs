@@ -136,6 +136,21 @@ namespace Utils
             }
         }
 
+        public static IEnumerable<(int x, int y)> GetAdjecentPos<T>(this T[,] grid, int x, int y)
+        {
+            if (y > 0)
+                yield return (x, y - 1);
+
+            if (x > 0)
+                yield return (x - 1, y);
+
+            if (x < grid.GetLength(0) - 1)
+                yield return (x + 1, y);
+
+            if (y < grid.GetLength(1) - 1)
+                yield return (x, y + 1);
+        }
+
         public static (int, int) Shape<T>(this T[,] array)
         {
             return (array.GetLength(0), array.GetLength(1));
