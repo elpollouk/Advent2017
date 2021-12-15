@@ -12,7 +12,7 @@ namespace Utils.Alogrithms
             // Return the cost of moving from one node to another
             // Usually 1 for simple grids
             int GetMoveCost(Node from, Node to);
-            // Get rough estimated score for moving from one node to another
+            // Get rough estimated score for navigating from one node to another
             // Lower is better, Manhatten distance is a suitable score for simple grids
             int GetScore(Node from, Node to);
         }
