@@ -98,6 +98,22 @@ namespace Advent2021
                 }
             }
 
+            public long Eval()
+            {
+                return TypeId switch
+                {
+                    TYPE_SUM => SubPackets.Select(p => p.Eval()).Sum(),
+                    TYPE_PRODUCT => SubPackets.Select(p => p.Eval()).Aggregate((a, b) => a * b),
+                    TYPE_MIN => SubPackets.Select(p => p.Eval()).Min(),
+                    TYPE_MAX => SubPackets.Select(p => p.Eval()).Max(),
+                    TYPE_LITERAL => Value,
+                    TYPE_GT => SubPackets[0].Eval() > SubPackets[1].Eval() ? 1 : 0,
+                    TYPE_LT => SubPackets[0].Eval() < SubPackets[1].Eval() ? 1 : 0,
+                    TYPE_EQ => SubPackets[0].Eval() == SubPackets[1].Eval() ? 1 : 0,
+                    _ => throw new InvalidOperationException("Unsupported type id"),
+                };
+            }
+
             private static long ReadLiteral(BitReader bits)
             {
                 long value = 0;
@@ -239,12 +255,29 @@ namespace Advent2021
             SumVersions(packet).Should().Be(949);
         }
 
-        /*[Theory]
-        [InlineData("Data/Day16_Test.txt", 0)]
-        [InlineData("Data/Day16.txt", 0)]
-        public void Part2(string filename, long expectedAnswer)
+        [Theory]
+        [InlineData("C200B40A82", 3)]
+        [InlineData("04005AC33890", 54)]
+        [InlineData("880086C3E88112", 7)]
+        [InlineData("CE00C43D881120", 9)]
+        [InlineData("D8005AC2A8F0", 1)]
+        [InlineData("F600BC2D8F", 0)]
+        [InlineData("9C005AC2F8F0", 0)]
+        [InlineData("9C0141080250320F1802104A08", 1)]
+        public void Part2_Examples(string data, int expectedAnswer)
         {
+            var bits = new BitReader(data);
+            var packet = new Packet(bits);
+            packet.Eval().Should().Be(expectedAnswer);
+        }
 
-        }*/
+        [Fact]
+        public void Part2_Solution()
+        {
+            var data = FileIterator.Lines("Data/Day16.txt").First();
+            var bits = new BitReader(data);
+            var packet = new Packet(bits);
+            packet.Eval().Should().Be(1114600142730);
+        }
     }
 }
