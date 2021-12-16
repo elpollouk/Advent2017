@@ -278,8 +278,9 @@ namespace Advent2021
         [Fact]
         public void Part1_Scott()
         {
-            var data = FileIterator.Lines("Data/Day16.txt").First();
-            data.Packets()
+           FileIterator.Lines("Data/Day16.txt")
+                .First()
+                .Packets()
                 .Select(p => p.Version)
                 .Sum()
                 .Should().Be(949);
