@@ -19,9 +19,8 @@ namespace Advent2021
         public static IEnumerable<Day16.Packet> Packets(this Day16.Packet packet)
         {
             foreach (var p in packet.SubPackets)
-                foreach (var p2 in p.Packets())
-                    yield return p2;
-
+                foreach (var sp in p.Packets())
+                    yield return sp;
 
             yield return packet;
         }
@@ -45,7 +44,7 @@ namespace Advent2021
             private readonly string _data;
             private int _nextByte = 0;
             private Queue<int> _currentBits;
-            public int ReadSoFar { get; private set; }
+            public int BitsReadSoFar { get; private set; }
 
             public BitReader(string data)
             {
@@ -58,22 +57,22 @@ namespace Advent2021
                 if (_data.Length <= _nextByte) throw new InvalidOperationException("No more data");
                 _currentBits = _data[_nextByte++] switch
                 {
-                    '0' => new Queue<int>(new[] { 0, 0, 0, 0 }),
-                    '1' => new Queue<int>(new[] { 0, 0, 0, 1 }),
-                    '2' => new Queue<int>(new[] { 0, 0, 1, 0 }),
-                    '3' => new Queue<int>(new[] { 0, 0, 1, 1 }),
-                    '4' => new Queue<int>(new[] { 0, 1, 0, 0 }),
-                    '5' => new Queue<int>(new[] { 0, 1, 0, 1 }),
-                    '6' => new Queue<int>(new[] { 0, 1, 1, 0 }),
-                    '7' => new Queue<int>(new[] { 0, 1, 1, 1 }),
-                    '8' => new Queue<int>(new[] { 1, 0, 0, 0 }),
-                    '9' => new Queue<int>(new[] { 1, 0, 0, 1 }),
-                    'A' => new Queue<int>(new[] { 1, 0, 1, 0 }),
-                    'B' => new Queue<int>(new[] { 1, 0, 1, 1 }),
-                    'C' => new Queue<int>(new[] { 1, 1, 0, 0 }),
-                    'D' => new Queue<int>(new[] { 1, 1, 0, 1 }),
-                    'E' => new Queue<int>(new[] { 1, 1, 1, 0 }),
-                    'F' => new Queue<int>(new[] { 1, 1, 1, 1 }),
+                    '0' => new(new[] { 0, 0, 0, 0 }),
+                    '1' => new(new[] { 0, 0, 0, 1 }),
+                    '2' => new(new[] { 0, 0, 1, 0 }),
+                    '3' => new(new[] { 0, 0, 1, 1 }),
+                    '4' => new(new[] { 0, 1, 0, 0 }),
+                    '5' => new(new[] { 0, 1, 0, 1 }),
+                    '6' => new(new[] { 0, 1, 1, 0 }),
+                    '7' => new(new[] { 0, 1, 1, 1 }),
+                    '8' => new(new[] { 1, 0, 0, 0 }),
+                    '9' => new(new[] { 1, 0, 0, 1 }),
+                    'A' => new(new[] { 1, 0, 1, 0 }),
+                    'B' => new(new[] { 1, 0, 1, 1 }),
+                    'C' => new(new[] { 1, 1, 0, 0 }),
+                    'D' => new(new[] { 1, 1, 0, 1 }),
+                    'E' => new(new[] { 1, 1, 1, 0 }),
+                    'F' => new(new[] { 1, 1, 1, 1 }),
                     _ => throw new InvalidOperationException("Unexpected character in data")
                 };
             }
@@ -89,7 +88,7 @@ namespace Advent2021
                     result |= _currentBits.Dequeue();
                 }
 
-                ReadSoFar += count;
+                BitsReadSoFar += count;
                 return result;
             }
         }
@@ -163,14 +162,14 @@ namespace Advent2021
             {
                 List<Packet> packets = new();
                 int numBits = bits.ReadBits(15);
-                int statingCount = bits.ReadSoFar;
+                int statingCount = bits.BitsReadSoFar;
 
-                while (bits.ReadSoFar < statingCount + numBits)
+                while (bits.BitsReadSoFar < statingCount + numBits)
                 {
                     var packet = new Packet(bits);
                     packets.Add(packet);
                 }
-                if (bits.ReadSoFar != statingCount + numBits) throw new InvalidOperationException("Too many bits read");
+                if (bits.BitsReadSoFar != statingCount + numBits) throw new InvalidOperationException("Too many bits read");
 
                 return packets;
             }
