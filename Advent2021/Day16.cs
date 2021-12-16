@@ -7,6 +7,26 @@ using Xunit;
 
 namespace Advent2021
 {
+    static class Scott
+    {
+        public static IEnumerable<Day16.Packet> Packets(this string data)
+        {
+            var bits = new Day16.BitReader(data);
+            var packet = new Day16.Packet(bits);
+            return packet.Packets();
+        }
+
+        public static IEnumerable<Day16.Packet> Packets(this Day16.Packet packet)
+        {
+            foreach (var p in packet.SubPackets)
+                foreach (var p2 in p.Packets())
+                    yield return p2;
+
+
+            yield return packet;
+        }
+    }
+
     public class Day16
     {
         private const int TYPE_SUM = 0;
@@ -20,7 +40,7 @@ namespace Advent2021
 
         private const int LENGTH_IN_BITS = 0;
 
-        class BitReader
+        public class BitReader
         {
             private readonly string _data;
             private int _nextByte = 0;
@@ -74,7 +94,7 @@ namespace Advent2021
             }
         }
 
-        class Packet
+        public class Packet
         {
             public int Version { get; private init; }
             public int TypeId { get; private init; }
@@ -253,6 +273,16 @@ namespace Advent2021
             var bits = new BitReader(data);
             var packet = new Packet(bits);
             SumVersions(packet).Should().Be(949);
+        }
+
+        [Fact]
+        public void Part1_Scott()
+        {
+            var data = FileIterator.Lines("Data/Day16.txt").First();
+            data.Packets()
+                .Select(p => p.Version)
+                .Sum()
+                .Should().Be(949);
         }
 
         [Theory]
