@@ -14,11 +14,12 @@ namespace _2019_Day15
         static int o2x = -1;
         static int o2y = -1;
         static int lastAction = 0;
-        static Queue<int> queudActions = new();
+        static readonly Queue<int> queuedActions = new();
+        static readonly int[] path = new int[] { 1, 1, 3, 3, 3, 3, 2, 2, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 1, 1, 1, 1, 1, 1, 4, 4, 2, 2, 4, 4, 2, 2, 2, 2, 3, 3, 2, 2, 2, 2, 2, 2, 4, 4, 2, 2, 3, 3, 3, 3, 3, 3, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 4, 4, 1, 1, 1, 1, 4, 4, 4, 4, 1, 1, 4, 4, 2, 2, 2, 2, 3, 3, 3, 3, 2, 2, 2, 2, 4, 4, 1, 1, 4, 4, 2, 2, 4, 4, 1, 1, 4, 4, 1, 1, 4, 4, 1, 1, 3, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1, 1, 1, 3, 3, 2, 2, 3, 3, 3, 3, 1, 1, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1, 3, 3, 2, 2, 2, 2, 3, 3, 1, 1, 3, 3, 1, 1, 1, 1, 1, 1, 4, 4, 2, 2, 4, 4, 4, 4, 4, 4, 1, 1, 4, 4, 1, 1, 4, 4, 4, 4, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 1, 1, 4, 4, 2, 2, 4, 4, 2, 2, 2, 2, 4, 4, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 4, 4, 4, 4, 1, 1, 3, 3, 3, 3, 3, 3, 1, 1, 3, 3, 2, 2, 2, 2, 2, 2, 4, 4, 2, 2, 4, 4, 4, 4, 4, 4, 2, 2, 3, 3, 2, 2, 2, 2, 2, 2, 4, 4, 2, 2, 2, 2, 4, 4, 2, 2, 4, 4, 2, 2, 2, 2, 3, 3, 3, 3, 2, 2, 4, 4, 4, 4 };
 
         static Executor<VmState, int, (long, long, long)> vm;
 
-        static void Main(string[] args)
+        static void Main()
         {
             var width = Console.WindowWidth;
             var height = Console.WindowHeight;
@@ -61,9 +62,9 @@ namespace _2019_Day15
                 Console.Write('X');
             }
 
-            if (queudActions.Count != 0)
+            if (queuedActions.Count != 0)
             {
-                lastAction = queudActions.Dequeue();
+                lastAction = queuedActions.Dequeue();
                 return lastAction;
             }
 
@@ -79,9 +80,15 @@ namespace _2019_Day15
 
                     case ConsoleKey.Q:
                         SendAction(1);
-                        queudActions.Enqueue(2);
-                        queudActions.Enqueue(3);
-                        queudActions.Enqueue(4);
+                        queuedActions.Enqueue(2);
+                        queuedActions.Enqueue(3);
+                        queuedActions.Enqueue(4);
+                        break;
+
+                    case ConsoleKey.Spacebar:
+                        SendAction(path[0]);
+                        for (int i = 1; i < path.Length; i++)
+                            queuedActions.Enqueue(path[i]);
                         break;
 
                     case ConsoleKey.UpArrow:
