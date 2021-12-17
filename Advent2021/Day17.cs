@@ -1,5 +1,4 @@
 ﻿using FluentAssertions;
-using System;
 using System.Collections.Generic;
 using Xunit;
 
@@ -14,29 +13,25 @@ namespace Advent2021
             return range;
         }
 
-        static bool HitsX(int minX, int maxX, int dX)
+        static IEnumerable<int> RangeX(int minX, int maxX)
         {
-            if (SumNatural(dX) <= minX) return false;
-
-            var x = 0;
-            while (x <= maxX)
+            for (int x = 1; x <= maxX; x++)
             {
-                x += dX;
-                dX--;
-                if (minX <= x) return true;
+                if (SumNatural(x) < minX) continue;
+                yield return x;
             }
-
-            return false;
         }
 
-        static IEnumerable<int> Range(int min, int max)
+        static IEnumerable<int> RangeY(int minY, int maxY)
         {
+            maxY = (-minY) - 1;
+
             do
             {
-                yield return min;
-                min++;
+                yield return minY;
+                minY++;
             }
-            while (min <= max);
+            while (minY <= maxY);
         }
 
         static bool FullSimulate(int minX, int maxX, int minY, int maxY, int dX, int dY)
@@ -52,7 +47,6 @@ namespace Advent2021
                 x += dX;
                 dY--;
                 if (dX != 0) dX--;
-
             }
             return false;
         }
@@ -62,7 +56,7 @@ namespace Advent2021
         [InlineData(-117, 6786)]
         public void Part1(int minY, long expectedAnswer)
         {
-            long y = Math.Abs(minY) - 1;
+            long y = (-minY) - 1;
             long maxHeight = SumNatural(y);
             maxHeight.Should().Be(expectedAnswer);
         }
@@ -72,21 +66,12 @@ namespace Advent2021
         [InlineData(155, 182, -67, -117, 2313)]
         public void Part2(int minX, int maxX, int maxY, int minY, int expectedAnswer)
         {
-            int x = 0;
-            List<int> initialX = new();
-            while (++x <= maxX)
-                if (HitsX(minX, maxX, x))
-                    initialX.Add(x);
-
-            var minDY = minY;
-            var maxDY = Math.Abs(minY) - 1;
-
             var count = 0;
-            foreach (var dY in Range(minDY, maxDY))
-                foreach (var dX in initialX)
+            foreach (var dX in RangeX(minX, maxX))
+                foreach (var dY in RangeY(minY, maxY))
                     if (FullSimulate(minX, maxX, minY, maxY, dX, dY))
                         count++;
-
+            
             count.Should().Be(expectedAnswer);
         }
     }
