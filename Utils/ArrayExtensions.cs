@@ -136,6 +136,12 @@ namespace Utils
             }
         }
 
+        public static IEnumerable<T> GetAdjecent<T>(this T[,] grid, int x, int y)
+        {
+            foreach (var pos in grid.GetAdjecentPos(x, y))
+                yield return grid[pos.x, pos.y];
+        }
+
         public static IEnumerable<(int x, int y)> GetAdjecentPos<T>(this T[,] grid, int x, int y)
         {
             if (y > 0)
