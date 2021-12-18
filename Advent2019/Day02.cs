@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Utils;
 using Utils.VM;
 using Xunit;
@@ -130,6 +131,56 @@ namespace Advent2019
             }
 
             public void Execute() => Execute(state => state.HasHalted);
+
+            public bool HasOutput => State.OutputQueue.Count != 0;
+
+            public long Read() => State.OutputQueue.Dequeue();
+
+            public char ReadChar() => (char)Read();
+
+            public string ReadLine()
+            {
+                StringBuilder sb = new();
+                while (true)
+                {
+                    if (!HasOutput) return null;
+                    if (State.OutputQueue.Peek() > 127) return null;
+                    var c = ReadChar();
+                    if (c == '\n') break;
+                    sb.Append(c);
+                }
+                return sb.ToString();
+            }
+
+            public IEnumerable<string> ReadLines()
+            {
+                while (true)
+                {
+                    var line = ReadLine();
+                    if (line == null) yield break;
+                    yield return line;
+                }
+            }
+
+            public void Write(long value)
+            {
+                State.InputQueue.Enqueue(value);
+            }
+
+            public void Write(string line)
+            {
+                foreach (var c in line)
+                    Write(c);
+            }
+
+            public void WriteLines(params string[] lines)
+            {
+                foreach (var line in lines)
+                {
+                    Write(line);
+                    Write('\n');
+                }
+            }
         }
 
         private static readonly InstructionSet<VmState, int, (long a, long b, long c)> s_InstructionSet = new();

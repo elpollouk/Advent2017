@@ -23,13 +23,13 @@ namespace Advent2019
             public (long x, long y) Paddle = (-1, -1);
         }
 
-        static void Render(GameState game, IntCode.VmState state)
+        static void Render(GameState game, IntCode.VM vm)
         {
-            while (state.OutputQueue.Count != 0)
+            while (vm.HasOutput)
             {
-                var x = state.OutputQueue.Dequeue();
-                var y = state.OutputQueue.Dequeue();
-                var tile = state.OutputQueue.Dequeue();
+                var x = vm.Read();
+                var y = vm.Read();
+                var tile = vm.Read();
 
                 if (x == SCORE)
                 {
@@ -58,7 +58,7 @@ namespace Advent2019
             var vm = IntCode.CreateVM(prog);
             vm.Execute();
             var game = new GameState();
-            Render(game, vm.State);
+            Render(game, vm);
             game.NumBlocks.Should().Be(expectedAnswer);
         }
 
@@ -73,14 +73,14 @@ namespace Advent2019
 
             vm.State.Input = () =>
             {
-                Render(game, vm.State);
+                Render(game, vm);
                 if (game.Ball.x < game.Paddle.x) return -1;
                 if (game.Ball.x > game.Paddle.x) return 1;
                 return 0;
             };
 
             vm.Execute();
-            Render(game, vm.State);
+            Render(game, vm);
             game.Score.Should().Be(expectedAnswer);
         }
     }
