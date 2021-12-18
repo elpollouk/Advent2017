@@ -13,15 +13,15 @@ namespace Advent2019
     {
         class Map : Astar.IGraphAdapter<(int x, int y)>
         {
-            private readonly char[,] _map;
+            public char[,] Grid { get; init; }
 
             public Map(char[,] map)
             {
-                _map = map;
+                Grid = map;
             }
 
-            public IEnumerable<(int x, int y)> GetLinked((int x, int y) node) => _map.GetAdjecentPos(node.x, node.y)
-                .Where(pos => _map[pos.x, pos.y] != '#');
+            public IEnumerable<(int x, int y)> GetLinked((int x, int y) node) => Grid.GetAdjecentPos(node.x, node.y)
+                .Where(pos => Grid[pos.x, pos.y] == ' ');
 
             public int GetMoveCost((int x, int y) from, (int x, int y) to) => 1;
 
@@ -78,7 +78,27 @@ namespace Advent2019
         [Fact]
         public void Part2()
         {
+            var map = LoadMap(out var _, out var exit);
+            map.Grid[exit.x, exit.y] = 'O';
+            var frontier = new List<(int x, int y)>(map.GetLinked(exit));
+            var minutes = 0;
 
+            do
+            {
+                minutes++;
+                var newFrontier = new List<(int x, int y)>();
+
+                foreach (var pos in frontier)
+                {
+                    map.Grid[pos.x, pos.y] = 'O';
+                    newFrontier.AddRange(map.GetLinked(pos));
+                }
+
+                frontier = newFrontier;
+            }
+            while (frontier.Count != 0);
+
+            minutes.Should().Be(310);
         }
     }
 }

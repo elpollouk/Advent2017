@@ -78,7 +78,7 @@ namespace Advent2019
             };
         }
 
-        class Program : IProgram<VmState, int, (long, long, long)>
+        public class Program : IProgram<VmState, int, (long, long, long)>
         {
             public (int, (long, long, long)) Fetch(VmState vmState)
             {
@@ -120,8 +120,17 @@ namespace Advent2019
             }
         }
 
-        private static readonly InstructionSet<VmState, int, (long a, long b, long c)> s_InstructionSet = new InstructionSet<VmState, int, (long a, long b, long c)>();
-        private static readonly Program s_Program = new Program();
+        public class VM : Executor<VmState, int, (long, long, long)>
+        {
+            public VM(InstructionSet<VmState, int, (long a, long b, long c)> instructions, Program prog, VmState state) :
+                base(instructions, prog, state)
+            {
+
+            }
+        }
+
+        private static readonly InstructionSet<VmState, int, (long a, long b, long c)> s_InstructionSet = new();
+        private static readonly Program s_Program = new();
 
         static IntCode()
         {
@@ -136,18 +145,18 @@ namespace Advent2019
             s_InstructionSet[GP] = (vm, ops) => vm.GP += vm.Fetch(ops.a, 0);
         }
 
-        public static Executor<VmState, int, (long, long, long)> CreateVM(int[] mem)
+        public static VM CreateVM(int[] mem)
         {
             var vmState = new VmState((int[])mem.Clone());
 
-            return new Executor<VmState, int, (long, long, long)>(s_InstructionSet, s_Program, vmState);
+            return new VM(s_InstructionSet, s_Program, vmState);
         }
 
-        public static Executor<VmState, int, (long, long, long)> CreateVM(long[] mem)
+        public static VM CreateVM(long[] mem)
         {
             var vmState = new VmState((long[])mem.Clone());
 
-            return new Executor<VmState, int, (long, long, long)>(s_InstructionSet, s_Program, vmState);
+            return new VM(s_InstructionSet, s_Program, vmState);
         }
 
         public static bool ExecuteUntilOutput(this Executor<VmState, int, (long, long, long)> executor, ref long output)
