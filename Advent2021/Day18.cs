@@ -1,7 +1,5 @@
 ﻿using FluentAssertions;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using Utils;
 using Xunit;
@@ -12,20 +10,20 @@ namespace Advent2021
     {
         class Node
         {
-            public Node Left;
-            public Node Right;
-            public long Value;
+            private Node _left;
+            private Node _right;
+            private long _value;
 
-            public bool IsValue => Left == null;
+            public bool IsValue => _left == null;
 
-            public bool IsExplodable => !IsValue && Left.IsValue && Right.IsValue;
+            public bool IsExplodable => !IsValue && _left.IsValue && _right.IsValue;
 
             public long Magnitude
             {
                 get
                 {
-                    if (IsValue) return Value;
-                    return Left.Magnitude * 3 + Right.Magnitude * 2;
+                    if (IsValue) return _value;
+                    return _left.Magnitude * 3 + _right.Magnitude * 2;
                 }
             }
 
@@ -41,13 +39,20 @@ namespace Advent2021
 
             private Node(long value)
             {
-                Value = value;
+                _value = value;
             }
 
-            public Node(Node left, Node right)
+            public Node(Node left, string right)
             {
-                Left = left;
-                Right = right;
+                _left = left;
+                _right = new(right);
+                Reduce();
+            }
+
+            public Node(string left, string right)
+            {
+                _left = new(left);
+                _right = new(right);
                 Reduce();
             }
 
@@ -67,20 +72,20 @@ namespace Advent2021
             {
                 if (depth < 4)
                 {
-                    if (!Left.IsValue && Left.Explode(depth + 1, ref left, ref right))
+                    if (!_left.IsValue && _left.Explode(depth + 1, ref left, ref right))
                     {
                         if (right != 0)
                         {
-                            Right.PassRight(right);
+                            _right.PassRight(right);
                             right = 0;
                         }
                         return true;
                     }
-                    if (!Right.IsValue && Right.Explode(depth + 1, ref left, ref right))
+                    if (!_right.IsValue && _right.Explode(depth + 1, ref left, ref right))
                     {
                         if (left != 0)
                         {
-                            Left.PassLeft(left);
+                            _left.PassLeft(left);
                             left = 0;
                         }
                         return true;
@@ -89,49 +94,49 @@ namespace Advent2021
                 }
 
                 if (!IsExplodable) throw new InvalidOperationException($"Node is not explodable: {ToString()}");
-                left = Left.Value;
-                right = Right.Value;
-                Left = null;
-                Right = null;
-                Value = 0;
+                left = _left._value;
+                right = _right._value;
+                _left = null;
+                _right = null;
+                _value = 0;
 
                 return true;
             }
 
             private void PassRight(long value)
             {
-                if (IsValue) Value += value;
-                else Left.PassRight(value);
+                if (IsValue) _value += value;
+                else _left.PassRight(value);
             }
 
             private void PassLeft(long value)
             {
-                if (IsValue) Value += value;
-                else Right.PassLeft(value);
+                if (IsValue) _value += value;
+                else _right.PassLeft(value);
             }
 
             private bool Split()
             {
                 if (!IsValue)
                 {
-                    if (Left.Split()) return true;
-                    return Right.Split();
+                    if (_left.Split()) return true;
+                    return _right.Split();
                 }
 
-                if (Value <= 9) return false;
+                if (_value <= 9) return false;
 
-                Left = new Node(Value / 2);
-                Right = new Node(Value - Left.Value);
-                Value = 0;
+                _left = new(_value / 2);
+                _right = new(_value - _left._value);
+                _value = 0;
 
                 return true;
             }
 
             private void Parse(string input, ref int index)
             {
-                Left = ParseNode(input, ref index);
+                _left = ParseNode(input, ref index);
                 if (input[index++] != ',') throw new InvalidOperationException("Expected ','");
-                Right = ParseNode(input, ref index);
+                _right = ParseNode(input, ref index);
                 if (input[index++] != ']') throw new InvalidOperationException("Expected ']'");
             }
 
@@ -139,19 +144,19 @@ namespace Advent2021
             {
                 if (IsValue)
                 {
-                    builder.Append(Value);
+                    builder.Append(_value);
                     return;
                 }
                 builder.Append('[');
-                Left.WriteString(builder);
+                _left.WriteString(builder);
                 builder.Append(',');
-                Right.WriteString(builder);
+                _right.WriteString(builder);
                 builder.Append(']');
             }
 
             public override string ToString()
             {
-                var builder = new StringBuilder();
+                StringBuilder builder = new();
                 WriteString(builder);
                 return builder.ToString();
             }
@@ -175,7 +180,7 @@ namespace Advent2021
         [InlineData("[[[[8,7],[7,7]],[[8,6],[7,7]]],[[[0,7],[6,6]],[8,7]]]", 3488)]
         public void Magnitude(string input, long expectedAnswer)
         {
-            var node = new Node(input);
+            Node node = new(input);
             node.Magnitude.Should().Be(expectedAnswer);
         }
 
@@ -191,7 +196,7 @@ namespace Advent2021
         [InlineData("[[3,[2,[8,0]]],[9,[5,[4,[3,2]]]]]", "[[3,[2,[8,0]]],[9,[5,[7,0]]]]")]
         public void Reduce(string input, string expectedResult)
         {
-            var node = new Node(input);
+            Node node = new(input);
             node.Reduce();
             node.ToString().Should().Be(expectedResult);
         }
@@ -202,12 +207,12 @@ namespace Advent2021
         [InlineData("[1,1]", "[2,2]", "[3,3]", "[4,4]", "[5,5]", "[[[[3,0],[5,3]],[4,4]],[5,5]]")]
         public void Add(params string[] input)
         {
-            var n = new Node(input[0]);
+            Node node = new(input[0]);
             for (var i = 1; i < input.Length - 1; i++)
             {
-                n = new Node(n, new Node(input[i]));
+                node = new(node, input[i]);
             }
-            n.ToString().Should().Be(input[^1]);
+            node.ToString().Should().Be(input[^1]);
         }
 
         static Node AddNodes(string filename)
@@ -217,11 +222,11 @@ namespace Advent2021
             {
                 if (node == null)
                 {
-                    node = new Node(line);
+                    node = new(line);
                 }
                 else
                 {
-                    node = new Node(node, new Node(line));
+                    node = new(node, line);
                 }
             }
             return node;
@@ -257,9 +262,9 @@ namespace Advent2021
                 foreach (var line2 in lines)
                 {
                     if (line1 == line2) continue;
-                    var node = new Node(new Node(line1), new Node(line2));
+                    Node node = new(line1, line2);
                     var mag = node.Magnitude;
-                    if (max < mag) max = node.Magnitude;
+                    if (max < mag) max = mag;
                 }
             }
 
