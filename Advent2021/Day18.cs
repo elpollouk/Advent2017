@@ -246,11 +246,24 @@ namespace Advent2021
         }
 
         [Theory]
-        [InlineData("Data/Day18_Test.txt", 0)]
-        [InlineData("Data/Day18.txt", 0)]
+        [InlineData("Data/Day18_Test2.txt", 3993)]
+        [InlineData("Data/Day18.txt", 4635)]
         public void Part2(string filename, long expectedAnswer)
         {
+            var lines = FileIterator.LoadLines<string>(filename);
+            var max = 0L;
+            foreach (var line1 in lines)
+            {
+                foreach (var line2 in lines)
+                {
+                    if (line1 == line2) continue;
+                    var node = new Node(new Node(line1), new Node(line2));
+                    var mag = node.Magnitude;
+                    if (max < mag) max = node.Magnitude;
+                }
+            }
 
+            max.Should().Be(expectedAnswer);
         }
     }
 }
