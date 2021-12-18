@@ -166,7 +166,7 @@ namespace Advent2021
                 var c = input[index++];
                 return c switch
                 {
-                    '0' or '1' or '2' or '3' or '4' or '5' or '6' or '7' or '8' or '9' => new Node(c - '0'),
+                    >= '0' and <= '9' => new Node(c - '0'),
                     '[' => new Node(input, ref index),
                     _ => throw new InvalidOperationException($"Unexpected input character: {c}"),
                 };
