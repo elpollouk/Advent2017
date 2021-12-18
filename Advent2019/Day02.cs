@@ -39,6 +39,7 @@ namespace Advent2019
             public readonly VmMem Mem = new VmMem();
             public long IP = 0;
             public long GP = 0;
+            public bool HasHalted = false;
             public readonly int[] Modes = { MODE_POSITION, MODE_POSITION, MODE_POSITION };
             public Func<long> Input;
             public Action<long> Output;
@@ -112,7 +113,7 @@ namespace Advent2019
                         return (instruction, (mem[ip + 1], mem[ip + 2], 0));
 
                     case HALT:
-                        throw new Halt();
+                        return (instruction, (0, 0, 0));
 
                     default:
                         throw new InvalidOperationException();
@@ -127,6 +128,8 @@ namespace Advent2019
             {
 
             }
+
+            public void Execute() => Execute(state => state.HasHalted);
         }
 
         private static readonly InstructionSet<VmState, int, (long a, long b, long c)> s_InstructionSet = new();
@@ -143,6 +146,7 @@ namespace Advent2019
             s_InstructionSet[LT] = (vm, ops) => vm.Mem[vm.FetchOutput(ops.c, 2)] = vm.Fetch(ops.a, 0) < vm.Fetch(ops.b, 1) ? 1 : 0;
             s_InstructionSet[EQ] = (vm, ops) => vm.Mem[vm.FetchOutput(ops.c, 2)] = vm.Fetch(ops.a, 0) == vm.Fetch(ops.b, 1) ? 1 : 0;
             s_InstructionSet[GP] = (vm, ops) => vm.GP += vm.Fetch(ops.a, 0);
+            s_InstructionSet[HALT] = (vm, ops) => vm.HasHalted = true;
         }
 
         public static VM CreateVM(int[] mem)
@@ -170,10 +174,7 @@ namespace Advent2019
                 hasOutput = true;
             };
 
-            executor.Execute(step => {
-                while (!hasOutput)
-                    step();
-            });
+            executor.Execute(state => hasOutput || state.HasHalted);
 
             if (hasOutput)
                 output = _output;

@@ -33,16 +33,18 @@ namespace Utils.VM
             _InstructionSet[instruction](State, operands);
         }
 
-        public void Execute(Action<Action> runloop)
+        public void Execute(Func<VmState, bool> hasHalted)
         {
             try
             {
-                runloop(ExecuteCycle);
+                while (!hasHalted(State))
+                {
+                    ExecuteCycle();
+                }
             }
             catch (Halt) { }
         }
 
-        public void Execute(int numCycles) => Execute(step => { for (var i = 0; i < numCycles; i++) step(); });
-        public void Execute() => Execute(step => { while (true) step(); });
+        public void Execute(int numCycles) => Execute(_ => numCycles-- <= 0);
     }
 }
