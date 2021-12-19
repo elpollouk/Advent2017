@@ -20,7 +20,7 @@ namespace Advent2019
         {
             if (prog == null) prog = FileIterator.LoadCSV<int>("Data/Day19.txt");
 
-            var vm = IntCode.CreateVM((int[])prog.Clone());
+            var vm = IntCode.CreateVM(prog);
             vm.Write(x);
             vm.Write(y);
             vm.Execute();

@@ -27,7 +27,7 @@ namespace Advent2019
 
         public class VmMem
         {
-            private readonly Dictionary<long, long> _Mem = new Dictionary<long, long>();
+            private readonly Dictionary<long, long> _Mem = new();
             public long this[long address]
             {
                 get => _Mem.GetOrDefault(address, 0);
@@ -37,7 +37,7 @@ namespace Advent2019
 
         public class VmState
         {
-            public readonly VmMem Mem = new VmMem();
+            public readonly VmMem Mem = new();
             public long IP = 0;
             public long GP = 0;
             public bool HasHalted = false;
@@ -45,8 +45,8 @@ namespace Advent2019
             public Func<long> Input;
             public Action<long> Output;
 
-            public readonly Queue<long> InputQueue = new Queue<long>();
-            public readonly Queue<long> OutputQueue = new Queue<long>();
+            public readonly Queue<long> InputQueue = new();
+            public readonly Queue<long> OutputQueue = new();
 
             public VmState(int[] mem)
             {
@@ -124,7 +124,7 @@ namespace Advent2019
 
         public class VM : Executor<VmState, int, (long, long, long)>
         {
-            public VM(InstructionSet<VmState, int, (long a, long b, long c)> instructions, Program prog, VmState state) :
+            public VM(InstructionSet<VmState, int, (long, long, long)> instructions, Program prog, VmState state) :
                 base(instructions, prog, state)
             {
 
@@ -146,10 +146,9 @@ namespace Advent2019
                     if (!HasOutput) return null;
                     if (State.OutputQueue.Peek() > 127) return null;
                     var c = ReadChar();
-                    if (c == '\n') break;
+                    if (c == '\n') return sb.ToString();
                     sb.Append(c);
                 }
-                return sb.ToString();
             }
 
             public IEnumerable<string> ReadLines()
@@ -222,7 +221,9 @@ namespace Advent2019
                 foreach (var pair in patch)
                     prog[pair.Key] = pair.Value;
 
-            return CreateVM(prog);
+            var vmState = new VmState(prog);
+
+            return new VM(s_InstructionSet, s_Program, vmState);
         }
 
         public static bool ExecuteUntilOutput(this Executor<VmState, int, (long, long, long)> executor, ref long output)
