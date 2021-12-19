@@ -1,8 +1,5 @@
 ﻿using FluentAssertions;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Utils;
 using Xunit;
 using Xunit.Abstractions;
@@ -63,8 +60,7 @@ namespace Advent2019
         [Fact]
         public void Part1()
         {
-            var prog = FileIterator.LoadCSV<int>("Data/Day17.txt");
-            var vm = IntCode.CreateVM(prog);
+            var vm = IntCode.CreateVM("Data/Day17.txt");
             vm.Execute();
             var lines = vm.ReadLines().ToArray();
 
@@ -78,9 +74,7 @@ namespace Advent2019
         [Fact]
         public void Part2()
         {
-            var prog = FileIterator.LoadCSV<int>("Data/Day17.txt");
-            prog[0] = 2;
-            var vm = IntCode.CreateVM(prog);
+            var vm = IntCode.CreateVM("Data/Day17.txt", new() { [0] = 2 });
 
             vm.WriteLines(
                 "A,A,B,C,B,C,B,C,C,A",

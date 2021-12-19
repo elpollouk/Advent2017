@@ -214,6 +214,17 @@ namespace Advent2019
             return new VM(s_InstructionSet, s_Program, vmState);
         }
 
+        public static VM CreateVM(string programFile, Dictionary<int, int> patch = null)
+        {
+            var prog = FileIterator.LoadCSV<int>(programFile);
+
+            if (patch != null)
+                foreach (var pair in patch)
+                    prog[pair.Key] = pair.Value;
+
+            return CreateVM(prog);
+        }
+
         public static bool ExecuteUntilOutput(this Executor<VmState, int, (long, long, long)> executor, ref long output)
         {
             long _output = 0;

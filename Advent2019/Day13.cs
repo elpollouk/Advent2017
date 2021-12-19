@@ -54,8 +54,7 @@ namespace Advent2019
         [InlineData("Data/Day13.txt", 348)]
         public void Part1(string filename, int expectedAnswer)
         {
-            var prog = FileIterator.LoadCSV<int>(filename);
-            var vm = IntCode.CreateVM(prog);
+            var vm = IntCode.CreateVM(filename);
             vm.Execute();
             var game = new GameState();
             Render(game, vm);
@@ -66,9 +65,7 @@ namespace Advent2019
         [InlineData("Data/Day13.txt", 16999)]
         public void Part2(string filename, long expectedAnswer)
         {
-            var prog = FileIterator.LoadCSV<int>(filename);
-            prog[0] = 2;
-            var vm = IntCode.CreateVM(prog);
+            var vm = IntCode.CreateVM(filename, new() { [0] = 2 });
             var game = new GameState();
 
             vm.State.Input = () =>
