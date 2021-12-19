@@ -40,9 +40,7 @@ namespace Advent2019
         {
             var vm = IntCode.CreateVM("Data/Day21.txt");
             vm.WriteLines(
-                "NOT A J",
-                "NOT B T",
-                "OR T J",
+                "NOT B J",
                 "NOT C T",
                 "OR T J",
                 "AND D J",
