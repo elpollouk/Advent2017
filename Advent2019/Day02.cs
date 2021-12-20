@@ -132,6 +132,7 @@ namespace Advent2019
 
             public void Execute() => Execute(state => state.HasHalted);
 
+            public bool HasInput => State.InputQueue.Count != 0;
             public bool HasOutput => State.OutputQueue.Count != 0;
 
             public long Read() => State.OutputQueue.Dequeue();
