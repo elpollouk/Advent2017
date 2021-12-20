@@ -11,23 +11,17 @@ namespace Advent2021
 {
     public class Day19
     {
-        class OverlapData
-        {
-            public Scanner scanner;
-            public int rotation;
-            public (int x, int y, int z) offset;
-        }
-
         class Scanner
         {
             public int id;
             public (int x, int y, int z)[][] clouds;
-            public List<OverlapData> overlaps = new();
             public bool added = false;
+            public (int x, int y, int z) pos;
         }
 
         static (int x, int y, int z) Point(int x, int y, int z) => (x, y, z);
-        static (int x, int y, int z) Reverse((int x, int y, int z) p) => (-p.x, -p.y, -p.z);
+        static int Distance((int x, int y, int z) a, (int x, int y, int z) b) => Math.Abs(a.x - b.x) + Math.Abs(a.y - b.y) + Math.Abs(a.z - b.z);
+
         static (int x, int y, int z) RotateAroundZ((int x, int y, int z) point) => (-point.y, point.x, point.z);
         static (int x, int y, int z) RotateAroundY((int x, int y, int z) point) => (-point.z, point.y, point.x);
         static (int x, int y, int z) RotateAroundX((int x, int y, int z) point) => (point.x, point.z, -point.y);
@@ -173,16 +167,8 @@ namespace Advent2021
                 {
                     var translation = CalcTranslation(cloud1[i], cloud2[j]);
 
-                    int matchCount1 = SuccessfulOverlaps(cloud1, cloud2, translation, scannerRange);
-                    if (matchCount1 < requiredOverlap) continue;
-                    if (matchCount1 > requiredOverlap) Debug.WriteLine($"Found overlaps with {matchCount1} points!");
-
-                    int matchCount2 = SuccessfulOverlaps(cloud2, cloud1, Reverse(translation), scannerRange);
-                    if (matchCount2 != matchCount1)
-                    {
-                        Debug.WriteLine("Found non-symertic overlap!");
-                        continue;
-                    }
+                    int matchCount = SuccessfulOverlaps(cloud1, cloud2, translation, scannerRange);
+                    if (matchCount < requiredOverlap) continue;
 
                     offset = translation;
                     return true;
@@ -346,32 +332,36 @@ namespace Advent2021
             }
         }
 
-        static void GetOverlapRotation((int x, int y, int z)[]cloud, (int x, int y, int z)[][]candidates, out int rotation, out (int x, int y, int z) offset)
+        static bool GetOverlapRotation((int x, int y, int z)[]cloud, (int x, int y, int z)[][]candidates, out int rotation, out (int x, int y, int z) offset)
         {
             for (var i = 0; i < candidates.Length; i++)
             {
                 if (ResolveOverlap(cloud, candidates[i], 1000, 12, out offset))
                 {
                     rotation = i;
-                    return;
+                    return true;
                 }
             }
-            throw new InvalidOperationException("No oeverlap found");
+            offset = (0, 0, 0);
+            rotation = -1;
+            return false;
         }
 
-        static void ProcessScanner(HashSet<(int x, int y, int z)> cloud, Scanner scanner, int scannerRotation, (int x, int y, int z) offset)
+        static void ProcessScanner2(HashSet<(int x, int y, int z)> cloud, Scanner[] scanners, Scanner scanner, int scannerRotation, (int x, int y, int z) offset)
         {
             scanner.added = true;
-            translatedScanners.Add(offset);
+            scanner.pos = offset;
 
             Debug.WriteLine($"Processing scanner {scanner.id}...");
-            foreach (var data in scanner.overlaps)
+            foreach (var other in scanners)
             {
-                if (data.scanner.added) continue;
-                GetOverlapRotation(scanner.clouds[scannerRotation], data.scanner.clouds, out var childRotation, out var childOffset);
+                if (other == scanner) continue;
+                if (other.added) continue;
+                if (!GetOverlapRotation(scanner.clouds[scannerRotation], other.clouds, out var childRotation, out var childOffset)) continue;
+
                 childOffset = (childOffset.x + offset.x, childOffset.y + offset.y, childOffset.z + offset.z);
-                AddToCloud(cloud, data.scanner.clouds[childRotation], childOffset);
-                ProcessScanner(cloud, data.scanner, childRotation, childOffset);
+                AddToCloud(cloud, other.clouds[childRotation], childOffset);
+                ProcessScanner2(cloud, scanners, other, childRotation, childOffset);
             }
         }
 
@@ -388,62 +378,25 @@ namespace Advent2021
             return scanners.ToArray();
         }
 
-        static int Distance((int x, int y, int z) a, (int x, int y, int z) b) => Math.Abs(a.x - b.x) + Math.Abs(a.y - b.y) + Math.Abs(a.z - b.z);
-
-        static readonly List<(int x, int y, int z)> translatedScanners = new();
-
         [Theory]
         [InlineData("Data/Day19_Test.txt", 79, 3621)]
         [InlineData("Data/Day19.txt", 353, 10832)]
-        public void Part1(string filename, int expectedAnswer1, int expectedAnswer2)
+        public void Answer(string filename, int expectedAnswer1, int expectedAnswer2)
         {
-            translatedScanners.Clear();
             var scanners = LoadScanners(filename);
 
-            foreach (var scanner in scanners)
-            {
-                foreach (var other in scanners)
-                {
-                    if (other == scanner) continue;
-                    for (var i = 0; i < other.clouds.Length; i++)
-                    {
-                        if (ResolveOverlap(scanner.clouds[0], other.clouds[i], 1000, 12, out var offset))
-                        {
-                            Debug.WriteLine($"Scaner {scanner.id} overlaps with {other.id} via rotation {i}");
-                            scanner.overlaps.Add(new() {
-                                rotation = i,
-                                scanner = other,
-                                offset = offset
-                            });
-                            break;
-                        }
-                    }
-                }
-            }
-
-            foreach (var scanner in scanners)
-            {
-                Debug.WriteLine($"Scanner {scanner.id}");
-                foreach (var data in scanner.overlaps)
-                {
-                    Debug.WriteLine($"   {data.scanner.id}");
-                }
-            }
-
             HashSet<(int x, int y, int z)> cloud = new(scanners[0].clouds[0]);
-            ProcessScanner(cloud, scanners[0], 0, (0, 0, 0));
-
-            Debug.WriteLine("Done");
+            ProcessScanner2(cloud, scanners, scanners[0], 0, (0, 0, 0));
 
             cloud.Count.Should().Be(expectedAnswer1);
 
             var max = int.MinValue;
-            foreach (var a in translatedScanners)
+            foreach (var a in scanners)
             {
-                foreach (var b in translatedScanners)
+                foreach (var b in scanners)
                 {
-                    var d = Distance(a, b);
-                    if (max < d) max = d; 
+                    var d = Distance(a.pos, b.pos);
+                    if (max < d) max = d;
                 }
             }
 
