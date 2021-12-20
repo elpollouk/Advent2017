@@ -216,7 +216,7 @@ namespace Advent2019
 
         public static VM CreateVM(string programFile, Dictionary<int, int> patch = null)
         {
-            var prog = FileIterator.LoadCSV<int>(programFile);
+            var prog = FileIterator.LoadCSV<long>(programFile);
 
             if (patch != null)
                 foreach (var pair in patch)
