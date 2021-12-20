@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Utils;
 using Utils.VM;
 using Xunit;
@@ -26,7 +27,7 @@ namespace Advent2019
 
         public class VmMem
         {
-            private readonly Dictionary<long, long> _Mem = new Dictionary<long, long>();
+            private readonly Dictionary<long, long> _Mem = new();
             public long this[long address]
             {
                 get => _Mem.GetOrDefault(address, 0);
@@ -36,7 +37,7 @@ namespace Advent2019
 
         public class VmState
         {
-            public readonly VmMem Mem = new VmMem();
+            public readonly VmMem Mem = new();
             public long IP = 0;
             public long GP = 0;
             public bool HasHalted = false;
@@ -44,8 +45,8 @@ namespace Advent2019
             public Func<long> Input;
             public Action<long> Output;
 
-            public readonly Queue<long> InputQueue = new Queue<long>();
-            public readonly Queue<long> OutputQueue = new Queue<long>();
+            public readonly Queue<long> InputQueue = new();
+            public readonly Queue<long> OutputQueue = new();
 
             public VmState(int[] mem)
             {
@@ -123,13 +124,62 @@ namespace Advent2019
 
         public class VM : Executor<VmState, int, (long, long, long)>
         {
-            public VM(InstructionSet<VmState, int, (long a, long b, long c)> instructions, Program prog, VmState state) :
+            public VM(InstructionSet<VmState, int, (long, long, long)> instructions, Program prog, VmState state) :
                 base(instructions, prog, state)
             {
 
             }
 
             public void Execute() => Execute(state => state.HasHalted);
+
+            public bool HasOutput => State.OutputQueue.Count != 0;
+
+            public long Read() => State.OutputQueue.Dequeue();
+
+            public char ReadChar() => (char)Read();
+
+            public string ReadLine()
+            {
+                StringBuilder sb = new();
+                while (true)
+                {
+                    if (!HasOutput) return null;
+                    if (State.OutputQueue.Peek() > 127) return null;
+                    var c = ReadChar();
+                    if (c == '\n') return sb.ToString();
+                    sb.Append(c);
+                }
+            }
+
+            public IEnumerable<string> ReadLines()
+            {
+                while (true)
+                {
+                    var line = ReadLine();
+                    if (line == null) yield break;
+                    yield return line;
+                }
+            }
+
+            public void Write(long value)
+            {
+                State.InputQueue.Enqueue(value);
+            }
+
+            public void Write(string line)
+            {
+                foreach (var c in line)
+                    Write(c);
+            }
+
+            public void WriteLines(params string[] lines)
+            {
+                foreach (var line in lines)
+                {
+                    Write(line);
+                    Write('\n');
+                }
+            }
         }
 
         private static readonly InstructionSet<VmState, int, (long a, long b, long c)> s_InstructionSet = new();
@@ -159,6 +209,19 @@ namespace Advent2019
         public static VM CreateVM(long[] mem)
         {
             var vmState = new VmState((long[])mem.Clone());
+
+            return new VM(s_InstructionSet, s_Program, vmState);
+        }
+
+        public static VM CreateVM(string programFile, Dictionary<int, int> patch = null)
+        {
+            var prog = FileIterator.LoadCSV<int>(programFile);
+
+            if (patch != null)
+                foreach (var pair in patch)
+                    prog[pair.Key] = pair.Value;
+
+            var vmState = new VmState(prog);
 
             return new VM(s_InstructionSet, s_Program, vmState);
         }

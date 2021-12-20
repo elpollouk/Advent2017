@@ -1,8 +1,5 @@
 ﻿using FluentAssertions;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Utils;
 using Xunit;
 using Xunit.Abstractions;
@@ -16,43 +13,6 @@ namespace Advent2019
         public Day17(ITestOutputHelper output)
         {
             this.output = output;
-        }
-
-        static IEnumerable<string> ReadLines(IntCode.VM vm)
-        {
-            StringBuilder sb = new();
-            var q = vm.State.OutputQueue;
-            while (q.Count != 0)
-            {
-                if (q.Peek() >= 128) yield break;
-
-                var c = (char)q.Dequeue();
-                if (c == '\n')
-                {
-                    var line = sb.ToString();
-                    yield return line;
-                    sb.Clear();
-                }
-                else
-                {
-                    sb.Append(c);
-                }
-            }
-
-            if (sb.Length != 0) yield return sb.ToString();
-        }
-
-        static void EnqueueInput(IntCode.VM vm, params string[] input)
-        {
-            var q = vm.State.InputQueue;
-            foreach (var line in input)
-            {
-                if (line.Length > 20) throw new InvalidOperationException($"Line too long: {line}");
-                foreach (var c in line)
-                    q.Enqueue(c);
-
-                q.Enqueue('\n');
-            }
         }
 
         static char[,] Grid(string[] lines)
@@ -100,10 +60,9 @@ namespace Advent2019
         [Fact]
         public void Part1()
         {
-            var prog = FileIterator.LoadCSV<int>("Data/Day17.txt");
-            var vm = IntCode.CreateVM(prog);
+            var vm = IntCode.CreateVM("Data/Day17.txt");
             vm.Execute();
-            var lines = ReadLines(vm).ToArray();
+            var lines = vm.ReadLines().ToArray();
 
             foreach (var line in lines)
                 output.WriteLine(line);
@@ -115,11 +74,9 @@ namespace Advent2019
         [Fact]
         public void Part2()
         {
-            var prog = FileIterator.LoadCSV<int>("Data/Day17.txt");
-            prog[0] = 2;
-            var vm = IntCode.CreateVM(prog);
+            var vm = IntCode.CreateVM("Data/Day17.txt", new() { [0] = 2 });
 
-            EnqueueInput(vm,
+            vm.WriteLines(
                 "A,A,B,C,B,C,B,C,C,A",
                 "R,8,L,4,R,4,R,10,R,8",
                 "L,12,L,12,R,8,R,8",
@@ -129,10 +86,10 @@ namespace Advent2019
 
             vm.Execute();
 
-            foreach (var line in ReadLines(vm))
+            foreach (var line in vm.ReadLines())
                 output.WriteLine(line);
 
-            var count = vm.State.OutputQueue.Dequeue();
+            var count = vm.Read();
             count.Should().Be(673996);
         }
     }
