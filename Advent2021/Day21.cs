@@ -62,18 +62,18 @@ namespace Advent2021
                 LoserScore = scores[currentPlayer ^ 1];
             }
 
-            readonly Dictionary<(long, int, int, int, int, int), (long, long)> cache = new();
+            readonly Dictionary<(int, int, int, int, int), (long, long)> cache = new();
 
-            (long, long) Explore(int player, long pathCount, int score0, int score1, int position0, int position1)
+            (long, long) Explore(int player, int score0, int score1, int position0, int position1)
             {
-                var args = (pathCount, player, score0, score1, position0, position1);
+                var args = (player, score0, score1, position0, position1);
                 if (cache.TryGetValue(args, out var r)) return r;
 
                 long wins0 = 0;
                 long wins1 = 0;
                 for (var roll = 3; roll <= 9; roll++)
                 {
-                    var pc = pathCount * distribution[roll];
+                    int distributionCount = distribution[roll];
                     int s0, s1, p0, p1;
                     if (player == 0)
                     {
@@ -81,7 +81,7 @@ namespace Advent2021
                         s0 = score0 + Score(p0);
                         if (s0 >= 21)
                         {
-                            wins0 += pc;
+                            wins0 += distributionCount;
                             continue;
                         }
                         s1 = score1;
@@ -93,16 +93,16 @@ namespace Advent2021
                         s1 = score1 + Score(p1);
                         if (s1 >= 21)
                         {
-                            wins1 += pc;
+                            wins1 += distributionCount;
                             continue;
                         }
                         s0 = score0;
                         p0 = position0;
                     }
 
-                    (var a, var b) = Explore(player ^ 1, pc, s0, s1, p0, p1);
-                    wins0 += a;
-                    wins1 += b;
+                    (var a, var b) = Explore(player ^ 1, s0, s1, p0, p1);
+                    wins0 += a * distributionCount;
+                    wins1 += b * distributionCount;
                 }
 
                 r = (wins0, wins1);
@@ -110,10 +110,7 @@ namespace Advent2021
                 return r;
             }
 
-            public (long, long) Explore()
-            {
-                return Explore(0, 1, 0, 0, players[0], players[1]);
-            }
+            public (long, long) Explore() => Explore(0, 0, 0, players[0], players[1]);
         }
 
         [Theory]
@@ -132,9 +129,7 @@ namespace Advent2021
         public void Part2(string filename, long expectedAnswer)
         {
             Game game = new(filename);
-
             (var wins0, var wins1) = game.Explore();
-
             Math.Max(wins0, wins1).Should().Be(expectedAnswer);
         }
     }
