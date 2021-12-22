@@ -61,49 +61,42 @@ namespace Advent2021
                 LoserScore = scores[currentPlayer ^ 1];
             }
 
-            void BruteExplore0(ref long winCount0, ref long winCount1, long pathCount, int rollCount, int roll, int score0, int score1, int position0, int position1)
+            void BruteExplore(int player, long pathCount, int roll, long[] winCount, int score0, int score1, int position0, int position1)
             {
-                position0 = Move(position0, roll);
-                score0 += Score(position0);
-                if (score0 >= 21)
+                if (player == 0)
                 {
-                    winCount0 += pathCount;
-                    return;
+                    position0 = Move(position0, roll);
+                    score0 += Score(position0);
+                    if (score0 >= 21)
+                    {
+                        winCount[0] += pathCount;
+                        return;
+                    }
+                }
+                else
+                {
+                    position1 = Move(position1, roll);
+                    score1 += Score(position1);
+                    if (score1 >= 21)
+                    {
+                        winCount[1] += pathCount;
+                        return;
+                    }
                 }
 
-                rollCount++;
                 for (roll = 3; roll <= 9; roll++)
-                {
-                    BruteExplore1(ref winCount0, ref winCount1, pathCount * distribution[roll], rollCount, roll, score0, score1, position0, position1);
-                }
-            }
+                    BruteExplore(player ^ 1, pathCount * distribution[roll], roll, winCount, score0, score1, position0, position1);
 
-            void BruteExplore1(ref long winCount0, ref long winCount1, long pathCount, int rollCount, int roll, int score0, int score1, int position0, int position1)
-            {
-                position1 = Move(position1, roll);
-                score1 += Score(position1);
-                if (score1 >= 21)
-                {
-                    winCount1 += pathCount;
-                    return;
-                }
-
-                rollCount++;
-                for (roll = 3; roll <= 9; roll++)
-                {
-                    BruteExplore0(ref winCount0, ref winCount1, pathCount * distribution[roll], rollCount, roll, score0, score1, position0, position1);
-                }
             }
 
             public (long, long) BruteExplore()
             {
-                long winCount0 = 0;
-                long winCount1 = 0;
+                var winCount = new long[2];
 
                 for (var roll = 3; roll <= 9; roll++)
-                    BruteExplore0(ref winCount0, ref winCount1, distribution[roll], 1, roll, 0, 0, players[0], players[1]);
+                    BruteExplore(0, distribution[roll], roll, winCount, 0, 0, players[0], players[1]);
 
-                return (winCount0, winCount1);
+                return (winCount[0], winCount[1]);
             }
         }
 
