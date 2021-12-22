@@ -9,10 +9,10 @@ namespace Advent2021
 {
     public class Day22
     {
+        static readonly Cube NULL_CUBE = new (false, (0, 0, 0), (0, 0, 0));
+
         class Cube
         {
-            static readonly Cube ZERO_CUBE = new Cube(false, (0, 0, 0), (0, 0, 0));
-
             public bool State { get; set; }
 
             public (int x, int y, int z) From { get; private set; }
@@ -20,12 +20,14 @@ namespace Advent2021
 
             public (int x, int y, int z) Shape { get; private set; }
 
-            public int Volume => Shape.x * Shape.y * Shape.z;
+            public long Volume => (long)Shape.x * (long)Shape.y * (long)Shape.z;
 
             public override string ToString()
             {
                 return $"{From}-{To}";
             }
+
+            public bool IsSameLocation(Cube other) => From == other.From && To == other.To;
 
             public Cube(bool state, (int x, int y, int z) from, (int x, int y, int z) to)
             {
@@ -67,12 +69,12 @@ namespace Advent2021
 
             public Cube Intersect(Cube other)
             {
-                if (!Overlaps(other)) return ZERO_CUBE;
+                if (!Overlaps(other)) return NULL_CUBE;
 
                 var FromX = Math.Max(From.x, other.From.x);
                 var ToX = Math.Min(To.x, other.To.x);
                 var FromY = Math.Max(From.y, other.From.y);
-                var ToY = Math.Min(To.x, other.To.x);
+                var ToY = Math.Min(To.y, other.To.y);
                 var FromZ = Math.Max(From.z, other.From.z);
                 var ToZ = Math.Min(To.z, other.To.z);
 
@@ -365,6 +367,21 @@ namespace Advent2021
             cubes[5].From.Should().Be(( 2,  3, 0)); cubes[5].To.Should().Be((3, 3, 0));
         }
 
+        [Fact]
+        public void SliceCubTest_CornerCube()
+        {
+            var cube = new Cube(true, (-2, -2, -2), (2, 2, 2));
+            var slice = new Cube(true, (1, -6, 1), (6, 1, 6));
+
+            var cubes = cube.SliceCube(slice)
+                .OrderBy(c => c.From.x)
+                .ThenBy(c => c.From.y)
+                .ThenBy(c => c.From.z)
+                .ToArray();
+
+            cubes.Length.Should().Be(8);
+        }
+
         static IList<Cube> LoadCubes(string filename, int limit)
         {
             List<Cube> cubes = new();
@@ -410,44 +427,97 @@ namespace Advent2021
             return cubes;
         }
 
-        static void ApplyCube(HashSet<Cube> cubes, Cube cube)
+        static long SurvivingDown(IList<Cube> stack, int index, Cube cube)
         {
-            List<Cube> newCubes = new();
-            List<Cube> removedCubes = new();
-
-            foreach (var c in cubes)
+            while (index >= 0)
             {
-                var intersect = c.Intersect(cube);
+                var nextCube = stack[index];
+                if (nextCube.Contains(cube)) {
+                     return nextCube.State ? 0 : cube.Volume;
+                }
+
+                var intersect = nextCube.Intersect(cube);
+                if (intersect != NULL_CUBE)
+                {
+                    long count = 0;
+                    foreach (var subCube in cube.SliceCube(intersect))
+                    {
+                        count += SurvivingDown(stack, index, subCube);
+                    }
+                    return count;
+                }
+                index--;
             }
 
-            if (removedCubes.Count == 0)
-            {
-                cubes.Add(cube);
-            }
-            else
-            {
-                foreach (var c in removedCubes)
-                    cubes.Remove(c);
+            return cube.Volume;
+        }
 
-                foreach (var c in newCubes)
-                    cubes.Add(c);
+        static long SurvivingUp(IList<Cube> stack, int index, Cube cube)
+        {
+            while (index < stack.Count)
+            {
+                var nextCube = stack[index];
+                if (nextCube.Contains(cube))
+                {
+                    return nextCube.State ? 0 : -cube.Volume;
+                }
+
+                var intersect = nextCube.Intersect(cube);
+                if (intersect != NULL_CUBE)
+                {
+                    long count = 0;
+                    foreach (var subCube in cube.SliceCube(intersect))
+                    {
+                        count += SurvivingUp(stack, index, subCube);
+                    }
+                    return count;
+                }
+                index++;
             }
+
+            return 0;
+        }
+
+        static long ProcessStack(IList<Cube> stack)
+        {
+            long count = 0;
+
+            for (var i = 0; i < stack.Count; i++)
+            {
+                var cube = stack[i];
+                if (cube.State)
+                {
+                    count += SurvivingDown(stack, i - 1, cube);
+                    count += SurvivingUp(stack, i + 1, cube);
+                }
+            }
+
+            return count;
+        }
+
+        [Fact]
+        public void ProcessStackTest_AllSet()
+        {
+            List<Cube> stack = new(new[] {
+                new Cube(true, (-2, -2, 0), (2, 2, 0)),
+                new Cube(true, (-1, -1, -1), (1, 1, 1)),
+                new Cube(true, (0, 0, -1), (0, 0, 1))
+            });
+
+            long count = ProcessStack(stack);
+            count.Should().Be(25 + 18 + 0);
         }
 
         [Theory]
-        [InlineData("Data/Day22_Test.txt", 590784)]
-        [InlineData("Data/Day22.txt", 0)]
-        public void Part1(string filename, long expectedAnswer)
+        [InlineData("Data/Day22_Test.txt", 50, 590784)]
+        [InlineData("Data/Day22_Test2.txt", int.MaxValue, 2758514936282235)]
+        [InlineData("Data/Day22.txt", 50, 587097)]
+        [InlineData("Data/Day22.txt", int.MaxValue, 1359673068597669)]
+        public void Solution(string filename, int limit, long expectedAnswer)
         {
-            var cubes = LoadCubes(filename, 50);
-        }
-
-        [Theory]
-        [InlineData("Data/Day22_Test.txt", 0)]
-        [InlineData("Data/Day22.txt", 0)]
-        public void Part2(string filename, long expectedAnswer)
-        {
-
+            var cubes = LoadCubes(filename, limit);
+            var count = ProcessStack(cubes);
+            count.Should().Be(expectedAnswer);
         }
     }
 }
