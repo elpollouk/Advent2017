@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using System;
+using System.Collections.Generic;
 using Utils;
 using Xunit;
 
@@ -61,42 +62,55 @@ namespace Advent2021
                 LoserScore = scores[currentPlayer ^ 1];
             }
 
-            void BruteExplore(int player, long pathCount, int roll, long[] winCount, int score0, int score1, int position0, int position1)
+            Dictionary<(long, int, int, int, int, int), (long, long)> cache = new();
+
+            (long, long) BruteExplore(int player, long pathCount, int roll, int score0, int score1, int position0, int position1)
             {
                 if (player == 0)
                 {
                     position0 = Move(position0, roll);
                     score0 += Score(position0);
                     if (score0 >= 21)
-                    {
-                        winCount[0] += pathCount;
-                        return;
-                    }
+                        return (pathCount, 0);
                 }
                 else
                 {
                     position1 = Move(position1, roll);
                     score1 += Score(position1);
                     if (score1 >= 21)
-                    {
-                        winCount[1] += pathCount;
-                        return;
-                    }
+                        return (0, pathCount);
                 }
 
-                for (roll = 3; roll <= 9; roll++)
-                    BruteExplore(player ^ 1, pathCount * distribution[roll], roll, winCount, score0, score1, position0, position1);
+                var args = (pathCount, player, score0, score1, position0, position1);
+                if (cache.TryGetValue(args, out var r)) return r;
 
+                long wins0 = 0;
+                long wins1 = 0;
+                for (roll = 3; roll <= 9; roll++)
+                {
+                    (var a, var b) = BruteExplore(player ^ 1, pathCount * distribution[roll], roll, score0, score1, position0, position1);
+                    wins0 += a;
+                    wins1 += b;
+                }
+
+                r = (wins0, wins1);
+                cache[args] = r;
+                return r;
             }
 
             public (long, long) BruteExplore()
             {
-                var winCount = new long[2];
+                long wins0 = 0;
+                long wins1 = 0;
 
                 for (var roll = 3; roll <= 9; roll++)
-                    BruteExplore(0, distribution[roll], roll, winCount, 0, 0, players[0], players[1]);
+                {
+                    (var a, var b) = BruteExplore(0, distribution[roll], roll, 0, 0, players[0], players[1]);
+                    wins0 += a;
+                    wins1 += b;
+                }
 
-                return (winCount[0], winCount[1]);
+                return (wins0, wins1);
             }
         }
 
