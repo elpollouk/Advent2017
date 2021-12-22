@@ -61,53 +61,49 @@ namespace Advent2021
                 LoserScore = scores[currentPlayer ^ 1];
             }
 
-            void BruteExplore0(ref long winCount, long pathCount, int rollCount, int roll, int score0, int score1, int position0, int position1)
+            void BruteExplore0(ref long winCount0, ref long winCount1, long pathCount, int rollCount, int roll, int score0, int score1, int position0, int position1)
             {
                 position0 = Move(position0, roll);
                 score0 += Score(position0);
                 if (score0 >= 21)
                 {
-                    winCount += pathCount;
+                    winCount0 += pathCount;
                     return;
                 }
 
                 rollCount++;
                 for (roll = 3; roll <= 9; roll++)
                 {
-                    BruteExplore1(ref winCount, pathCount * distribution[roll], rollCount, roll, score0, score1, position0, position1);
+                    BruteExplore1(ref winCount0, ref winCount1, pathCount * distribution[roll], rollCount, roll, score0, score1, position0, position1);
                 }
             }
 
-            void BruteExplore1(ref long winCount, long pathCount, int rollCount, int roll, int score0, int score1, int position0, int position1)
+            void BruteExplore1(ref long winCount0, ref long winCount1, long pathCount, int rollCount, int roll, int score0, int score1, int position0, int position1)
             {
                 position1 = Move(position1, roll);
                 score1 += Score(position1);
-                if (score1 >= 21) return; // This path beat the player we're calculating wins for, so abort this search branch
+                if (score1 >= 21)
+                {
+                    winCount1 += pathCount;
+                    return;
+                }
 
                 rollCount++;
                 for (roll = 3; roll <= 9; roll++)
                 {
-                    BruteExplore0(ref winCount, pathCount * distribution[roll], rollCount, roll, score0, score1, position0, position1);
+                    BruteExplore0(ref winCount0, ref winCount1, pathCount * distribution[roll], rollCount, roll, score0, score1, position0, position1);
                 }
             }
 
-            public long BruteExplore(int player)
+            public (long, long) BruteExplore()
             {
-                long winCount = 0;
+                long winCount0 = 0;
+                long winCount1 = 0;
+
                 for (var roll = 3; roll <= 9; roll++)
-                {
-                    if (player == 0)
-                    {
-                        BruteExplore0(ref winCount, distribution[roll], 1, roll, 0, 0, players[0], players[1]);
-                    }
-                    else
-                    {
-                        // Player 0 always goes first, so if we're calculating for player 1, simulate the "other" player's move first
-                        // while also reversing the starting positions.
-                        BruteExplore1(ref winCount, distribution[roll], 1, roll, 0, 0, players[1], players[0]);
-                    }
-                }
-                return winCount;
+                    BruteExplore0(ref winCount0, ref winCount1, distribution[roll], 1, roll, 0, 0, players[0], players[1]);
+
+                return (winCount0, winCount1);
             }
         }
 
@@ -128,12 +124,9 @@ namespace Advent2021
         {
             Game game = new(filename);
 
-            var wins0 = game.BruteExplore(0);
-            var wins1 = game.BruteExplore(1);
+            (var wins0, var wins1) = game.BruteExplore();
 
-            var answer = Math.Max(wins0, wins1);
-
-            answer.Should().Be(expectedAnswer);
+            Math.Max(wins0, wins1).Should().Be(expectedAnswer);
         }
     }
 }
