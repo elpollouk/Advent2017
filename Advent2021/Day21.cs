@@ -62,12 +62,21 @@ namespace Advent2021
                 LoserScore = scores[currentPlayer ^ 1];
             }
 
-            readonly Dictionary<(int, int, int, int, int), (long, long)> cache = new();
+            readonly (long, long)[] cache = new (long, long)[1 << 19];
+
+            static int EncodeArgs(int player, int score0, int score1, int position0, int position1)
+            {
+                return (player << 18)
+                     | (score0 << 13)
+                     | (score1 << 8)
+                     | (position0 << 4)
+                     | (position1 << 0);
+            } 
 
             (long, long) Explore(int player, int score0, int score1, int position0, int position1)
             {
-                var args = (player, score0, score1, position0, position1);
-                if (cache.TryGetValue(args, out var r)) return r;
+                var args = EncodeArgs(player, score0, score1, position0, position1);
+                if (cache[args] != (0,0)) return cache[args];
 
                 long wins0 = 0;
                 long wins1 = 0;
@@ -105,7 +114,7 @@ namespace Advent2021
                     wins1 += b * distributionCount;
                 }
 
-                r = (wins0, wins1);
+                var r = (wins0, wins1);
                 cache[args] = r;
                 return r;
             }
