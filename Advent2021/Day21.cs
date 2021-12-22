@@ -62,9 +62,9 @@ namespace Advent2021
                 LoserScore = scores[currentPlayer ^ 1];
             }
 
-            Dictionary<(long, int, int, int, int, int), (long, long)> cache = new();
+            readonly Dictionary<(long, int, int, int, int, int), (long, long)> cache = new();
 
-            (long, long) BruteExplore(int player, long pathCount, int score0, int score1, int position0, int position1)
+            (long, long) Explore(int player, long pathCount, int score0, int score1, int position0, int position1)
             {
                 var args = (pathCount, player, score0, score1, position0, position1);
                 if (cache.TryGetValue(args, out var r)) return r;
@@ -100,7 +100,7 @@ namespace Advent2021
                         p0 = position0;
                     }
 
-                    (var a, var b) = BruteExplore(player ^ 1, pc, s0, s1, p0, p1);
+                    (var a, var b) = Explore(player ^ 1, pc, s0, s1, p0, p1);
                     wins0 += a;
                     wins1 += b;
                 }
@@ -110,9 +110,9 @@ namespace Advent2021
                 return r;
             }
 
-            public (long, long) BruteExplore()
+            public (long, long) Explore()
             {
-                return BruteExplore(0, 1, 0, 0, players[0], players[1]);
+                return Explore(0, 1, 0, 0, players[0], players[1]);
             }
         }
 
@@ -133,7 +133,7 @@ namespace Advent2021
         {
             Game game = new(filename);
 
-            (var wins0, var wins1) = game.BruteExplore();
+            (var wins0, var wins1) = game.Explore();
 
             Math.Max(wins0, wins1).Should().Be(expectedAnswer);
         }
