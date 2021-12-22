@@ -13,32 +13,19 @@ namespace Advent2021
 
         class Cube
         {
-            public bool State { get; set; }
+            public bool State { get; init; }
+            public (int x, int y, int z) From { get; private init; }
+            public (int x, int y, int z) To { get; private init; }
+            public (int x, int y, int z) Shape { get; private init; }
+            public long Volume => (long)Shape.x * Shape.y * Shape.z;
 
-            public (int x, int y, int z) From { get; private set; }
-            public (int x, int y, int z) To { get; private set; }
-
-            public (int x, int y, int z) Shape { get; private set; }
-
-            public long Volume => (long)Shape.x * (long)Shape.y * (long)Shape.z;
-
-            public override string ToString()
-            {
-                return $"{From}-{To}";
-            }
-
-            public bool IsSameLocation(Cube other) => From == other.From && To == other.To;
+            public override string ToString() =>$"{From}-{To}";
 
             public Cube(bool state, (int x, int y, int z) from, (int x, int y, int z) to)
             {
                 State = state;
                 From = from;
                 To = to;
-                UpdateShape();
-            }
-
-            void UpdateShape()
-            {
                 Shape = (
                     Math.Abs(To.x - From.x) + 1,
                     Math.Abs(To.y - From.y) + 1,
@@ -46,18 +33,11 @@ namespace Advent2021
                 );
             }
 
-            public bool Within((int x, int y, int z) point)
-            {
-                return From.x <= point.x && point.x <= To.x
-                    && From.y <= point.y && point.y <= To.y
-                    && From.z <= point.z && point.z <= To.z;
-            }
-
             public bool Overlaps(Cube other)
             {
-                return (From.x <= other.To.x && To.x >= other.From.x)
-                    && (From.y <= other.To.y && To.y >= other.From.y)
-                    && (From.z <= other.To.z && To.z >= other.From.z);
+                return (From.x <= other.To.x && other.From.x <= To.x)
+                    && (From.y <= other.To.y && other.From.y <= To.y)
+                    && (From.z <= other.To.z && other.From.z <= To.z);
             }
 
             public bool Contains(Cube other)
@@ -92,7 +72,7 @@ namespace Advent2021
                     yield return new Cube(
                         State,
                         From,
-                        (x - 1,To.y, To.z)
+                        (x - 1, To.y, To.z)
                     );
                     yield return new Cube(
                         State,
@@ -147,15 +127,9 @@ namespace Advent2021
             public IEnumerable<Cube> SliceXYZ((int x, int y, int z) v)
             {
                 foreach (var c1 in SliceX(v.x))
-                {
                     foreach (var c2 in c1.SliceY(v.y))
-                    {
                         foreach (var c3 in c2.SliceZ(v.z))
-                        {
                             yield return c3;
-                        }
-                    }
-                }
             }
 
             public IEnumerable<Cube> SliceCube(Cube other)
@@ -164,12 +138,8 @@ namespace Advent2021
                 var slice2 = (other.To.x + 1, other.To.y + 1, other.To.z + 1);
 
                 foreach (var c1 in SliceXYZ(slice1))
-                {
                     foreach (var c2 in c1.SliceXYZ(slice2))
-                    {
                         yield return c2;
-                    }
-                }
             }
         }
 
@@ -386,7 +356,7 @@ namespace Advent2021
         {
             List<Cube> cubes = new();
 
-            void sort(ref int a, ref int b)
+            static void sort(ref int a, ref int b)
             {
                 if (b < a)
                 {
@@ -422,8 +392,8 @@ namespace Advent2021
                     (fromX, fromY, fromZ),
                     (toX, toY, toZ)
                 ));
-
             }
+
             return cubes;
         }
 
