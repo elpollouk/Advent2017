@@ -64,31 +64,43 @@ namespace Advent2021
 
             Dictionary<(long, int, int, int, int, int), (long, long)> cache = new();
 
-            (long, long) BruteExplore(int player, long pathCount, int roll, int score0, int score1, int position0, int position1)
+            (long, long) BruteExplore(int player, long pathCount, int score0, int score1, int position0, int position1)
             {
-                if (player == 0)
-                {
-                    position0 = Move(position0, roll);
-                    score0 += Score(position0);
-                    if (score0 >= 21)
-                        return (pathCount, 0);
-                }
-                else
-                {
-                    position1 = Move(position1, roll);
-                    score1 += Score(position1);
-                    if (score1 >= 21)
-                        return (0, pathCount);
-                }
-
                 var args = (pathCount, player, score0, score1, position0, position1);
                 if (cache.TryGetValue(args, out var r)) return r;
 
                 long wins0 = 0;
                 long wins1 = 0;
-                for (roll = 3; roll <= 9; roll++)
+                for (var roll = 3; roll <= 9; roll++)
                 {
-                    (var a, var b) = BruteExplore(player ^ 1, pathCount * distribution[roll], roll, score0, score1, position0, position1);
+                    var pc = pathCount * distribution[roll];
+                    int s0, s1, p0, p1;
+                    if (player == 0)
+                    {
+                        p0 = Move(position0, roll);
+                        s0 = score0 + Score(p0);
+                        if (s0 >= 21)
+                        {
+                            wins0 += pc;
+                            continue;
+                        }
+                        s1 = score1;
+                        p1 = position1;
+                    }
+                    else
+                    {
+                        p1 = Move(position1, roll);
+                        s1 = score1 + Score(p1);
+                        if (s1 >= 21)
+                        {
+                            wins1 += pc;
+                            continue;
+                        }
+                        s0 = score0;
+                        p0 = position0;
+                    }
+
+                    (var a, var b) = BruteExplore(player ^ 1, pc, s0, s1, p0, p1);
                     wins0 += a;
                     wins1 += b;
                 }
@@ -100,17 +112,7 @@ namespace Advent2021
 
             public (long, long) BruteExplore()
             {
-                long wins0 = 0;
-                long wins1 = 0;
-
-                for (var roll = 3; roll <= 9; roll++)
-                {
-                    (var a, var b) = BruteExplore(0, distribution[roll], roll, 0, 0, players[0], players[1]);
-                    wins0 += a;
-                    wins1 += b;
-                }
-
-                return (wins0, wins1);
+                return BruteExplore(0, 1, 0, 0, players[0], players[1]);
             }
         }
 
