@@ -152,6 +152,8 @@ namespace Advent2021
 
             public void Explore(int costSoFar)
             {
+                if (MinCost < costSoFar) return;
+
                 if (IsSolved())
                 {
                     if (costSoFar < MinCost) MinCost = costSoFar;
