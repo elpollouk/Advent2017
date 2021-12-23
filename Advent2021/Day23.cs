@@ -42,7 +42,7 @@ namespace Advent2021
             _ => throw new InvalidOperationException()
         };
 
-    class Room
+        class Room
         {
             private readonly Stack<int> _stack = new();
 
@@ -135,11 +135,8 @@ namespace Advent2021
             {
                 int step = to < from ? -1 : 1;
                 while (from != to)
-                {
-                    from += step;
-                    if (_burrow[from] != EMPTY)
+                    if (_burrow[from += step] != EMPTY)
                         return false;
-                }
 
                 return true;
             }
@@ -163,10 +160,9 @@ namespace Advent2021
 
                 var state = ToString();
                 if (minStateCosts.TryGetValue(state, out var prevCost))
-                {
                     if (prevCost <= costSoFar)
                         return;
-                }
+
                 minStateCosts[state] = costSoFar;
 
                 if (visited.Contains(state)) return;
