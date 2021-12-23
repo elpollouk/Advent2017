@@ -193,24 +193,26 @@ namespace Advent2021
                             room.UndoExit(result.type);
                         }
                     }
-
-                    // Explore into a room
-                    for (int i = 0; i < PathsToRooms.Length; i++)
+                    else
                     {
-                        var to = PathsToRooms[i];
+                        // Explore into a room
+                        for (int i = 0; i < PathsToRooms.Length; i++)
+                        {
+                            var to = PathsToRooms[i];
 
-                        var room = GetRoom(to);
-                        if (room.Id != type) continue;
-                        if (!room.CanEnter) break;
-                        if (!CanTravelTo(from, to)) break;
+                            var room = GetRoom(to);
+                            if (room.Id != type) continue;
+                            if (!room.CanEnter) break;
+                            if (!CanTravelTo(from, to)) break;
 
-                        var cost = room.Enter(type);
-                        cost += Math.Abs(from - to);
-                        cost *= type;
-                        _burrow[from] = EMPTY;
-                        Explore(costSoFar + cost);
-                        _burrow[from] = type;
-                        room.UndoEnter();
+                            var cost = room.Enter(type);
+                            cost += Math.Abs(from - to);
+                            cost *= type;
+                            _burrow[from] = EMPTY;
+                            Explore(costSoFar + cost);
+                            _burrow[from] = type;
+                            room.UndoEnter();
+                        }
                     }
                 }
 
