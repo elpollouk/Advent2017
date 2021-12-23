@@ -28,7 +28,7 @@ namespace Advent2021
 
             public readonly static int[][] Layout = new int[15][];
             public readonly static int[][] Distances = new int[15][];
-            //readonly static Func<(byte, byte, byte, byte, byte, byte, byte, byte), int>[] StateByIndexGetters = new Func<(byte, byte, byte, byte, byte, byte, byte, byte), int>[8];
+            public readonly static int[] EncodedIndexMapper = new int[] { A, A, B, B, C, C, D, D };
 
             static Burrow()
             {
@@ -64,18 +64,48 @@ namespace Advent2021
                 Distances[0xC] = new int[] {  8,  7,  5,  3,  3,  5,  6,  7,  8,  5,  6,  1,  0,  5,  6 };
                 Distances[0xD] = new int[] {  9,  8,  6,  4,  2,  2,  3,  8,  9,  6,  7,  4,  5,  0,  1 };
                 Distances[0xE] = new int[] { 10,  9,  7,  5,  3,  3,  4,  9, 10,  7,  8,  5,  6,  1,  0 };
-
-                /*StateByIndexGetters[0] = t => t.Item1;
-                StateByIndexGetters[1] = t => t.Item2;
-                StateByIndexGetters[2] = t => t.Item3;
-                StateByIndexGetters[3] = t => t.Item4;
-                StateByIndexGetters[4] = t => t.Item5;
-                StateByIndexGetters[5] = t => t.Item6;
-                StateByIndexGetters[6] = t => t.Item7;
-                StateByIndexGetters[7] = t => t.Item7;*/
             }
 
-            public uint State;
+            public static bool IsHallway(int position) => position <= 6;
+
+            public static (int, int) Goals(int type)
+            {
+                return type switch
+                {
+                    A => (0x7, 0x8),
+                    B => (0x9, 0xA),
+                    C => (0xB, 0xC),
+                    D => (0xD, 0xE),
+                    _ => throw new InvalidOperationException()
+                };
+            }
+
+            public static bool IsValidRoom(int[] state, int type, int position)
+            {
+                switch (type)
+                {
+                    case A:
+                        if (position == 0x8) return true;
+                        if (position == 0x7 && state[0x8] == EMPTY) return true;
+                        return false;
+
+                    case B:
+                        if (position == 0xA) return true;
+                        if (position == 0x9 && state[0xA] == EMPTY) return true;
+                        return false;
+
+                    case C:
+                        if (position == 0xC) return true;
+                        if (position == 0xB && state[0xC] == EMPTY) return true;
+                        return false;
+
+                    case D:
+                        if (position == 0xE) return true;
+                        if (position == 0xD && state[0xE] == EMPTY) return true;
+                        return false;
+                }
+                throw new InvalidOperationException();
+            }
 
             public static int ReadState(uint state, int index)
             {
@@ -106,25 +136,20 @@ namespace Advent2021
                 return s;
             }
 
-            public Burrow(uint state)
+            public int[] State;
+
+            public Burrow(int[] state)
             {
                 State = state;
-            }
-
-            static (byte, byte, byte, byte, byte, byte, byte, byte) EncodeState(int[] state)
-            {
-                byte a1 = 255, a2 = 255, b1 = 255, b2 = 255, c1 = 255, c2 = 255, d1 = 255, d2 = 255;
-
-                //for (int i = 0; i < )
-
-                return (a1, a2, b1, b2, c1, c2, d1, d2);
             }
 
             public IEnumerable<int> GetLinked(int node)
             {
                 for (int i = 0; i < Layout[node].Length; i++)
                 {
-                    yield return Layout[node][i];
+                    var linked = Layout[node][i];
+                    if (State[linked] != EMPTY) continue;
+                    yield return linked;
                 }
             }
 
@@ -133,12 +158,107 @@ namespace Advent2021
                 return Distances[from][to];
             }
 
-            public int GetMoveCost(int from, int to) => 1;
+            public int GetMoveCost(int from, int to) => Distances[from][to];
 
-            public int GetScore(int from, int to)
+            public int GetScore(int from, int to) => Distance(from, to);
+
+            public bool NodesEqual(int a, int b) => a == b;
+
+            public static bool HasPath(uint state, int from, int to)
             {
-                return Distance(from, to);
+                return HasPath(DecodeState(state), from, to);
             }
+
+            public static bool HasPath(int[] state, int from, int to)
+            {
+                Burrow burrow = new(state);
+                var path = Astar.FindPath(burrow, from, to);
+                return path != null;
+            }
+        }
+
+        class Solver : Astar.IGraphAdapter<uint>
+        {
+            public const uint GOAL_STATE = 0xDEBC9A78;
+
+            private static (int from, int to, int cost) StateDelta(uint stateFrom, uint stateTo)
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    var from = stateFrom & 0xF;
+                    var to = stateTo & 0xF;
+                    if (from != to) return ((int)from, (int)to, Burrow.EncodedIndexMapper[i]);
+
+                    stateFrom >>= 4;
+                    stateTo >>= 4;
+                }
+                throw new InvalidOperationException();
+            }
+
+            private static int ScoreToGoal(int type, int pos1, int pos2)
+            {
+                (var goal1, var goal2) = Burrow.Goals(type);
+                var score1 = Burrow.Distances[pos1][goal1] + Burrow.Distances[pos2][goal2];
+                var score2 = Burrow.Distances[pos2][goal1] + Burrow.Distances[pos1][goal2];
+
+                return score1 < score2 ? score1 : score2;
+            }
+
+            public IEnumerable<uint> GetLinked(uint node)
+            {
+                var state = Burrow.DecodeState(node);
+                var originalState = node;
+                for (var i = 0; i < 8; i++)
+                {
+                    int pos = (int)(node & 0xF);
+                    node >>= 4;
+                    var links = Burrow.Layout[pos];
+                    for (var j = 0; j < links.Length; j++)
+                    {
+                        if (Burrow.IsHallway(pos))
+                        {
+                            if (!Burrow.IsValidRoom(state, Burrow.EncodedIndexMapper[i], links[j]))
+                            {
+                                continue;
+                            }
+                        }
+                        else if (!Burrow.IsHallway(links[j]))
+                        {
+                            continue;
+                        }
+
+                        if (!Burrow.HasPath(state, pos, links[j])) continue;
+
+                        var newState = Burrow.WriteState(originalState, i, links[j]);
+                        yield return newState;
+                    }
+                }
+                throw new InvalidOperationException();
+            }
+
+            public int GetMoveCost(uint from, uint to)
+            {
+                (var f, var t, var cost) = StateDelta(from, to);
+                return Burrow.Distances[f][t] * cost;
+            }
+
+            public int GetScore(uint from, uint to)
+            {
+                int score = 0;
+
+                for (var i = 0; i < 4; i++)
+                {
+                    var a = (int)(from & 0xF);
+                    from >>= 4;
+                    var b = (int)(from & 0xF);
+                    from >>= 4;
+                    score += ScoreToGoal(Burrow.EncodedIndexMapper[i * 2], a, b);
+                }
+
+                return score;
+            }
+
+            public bool NodesEqual(uint a, uint b) => GetScore(a, b) == 0;
         }
 
         [Fact]
@@ -161,7 +281,7 @@ namespace Advent2021
         [InlineData(0x12345678, 4, 4)]
         [InlineData(0x12345678, 5, 3)]
         [InlineData(0x12345678, 6, 2)]
-        [InlineData(0x12345678, 7, 1)]
+        [InlineData(0xE2345678, 7, 0xE)]
         public void ReadStateTest(uint state, int index, int expectedValue)
         {
             Burrow.ReadState(state, index).Should().Be(expectedValue);
@@ -172,8 +292,8 @@ namespace Advent2021
         [InlineData(0x12345608, 1, 7, 0x12345678)]
         [InlineData(0x12345078, 2, 6, 0x12345678)]
         [InlineData(0x12340678, 3, 5, 0x12345678)]
-        [InlineData(0x12305678, 4, 4, 0x12345678)]
-        [InlineData(0x12045678, 5, 3, 0x12345678)]
+        [InlineData(0x12335678, 4, 4, 0x12345678)]
+        [InlineData(0x12545678, 5, 3, 0x12345678)]
         [InlineData(0x10345678, 6, 2, 0x12345678)]
         [InlineData(0x02345678, 7, 14, 0xE2345678)]
         public void WriteStateTest(uint state, int index, int value, uint expectedState)
@@ -181,6 +301,44 @@ namespace Advent2021
             Burrow.WriteState(state, index, value).Should().Be(expectedState);
         }
 
+        [Theory]
+        [InlineData(0x00000000, 0x8, 0xE, true)]
+        [InlineData(0x00000000, 0x8, 0x6, true)]
+        [InlineData(0x00000000, 0x8, 0x0, false)]
+        [InlineData(0x00000000, 0xA, 0xC, true)]
+        [InlineData(0x30000000, 0xA, 0xC, false)]
+        [InlineData(0x03000000, 0xA, 0xC, false)]
+        [InlineData(0x00300000, 0xA, 0xC, false)]
+        [InlineData(0x00030000, 0xA, 0xC, false)]
+        [InlineData(0x00003000, 0xA, 0xC, false)]
+        [InlineData(0x00000300, 0xA, 0xC, false)]
+        [InlineData(0x00000030, 0xA, 0xC, false)]
+        [InlineData(0x00000003, 0xA, 0xC, false)]
+        [InlineData(0x42EC217A, 0xA, 0xB, true)]
+        public void HasPathTest(uint state, int from, int to, bool expectedResult)
+        {
+            Burrow.HasPath(state, from, to).Should().Be(expectedResult);
+        }
+
+        [Theory]
+        [InlineData(0x56431280, 21)]
+        [InlineData(0x87EDBCA9, 48)]
+        [InlineData(0xDEBC9A78, 0)]
+        [InlineData(0xEDCBA987, 0)]
+        public void SolverGetScoreTest(uint state, int expectedScore)
+        {
+            var solver = new Solver();
+            solver.GetScore(state, Solver.GOAL_STATE).Should().Be(expectedScore);
+        }
+
+        [Theory]
+        [InlineData(0xDA9C7B8E, 12521)]
+        public void Part1(uint state, int expectedAnswer)
+        {
+            Solver solver = new();
+            var path = Astar.FindPath(solver, state, 0u);
+            path.Count.Should().Be(expectedAnswer);
+        }
 
         /*[Theory]
         [InlineData("Data/Day23_Test.txt", 0)]

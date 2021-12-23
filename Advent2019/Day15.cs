@@ -26,6 +26,8 @@ namespace Advent2019
             public int GetMoveCost((int x, int y) from, (int x, int y) to) => 1;
 
             public int GetScore((int x, int y) from, (int x, int y) to) => Math.Abs(to.x - from.x) + Math.Abs(to.y - from.y);
+
+            public bool NodesEqual((int x, int y) a, (int x, int y) b) => a == b;
         }
 
         static Map LoadMap(out (int x, int y) start, out (int x, int y) exit)
