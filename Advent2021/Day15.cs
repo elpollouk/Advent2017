@@ -25,8 +25,6 @@ namespace Advent2021
             public int GetMoveCost((int x, int y) from, (int x, int y) to) => Area[to.x, to.y];
 
             public int GetScore((int x, int y) from, (int x, int y) to) => (to.x - from.x) + (to.y - from.y);
-
-            public bool NodesEqual((int x, int y) a, (int x, int y) b) => a == b;
         }
 
         static Grid LoadGrid(string filename)

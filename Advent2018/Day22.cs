@@ -128,8 +128,6 @@ namespace Advent2018
             {
                 return Math.Abs(from.x - to.x) + Math.Abs(from.y - to.y);
             }
-
-            public bool NodesEqual((int x, int y, Item item) a, (int x, int y, Item item) b) => a == b;
         }
 
         Item GetInitialItem(AreaType type)

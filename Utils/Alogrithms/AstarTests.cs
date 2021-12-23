@@ -39,8 +39,6 @@ namespace Utils.Alogrithms
                 var index = (y * _width) + x;
                 return _cells[index];
             }
-
-            public override bool NodesEqual(Position a, Position b) => a.x == b.x && a.y == b.y;
         }
 
         TestGraphAdapter BuildGraph(int width, int height)

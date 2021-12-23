@@ -15,11 +15,11 @@ namespace Utils.Alogrithms
             // Get rough estimated score for navigating from one node to another
             // Lower is better, Manhatten distance is a suitable score for simple grids
             int GetScore(Node from, Node to);
-            bool NodesEqual(Node a, Node b);
         }
 
         public static IList<Node> FindPath<Node>(IGraphAdapter<Node> graph, Node start, Node goal)
         {
+            var comparer = EqualityComparer<Node>.Default;
             var searchSpace = new PriorityQueue<Node>();
             var pathMap = new Dictionary<Node, Node>();
             var costSoFar = new Dictionary<Node, int>();
@@ -30,7 +30,7 @@ namespace Utils.Alogrithms
             while (searchSpace.Count != 0)
             {
                 var current = searchSpace.Dequeue();
-                if (graph.NodesEqual(current, goal)) break;
+                if (comparer.Equals(current, goal)) break;
 
                 var linked = graph.GetLinked(current);
                 foreach (var linkedNode in linked)
