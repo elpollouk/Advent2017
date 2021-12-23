@@ -241,8 +241,10 @@ namespace Advent2021
   
 
         [Theory]
-        [InlineData("AB", "DC", "CB", "AD", 12521)]
-        [InlineData("CA", "CD", "DA", "BB", 13495)]
+        [InlineData("AB", "DC", "CB", "AD", 12521)] // Example 1
+        [InlineData("CA", "CD", "DA", "BB", 13495)] // Part 1
+        [InlineData("ADDB", "DBCC", "CABB", "ACAD", 44169)] // Example 2
+        [InlineData("CDDA", "CBCD", "DABA", "BCAB", 53767)] // Part 2
         public void Part1(string room1, string room2, string room3, string room4, int expectedAnswer)
         {
             Burrow burrow = new(room1, room2, room3, room4);
