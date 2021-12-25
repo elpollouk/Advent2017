@@ -93,6 +93,8 @@ namespace Utils
             return grid;
         }
 
+        public static char[,] LoadGrid(string filename) => LoadGrid(filename, (c, x, y) => c);
+
         public static Func<string> CreateLineReader(string filename)
         {
             var lines = Lines(filename).ToArray();
