@@ -1,32 +1,19 @@
 ﻿using FluentAssertions;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Utils;
+using Utils.Alogrithms;
 using Xunit;
 
 namespace Advent2019
 {
     public class Day14
     {
+        record Reaction(string Name, long OutputCount, (string, long)[] Inputs);
 
-        class Node
+        static Dictionary<string, Reaction> LoadReactions(string filename)
         {
-            public readonly string Name;
-            public readonly long OutputCount;
-            public readonly (string name, long count)[] Inputs;
-
-            public Node(string name, long outputCount, (string, long)[] inputs)
-            {
-                Name = name;
-                OutputCount = outputCount;
-                Inputs = inputs;
-            }
-        }
-
-        static Dictionary<string, Node> LoadReactions(string filename)
-        {
-            Dictionary<string, Node> reactions = new();
+            Dictionary<string, Reaction> reactions = new();
 
             foreach (var line in FileIterator.Lines(filename))
             {
@@ -45,7 +32,7 @@ namespace Advent2019
             return reactions;
         }
 
-        static long OreRequired(Dictionary<string, Node> reactions, Dictionary<string, long> overflow, string chemical, long required)
+        static long OreRequired(Dictionary<string, Reaction> reactions, Dictionary<string, long> overflow, string chemical, long required)
         {
             var node = reactions[chemical];
             if (required % node.OutputCount == 0) required /= node.OutputCount;
@@ -57,18 +44,16 @@ namespace Advent2019
                 var totalRequired = count * required;
                 if (name == "ORE")
                 {
-                    overflow.Sum(node.Name, node.OutputCount * required);
-                    return totalRequired;
-                }
-
-                var numAvailable = overflow.GetOrDefault(name, 0);
-                if (totalRequired <= numAvailable)
-                {
-                    overflow[name] = numAvailable - totalRequired;
+                    oreCount += totalRequired;
                     continue;
                 }
 
-                oreCount += OreRequired(reactions, overflow, name, totalRequired - numAvailable);
+                var numAvailable = overflow.GetOrDefault(name, 0);
+                if (totalRequired > numAvailable)
+                {
+                    oreCount += OreRequired(reactions, overflow, name, totalRequired - numAvailable);
+                }
+
                 overflow.Sum(name, -totalRequired);
             }
 
@@ -76,17 +61,10 @@ namespace Advent2019
             return oreCount;
         }
 
-        static long OreRequired(Dictionary<string, Node> reactions, long fuel)
+        static long OreRequired(Dictionary<string, Reaction> reactions, long fuel)
         {
             Dictionary<string, long> overflow = new();
             return OreRequired(reactions, overflow, "FUEL", fuel);
-        }
-
-        static int CheckNumber(Dictionary<string, Node> reactions, long fuelCount)
-        {
-            if (OreRequired(reactions, fuelCount) > 1000000000000) return 1;
-            if (OreRequired(reactions, fuelCount + 1) < 1000000000000) return -1;
-            return 0;
         }
 
         [Theory]
@@ -111,25 +89,14 @@ namespace Advent2019
         {
             var reactions = LoadReactions(filename);
 
-            long guessMin = 0;
-            long guessMax = 100000000;
-            long guess = guessMax / 2;
-
-            while (true)
+            int CheckNumber(long fuelCount)
             {
-                var result = CheckNumber(reactions, guess);
-                if (result == 0) break;
-                if (result > 0)
-                {
-                    guessMax = guess;
-                }
-                else
-                {
-                    guessMin = guess;
-                }
-                guess = (guessMin + guessMax) / 2;
+                if (OreRequired(reactions, fuelCount) > 1000000000000) return -1;
+                if (OreRequired(reactions, fuelCount + 1) < 1000000000000) return 1;
+                return 0;
             }
-            guess.Should().Be(expectedAnswer);
+
+            BinarySearch.Search(0, 100000000, CheckNumber).Should().Be(expectedAnswer);
         }
     }
 }
