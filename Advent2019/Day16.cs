@@ -1,6 +1,5 @@
 ﻿using FluentAssertions;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Utils;
 using Xunit;
@@ -9,32 +8,12 @@ namespace Advent2019
 {
     public class Day16
     {
-        static readonly int[] BASE_SEQUENCE = new int[] { 0, 1, 0, -1 };
-
-        static Func<long> CreateSequence(long iteration)
+        static int[] IntsFromString(string input, int repeats)
         {
-            iteration++;
-            int baseIndex = 0;
-            int iterationCount = 0;
+            var values = new int[input.Length * repeats];
 
-            return () =>
-            {
-                var result = BASE_SEQUENCE[baseIndex % BASE_SEQUENCE.Length];
-                if (++iterationCount == iteration)
-                {
-                    iterationCount = 0;
-                    baseIndex++;
-                }
-                return result;
-            };
-        }
-
-        static int[] IntsFromString(string input)
-        {
-            var values = new int[input.Length];
-
-            for (var i = 0; i < input.Length; i++)
-                values[i] = input[i] - '0';
+            for (var i = 0; i < values.Length; i++)
+                values[i] = input[i % input.Length] - '0';
 
             return values;
         }
@@ -51,21 +30,40 @@ namespace Advent2019
 
         static int CalculateDigit(int[] input, long digit)
         {
-            var sequence = CreateSequence(digit);
-            sequence();
-
             var total = 0L;
-            foreach (var v in input)
+
+            var sequenceLength = digit + 1;
+            var step = 4 * sequenceLength;
+
+            for (var i = digit; i < input.Length; i += step)
             {
-                total += v * sequence();
+                var limit = Math.Min(i + sequenceLength, input.Length);
+                for (var j = i; j < limit; j++)
+                {
+                    total += input[j];
+                }
+            }
+
+            for (var i = digit + (sequenceLength * 2); i < input.Length; i += step)
+            {
+                var limit = Math.Min(i + sequenceLength, input.Length);
+                for (var j = i; j < limit; j++)
+                {
+                    total -= input[j];
+                }
             }
 
             return (int)(Math.Abs(total) % 10);
         }
 
-        static string ProcessInput(string input, int numPhases)
+        static string ProcessPart1(string input, int numPhases)
         {
-            var numbers = IntsFromString(input);
+            return StringFromInts(ProcessInput(input, numPhases));
+        }
+
+        static int[] ProcessInput(string input, int numPhases)
+        {
+            var numbers = IntsFromString(input, 1);
 
             for (var p = 0; p < numPhases; p++)
             {
@@ -77,7 +75,17 @@ namespace Advent2019
                 numbers = output;
             }
 
-            return StringFromInts(numbers);
+            return numbers;
+        }
+
+        static void SumDownTo(int[] numbers, int index)
+        {
+            var runnintTotal = numbers[^1];
+            for (var i = numbers.Length - 2; i >= index; i--)
+            {
+                runnintTotal += numbers[i];
+                numbers[i] = runnintTotal % 10;
+            }
         }
 
         [Theory]
@@ -87,7 +95,7 @@ namespace Advent2019
         [InlineData("69317163492948606335995924319873", 100, "52432133")]
         public void Examples(string input, int numPhases, string expectedResult)
         {
-            ProcessInput(input, numPhases).Should().Be(expectedResult);
+            ProcessPart1(input, numPhases).Should().Be(expectedResult);
         }
 
         [Theory]
@@ -95,15 +103,41 @@ namespace Advent2019
         public void Part1(string filename, string expectedAnswer)
         {
             var input = FileIterator.Lines(filename).First();
-            ProcessInput(input, 100).Should().Be(expectedAnswer);
+            ProcessPart1(input, 100).Should().Be(expectedAnswer);
+        }
+
+        [Fact]
+        public void SumDownToTest()
+        {
+            const int numPhases = 100;
+            var input = FileIterator.Lines("Data/Day16.txt").First();
+            var expectedNumbers = ProcessInput(input, numPhases);
+
+            var actualNumbers = IntsFromString(input, 1);
+
+            for (var i = 0; i < numPhases; i++)
+                SumDownTo(actualNumbers, actualNumbers.Length / 2);
+
+            for (var i = actualNumbers.Length / 2; i < actualNumbers.Length; i++)
+                actualNumbers[i].Should().Be(expectedNumbers[i]);
         }
 
         [Theory]
-        [InlineData("Data/Day16_Test.txt", 0)]
-        [InlineData("Data/Day16.txt", 0)]
-        public void Part2(string filename, long expectedAnswer)
+        [InlineData("Data/Day16.txt", "57762756")]
+        public void Part2(string filename, string expectedAnswer)
         {
+            var input = FileIterator.Lines(filename).First();
+            var numbers = IntsFromString(input, 10000);
+            var offset = int.Parse(input.Substring(0, 7));
 
+            for (var i = 0; i < 100; i++)
+                SumDownTo(numbers, offset);
+
+            var answer = "";
+            for (var i = offset; i < offset + 8; i++)
+                answer += $"{numbers[i]}";
+
+            answer.Should().Be(expectedAnswer);
         }
     }
 }
