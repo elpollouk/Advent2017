@@ -80,11 +80,11 @@ namespace Advent2019
 
         static void SumDownTo(int[] numbers, int index)
         {
-            var runnintTotal = numbers[^1];
+            var runningTotal = numbers[^1];
             for (var i = numbers.Length - 2; i >= index; i--)
             {
-                runnintTotal += numbers[i];
-                numbers[i] = runnintTotal % 10;
+                runningTotal += numbers[i];
+                numbers[i] = runningTotal % 10;
             }
         }
 
