@@ -48,7 +48,7 @@ namespace Advent2018
             return (match.Groups[1].Value[0], match.Groups[2].Value[0]);
         }
 
-        PriorityQueue<WorkItem, char> BuildGraph(string inputFile)
+        Utils.DataStructures.PriorityQueue<WorkItem, char> BuildGraph(string inputFile)
         {
             var dependencies = FileIterator.Lines(inputFile).Select(l => ParseOrder(l));
 
@@ -64,7 +64,7 @@ namespace Advent2018
                 graph[Child].Parents.Add(graph[Parent]);
             }
 
-            var queue = new PriorityQueue<WorkItem, char>();
+            var queue = new Utils.DataStructures.PriorityQueue<WorkItem, char>();
             foreach (var item in graph.Values)
                 if (item.Parents.Count == 0)
                     queue.Enqueue(item, item.Value);
