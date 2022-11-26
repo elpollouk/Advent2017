@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29519.87
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33110.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dedicated Solutions", "Dedicated Solutions", "{7806CA03-81F8-4C46-8FA8-2CBD758EB798}"
 EndProject
@@ -19,7 +19,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utils", "Utils\Utils.csproj
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "2019_Day15", "DedicatedSolutions\2019_Day15\2019_Day15.csproj", "{80D53607-5E7A-4FA3-8B62-505EFE11F76C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "2019_Day25", "DedicatedSolutions\2019_Day25\2019_Day25.csproj", "{42F5D2F1-FDBB-4984-8AA5-8C87CBFED023}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "2019_Day25", "DedicatedSolutions\2019_Day25\2019_Day25.csproj", "{42F5D2F1-FDBB-4984-8AA5-8C87CBFED023}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Advent2016", "Advent2016\Advent2016.csproj", "{CD47B9CE-051D-4891-BEE1-D971816EB382}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -59,6 +61,10 @@ Global
 		{42F5D2F1-FDBB-4984-8AA5-8C87CBFED023}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{42F5D2F1-FDBB-4984-8AA5-8C87CBFED023}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{42F5D2F1-FDBB-4984-8AA5-8C87CBFED023}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CD47B9CE-051D-4891-BEE1-D971816EB382}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD47B9CE-051D-4891-BEE1-D971816EB382}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD47B9CE-051D-4891-BEE1-D971816EB382}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD47B9CE-051D-4891-BEE1-D971816EB382}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
