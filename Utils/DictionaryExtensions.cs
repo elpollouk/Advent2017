@@ -27,7 +27,19 @@ namespace Utils
             return Sum(dic, key, 1);
         }
 
+        public static long Increment<K>(this IDictionary<K, int> dic, K key)
+        {
+            return Sum(dic, key, 1);
+        }
+
         public static long Sum<K>(this IDictionary<K, long> dic, K key, long value)
+        {
+            var count = dic.GetOrDefault(key) + value;
+            dic[key] = count;
+            return count;
+        }
+
+        public static long Sum<K>(this IDictionary<K, int> dic, K key, int value)
         {
             var count = dic.GetOrDefault(key) + value;
             dic[key] = count;

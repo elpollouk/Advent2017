@@ -94,6 +94,13 @@ namespace Utils
             return (min, max);
         }
 
+        public static void Swap<T>(this T[] a, int i1, int i2)
+        {
+            var t = a[i1];
+            a[i1] = a[i2];
+            a[i2] = t;
+        }
+
         public static IEnumerable<T> GetNeighbours<T>(this T[,] grid, int x, int y)
         {
             foreach (var pos in grid.GetNeighbourPos(x, y))
