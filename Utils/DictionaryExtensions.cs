@@ -46,6 +46,40 @@ namespace Utils
             return count;
         }
 
+        public static K Min<K>(this IDictionary<K, int> dic)
+        {
+            K minKey = default;
+            int minValue = int.MaxValue;
+
+            foreach (var kv in dic)
+            {
+                if (kv.Value < minValue)
+                {
+                    minKey = kv.Key;
+                    minValue = kv.Value;
+                }
+            }
+
+            return minKey;
+        }
+
+        public static K Max<K>(this IDictionary<K, int> dic)
+        {
+            K maxKey = default;
+            int maxValue = int.MinValue;
+
+            foreach (var kv in dic)
+            {
+                if (kv.Value > maxValue)
+                {
+                    maxKey = kv.Key;
+                    maxValue = kv.Value;
+                }
+            }
+
+            return maxKey;
+        }
+
         public static void Index<K, V>(this IDictionary<K, V> dic, IEnumerable<V> collection, Func<V, K> getKey)
         {
             foreach (var item in collection)
