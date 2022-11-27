@@ -1,7 +1,5 @@
 ﻿using FluentAssertions;
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Utils;
 using Xunit;
@@ -94,6 +92,7 @@ namespace Advent2016
         public void Part1(string filename, long expectedAnswer)
         {
             long sum = 0;
+
             foreach (var line in FileIterator.Lines(filename))
             {
                 Room room = new(line);
@@ -109,7 +108,7 @@ namespace Advent2016
         [Fact]
         public void Part2Example()
         {
-            Room room = new("qzmt-zixmtkozy-ivhz-343[abcdef]");
+            Room room = new("qzmt-zixmtkozy-ivhz-343[abcde]");
             room.Decrypt().Should().Be("very encrypted name");
         }
 
@@ -118,6 +117,7 @@ namespace Advent2016
         public void Part2(string filename, long expectedAnswer)
         {
             long secordId = -1;
+
             foreach (var line in FileIterator.Lines(filename))
             {
                 Room room = new(line);
