@@ -1,20 +1,21 @@
 ﻿using System;
-using System.Drawing;
-using System.Drawing.Imaging;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Png;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace Utils
 {
     public class Renderer
     {
-        public static void RenderGrid<T>(string outputFile, T[,] grid, Func<T, Color> itemToPixelColour)
-        {
-#pragma warning disable CA1416 // Validate platform compatibility
-            var bitmap = new Bitmap(grid.GetLength(0), grid.GetLength(1), PixelFormat.Format24bppRgb);
-            foreach (var (x, y) in grid.Rectangle())
-                bitmap.SetPixel(x, y, itemToPixelColour(grid[x, y]));
+        public static Bgr24 Colour(byte r, byte g, byte b) => new Bgr24(r, g, b);
 
-            bitmap.Save(outputFile, ImageFormat.Png);
-#pragma warning restore CA1416 // Validate platform compatibility
+        public static void RenderGrid<T>(string outputFile, T[,] grid, Func<T, Bgr24> itemToPixelColour)
+        {
+            var bitmap = new Image<Bgr24>(grid.GetLength(0), grid.GetLength(1));
+            foreach (var (x, y) in grid.Rectangle())
+                bitmap[x, y] = itemToPixelColour(grid[x, y]);
+
+            bitmap.Save(outputFile, new PngEncoder());
         }
     }
 }

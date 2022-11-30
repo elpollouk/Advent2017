@@ -1,7 +1,6 @@
 ﻿using FluentAssertions;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using Utils;
 using Xunit;
 
@@ -110,18 +109,22 @@ namespace Advent2018
 
         void Render(CellState[,] environment)
         {
+            var black = Renderer.Colour(0, 0, 0);
+            var blue = Renderer.Colour(0, 0, 255);
+            var brown = Renderer.Colour(165, 42, 42);
+
             Renderer.RenderGrid(@"c:\temp\test.png", environment, cell =>
             {
                 switch (cell)
                 {
                     case CellState.Empty:
-                        return Color.Black;
+                        return black;
 
                     case CellState.Water:
-                        return Color.Blue;
+                        return blue;
 
                     default:
-                        return Color.Brown;
+                        return brown;
                 }
             });
         }
@@ -131,7 +134,7 @@ namespace Advent2018
         [InlineData(10, 3, "Data/Day17-Test2.txt")]
         [InlineData(20, 11, "Data/Day17-Test3.txt")]
         [InlineData(38364, 30551, "Data/Day17.txt")] // Solution
-        void Problem1(int expectedCount, int expectedStable, string inputfile)
+        public void Problem1(int expectedCount, int expectedStable, string inputfile)
         {
             var (environment, offsetX, minY) = LoadEnvironment(inputfile);
             var waterX = 500 - offsetX;
