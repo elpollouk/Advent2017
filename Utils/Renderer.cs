@@ -7,7 +7,7 @@ namespace Utils
 {
     public class Renderer
     {
-        public static Bgr24 Colour(byte r, byte g, byte b) => new Bgr24(r, g, b);
+        public static Bgr24 Colour(byte r, byte g, byte b) => new(r, g, b);
 
         public static void RenderGrid<T>(string outputFile, T[,] grid, Func<T, Bgr24> itemToPixelColour)
         {
