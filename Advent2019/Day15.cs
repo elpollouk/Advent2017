@@ -20,7 +20,7 @@ namespace Advent2019
                 Grid = map;
             }
 
-            public IEnumerable<(int x, int y)> GetLinked((int x, int y) node) => Grid.GetAdjecentPos(node.x, node.y)
+            public IEnumerable<(int x, int y)> GetLinked((int x, int y) node) => Grid.GetAdjacentPos(node.x, node.y)
                 .Where(pos => Grid[pos.x, pos.y] == ' ');
 
             public int GetMoveCost((int x, int y) from, (int x, int y) to) => 1;

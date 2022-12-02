@@ -20,7 +20,7 @@ namespace Advent2021
                 Area = area;
             }
 
-            public IEnumerable<(int x, int y)> GetLinked((int x, int y) node) => Area.GetAdjecentPos(node.x, node.y);
+            public IEnumerable<(int x, int y)> GetLinked((int x, int y) node) => Area.GetAdjacentPos(node.x, node.y);
 
             public int GetMoveCost((int x, int y) from, (int x, int y) to) => Area[to.x, to.y];
 

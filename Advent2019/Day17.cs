@@ -38,7 +38,7 @@ namespace Advent2019
             {
                 if (grid[x, y] != '#') continue;
 
-                var count = grid.GetAdjecent(x, y)
+                var count = grid.GetAdjacent(x, y)
                     .Where(c => c == '#')
                     .Count();
 

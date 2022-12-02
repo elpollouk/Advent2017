@@ -143,13 +143,13 @@ namespace Utils
             }
         }
 
-        public static IEnumerable<T> GetAdjecent<T>(this T[,] grid, int x, int y)
+        public static IEnumerable<T> GetAdjacent<T>(this T[,] grid, int x, int y)
         {
-            foreach (var pos in grid.GetAdjecentPos(x, y))
+            foreach (var pos in grid.GetAdjacentPos(x, y))
                 yield return grid[pos.x, pos.y];
         }
 
-        public static IEnumerable<(int x, int y)> GetAdjecentPos<T>(this T[,] grid, int x, int y)
+        public static IEnumerable<(int x, int y)> GetAdjacentPos<T>(this T[,] grid, int x, int y)
         {
             if (y > 0)
                 yield return (x, y - 1);
