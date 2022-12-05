@@ -9,7 +9,7 @@ namespace Advent2022
     {
         ((int, int), (int, int)) ParseRanges(string text)
         {
-            var groups = text.Groups("(\\d+)-(\\d+),(\\d+)-(\\d+)");
+            var groups = text.Groups(@"(\d+)-(\d+),(\d+)-(\d+)");
             return (
                 (int.Parse(groups[0]), int.Parse(groups[1])),
                 (int.Parse(groups[2]), int.Parse(groups[3]))

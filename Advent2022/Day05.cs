@@ -67,7 +67,7 @@ namespace Advent2022
 
         void Operate1(List<Stack<char>> stacks, string line)
         {
-            var groups = line.Groups("move (\\d+) from (\\d+) to (\\d+)");
+            var groups = line.Groups(@"move (\d+) from (\d+) to (\d+)");
             var count = int.Parse(groups[0]);
             var fromIndex = int.Parse(groups[1]) - 1;
             var toIndex = int.Parse(groups[2]) - 1;
@@ -82,7 +82,7 @@ namespace Advent2022
 
         void Operate2(List<Stack<char>> stacks, string line)
         {
-            var groups = line.Groups("move (\\d+) from (\\d+) to (\\d+)");
+            var groups = line.Groups(@"move (\d+) from (\d+) to (\d+)");
             var count = int.Parse(groups[0]);
             var fromIndex = int.Parse(groups[1]) - 1;
             var toIndex = int.Parse(groups[2]) - 1;
