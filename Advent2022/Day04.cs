@@ -1,6 +1,4 @@
 ﻿using FluentAssertions;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using Utils;
 using Xunit;
@@ -29,7 +27,6 @@ namespace Advent2022
         {
             if (a.l <= b.l && b.l <= a.u) return true;
             if (b.l <= a.l && a.l <= b.u) return true;
-            if (IsFullyContained(a, b)) return true;
             return false;
         }
 
