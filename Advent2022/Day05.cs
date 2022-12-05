@@ -1,8 +1,6 @@
 ﻿using FluentAssertions;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using Utils;
 using Xunit;
 
@@ -38,8 +36,7 @@ namespace Advent2022
                 
                 var stackIndex = (i - 1) / 4;
                 EnsureStack(stacks, stackIndex);
-                var stack = stacks[stackIndex];
-                stack.Insert(0, c);
+                stacks[stackIndex].Insert(0, c);
             }
         }
 
@@ -89,10 +86,9 @@ namespace Advent2022
 
             EnsureStack(stacks, toIndex);
             var buffer = new Stack<char>();
-            while (count-- > 0)
+            while (count --> 0)
             {
-                var c = stacks[fromIndex].Pop();
-                buffer.Push(c);
+                buffer.Push(stacks[fromIndex].Pop());
             }
 
             while (buffer.Count != 0)
