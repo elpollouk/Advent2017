@@ -29,6 +29,12 @@ namespace Utils
 
         public static void SetAtMod<T>(this IList<T> a, int index, T value) => a[index % a.Count] = value;
 
+        public static void SetAll<T>(this T[] a, T value)
+        {
+            for (int i = 0; i < a.Length; i++)
+                a[i] = value;
+        }
+
         // I know IList isn't an array. Fuck you.
         public static T Shift<T>(this IList<T> list)
         {
