@@ -98,6 +98,8 @@ namespace Advent2022
             var reader = FileIterator.CreateLineReader(filename);
             while (Parse(monkies, reader)) { }
 
+            Monkey.Modulator = 0;
+
             int rounds = 20;
             while (rounds --> 0)
             {
@@ -107,11 +109,11 @@ namespace Advent2022
                 }
             }
 
-            long total = 1;
-            foreach (var v in monkies.Select(m => m.Inspections).OrderDescending().Take(2))
-                total *= v;
-
-            total.Should().Be(expectedAnswer);
+            monkies.Select(m => m.Inspections)
+                .OrderDescending()
+                .Take(2)
+                .Product()
+                .Should().Be(expectedAnswer);
         }
 
         [Theory]
@@ -123,11 +125,7 @@ namespace Advent2022
             var reader = FileIterator.CreateLineReader(filename);
             while (Parse(monkies, reader)) { }
 
-            Monkey.Modulator = 1;
-            foreach (var monkey in monkies)
-            {
-                Monkey.Modulator *= monkey.DivisibleCheck;
-            }
+            Monkey.Modulator = monkies.Select(m => m.DivisibleCheck).Product();
 
             int rounds = 10000;
             while (rounds --> 0)
@@ -138,11 +136,11 @@ namespace Advent2022
                 }
             }
 
-            long total = 1;
-            foreach (var v in monkies.Select(m => m.Inspections).OrderDescending().Take(2))
-                total *= v;
-
-            total.Should().Be(expectedAnswer);
+            monkies.Select(m => m.Inspections)
+                .OrderDescending()
+                .Take(2)
+                .Product()
+                .Should().Be(expectedAnswer);
         }
     }
 }

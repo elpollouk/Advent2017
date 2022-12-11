@@ -100,11 +100,21 @@ namespace Utils
             return (min, max);
         }
 
+        public static long Product(this IEnumerable<long> list)
+        {
+            if (list.Count() == 0) return 0;
+
+            long total = 1;
+
+            foreach (var v in list)
+                total *= v;
+
+            return total;
+        }
+
         public static void Swap<T>(this T[] a, int i1, int i2)
         {
-            var t = a[i1];
-            a[i1] = a[i2];
-            a[i2] = t;
+            (a[i2], a[i1]) = (a[i1], a[i2]);
         }
 
         public static IEnumerable<T> GetNeighbours<T>(this T[,] grid, int x, int y)
