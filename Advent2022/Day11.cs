@@ -1,7 +1,6 @@
 ﻿using FluentAssertions;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Utils;
 using Xunit;
@@ -23,7 +22,8 @@ namespace Advent2022
 
         class Monkey
         {
-            public static long Modulator { get; set; }
+            public static List<Monkey> Monkies;
+            public static Func<long, long> Regulator { get; set; }
 
             public Queue<long> Items { get; } = new();
             public Func<long, long> Operation { get; init; }
@@ -31,7 +31,6 @@ namespace Advent2022
             public int TargetTrue { get; init; }
             public int TargetFalse { get; init; }
             public long Inspections { get; set; }
-            public List<Monkey> Monkies { get; init; }
 
             public void Process()
             {
@@ -39,14 +38,7 @@ namespace Advent2022
                 {
                     var item = Items.Dequeue();
                     item = Operation(item);
-                    if (Modulator != 0)
-                    {
-                        item %= Modulator;
-                    }
-                    else
-                    {
-                        item /= 3;
-                    }
+                    item = Regulator(item);
 
                     if (item % DivisibleCheck == 0)
                     {
@@ -61,7 +53,7 @@ namespace Advent2022
             }
         }
 
-        bool Parse(List<Monkey> monkies, Func<string> reader)
+        bool Parse(Func<string> reader)
         {
             var initialLine = reader();
             if (initialLine == null) return false;
@@ -76,12 +68,11 @@ namespace Advent2022
             var monkey = new Monkey()
             {
                 Operation = operation,
-                Monkies = monkies,
                 DivisibleCheck = divisibleCheck,
                 TargetTrue = ifTrueMonkey,
                 TargetFalse = ifFalseMonkey
             };
-            monkies.Add(monkey);
+            Monkey.Monkies.Add(monkey);
 
             foreach (var item in items)
                 monkey.Items.Enqueue(long.Parse(item));
@@ -89,31 +80,37 @@ namespace Advent2022
             return true;
         }
 
-        [Theory]
-        [InlineData("Data/Day11_Test.txt", 10605)]
-        [InlineData("Data/Day11.txt", 113232)]
-        public void Part1(string filename, long expectedAnswer)
+        void Parse(string filename)
         {
-            List<Monkey> monkies = new();
+            Monkey.Monkies = new();
             var reader = FileIterator.CreateLineReader(filename);
-            while (Parse(monkies, reader)) { }
+            while (Parse(reader)) { }
+        }
 
-            Monkey.Modulator = 0;
-
-            int rounds = 20;
+        long Solve(int rounds)
+        {
             while (rounds --> 0)
             {
-                foreach (var monkey in monkies)
+                foreach (var monkey in Monkey.Monkies)
                 {
                     monkey.Process();
                 }
             }
 
-            monkies.Select(m => m.Inspections)
+            return Monkey.Monkies.Select(m => m.Inspections)
                 .OrderDescending()
                 .Take(2)
-                .Product()
-                .Should().Be(expectedAnswer);
+                .Product();
+        }
+
+        [Theory]
+        [InlineData("Data/Day11_Test.txt", 10605)]
+        [InlineData("Data/Day11.txt", 113232)]
+        public void Part1(string filename, long expectedAnswer)
+        {
+            Parse(filename);
+            Monkey.Regulator = i => i / 3;
+            Solve(20).Should().Be(expectedAnswer);
         }
 
         [Theory]
@@ -121,26 +118,10 @@ namespace Advent2022
         [InlineData("Data/Day11.txt", 29703395016)]
         public void Part2(string filename, long expectedAnswer)
         {
-            List<Monkey> monkies = new();
-            var reader = FileIterator.CreateLineReader(filename);
-            while (Parse(monkies, reader)) { }
-
-            Monkey.Modulator = monkies.Select(m => m.DivisibleCheck).Product();
-
-            int rounds = 10000;
-            while (rounds --> 0)
-            {
-                foreach (var monkey in monkies)
-                {
-                    monkey.Process();
-                }
-            }
-
-            monkies.Select(m => m.Inspections)
-                .OrderDescending()
-                .Take(2)
-                .Product()
-                .Should().Be(expectedAnswer);
+            Parse(filename);
+            var modValue = Monkey.Monkies.Select(m => m.DivisibleCheck).Product();
+            Monkey.Regulator = i => i % modValue;
+            Solve(10000).Should().Be(expectedAnswer);
         }
     }
 }
