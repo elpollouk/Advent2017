@@ -1,7 +1,5 @@
 ﻿using FluentAssertions;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using Utils;
 using Xunit;
 
@@ -149,11 +147,11 @@ namespace Advent2022
         [Theory]
         [InlineData("Data/Day13_Test.txt", 13)]
         [InlineData("Data/Day13.txt", 5529)]
-        public void Part1(string filename, long expectedAnswer)
+        public void Part1(string filename, int expectedAnswer)
         {
             var reader = FileIterator.CreateLineReader(filename);
-            long pair = 1;
-            long sum = 0;
+            int pair = 1;
+            int sum = 0;
 
             while (true)
             {
