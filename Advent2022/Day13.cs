@@ -51,7 +51,7 @@ namespace Advent2022
                     return left.Value - right.Value;
                 }
 
-                left = AsList();
+                left = left.AsList();
                 right = right.AsList();
 
                 for (int i = 0; i < left.Count; i++)
