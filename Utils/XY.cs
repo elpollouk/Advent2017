@@ -1,4 +1,6 @@
-﻿namespace Utils
+﻿using System;
+
+namespace Utils
 {
     public class XY
     {
@@ -20,7 +22,7 @@
 
         public XY Clone()
         {
-            return new XY(x, y);
+            return new(x, y);
         }
 
         public XY Add(int x, int y)
@@ -35,6 +37,17 @@
             x -= other.x;
             y -= other.y;
             return this;
+        }
+
+        public int ManhattenDistanceTo(XY other)
+        {
+            var dx = other.x - x;
+            var dy = other.y - y;
+            return Math.Abs(dx) + Math.Abs(dy);
+        }
+
+        public (int x, int y) ToTuple() {
+            return (x, y);
         }
 
         public override string ToString()
