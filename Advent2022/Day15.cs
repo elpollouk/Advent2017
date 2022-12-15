@@ -11,7 +11,7 @@ namespace Advent2022
     {
         record Span(int from, int to);
 
-        (XY, XY) ParseLine(string line)
+        static (XY, XY) ParseLine(string line)
         {
             var groups = line.Groups(@"Sensor at x=(-?\d+), y=(-?\d+): closest beacon is at x=(-?\d+), y=(-?\d+)");
             return (
@@ -20,9 +20,9 @@ namespace Advent2022
             );
         }
 
-        (XY beacon, XY sensor)[] LoadFile(string filename)
+        static (XY sensor, XY beacon)[] LoadFile(string filename)
         {
-            List<(XY beacon, XY sensor)> list = new();
+            List<(XY sensor, XY beacon)> list = new();
 
             foreach (var line in FileIterator.Lines(filename))
             {
@@ -32,7 +32,7 @@ namespace Advent2022
             return list.ToArray();
         }
 
-        int CountBeaconsAtY((XY sensor, XY beacon)[] data, int y)
+        static int CountBeaconsAtY((XY sensor, XY beacon)[] data, int y)
         {
             HashSet<(int, int)> set = new();
 
@@ -43,7 +43,7 @@ namespace Advent2022
             return set.Count;
         }
 
-        void MergeIntoSet(HashSet<Span> set, Span span)
+        static void MergeIntoSet(HashSet<Span> set, Span span)
         {
             HashSet<Span> remove = new();
 
@@ -78,7 +78,7 @@ namespace Advent2022
             set.Add(span);
         }
 
-        HashSet<Span> GetLineSpans((XY sensor, XY beacon)[] data, int y)
+        static HashSet<Span> GetLineSpans((XY sensor, XY beacon)[] data, int y)
         {
             HashSet<Span> spans = new();
 
@@ -137,6 +137,84 @@ namespace Advent2022
                 }
             }
             
+            result.Should().Be(expectedAnswer);
+        }
+
+
+        //---------------------------------------------------------------------------------------//
+        // An alternative solution for Part 2 that runs significantly faster!
+        // NOTE: There is little value in pre-sorting any of the beacons as you need to iterate
+        //       over all of them anyway to calulate their span ranges for the given row, so you
+        //       may as well perform the point check at the same time.
+        //---------------------------------------------------------------------------------------//
+        class Sensor
+        {
+            public readonly XY Pos;
+            public readonly int Range;
+
+            public Sensor(XY pos, XY beacon)
+            {
+                Pos = pos;
+                Range = pos.ManhattenDistanceTo(beacon);
+            }
+
+            // Return 0 if point is not in range, otherwise return the next x value that would be outside of the range of this sensor on this row
+            public int CheckPoint(int x, int y)
+            {
+                var distanceToY = Math.Abs(Pos.y - y);
+                var dy = Range - distanceToY;
+                if (dy < 0) return 0;
+
+                var minX = Pos.x - dy;
+                var maxX = Pos.x + dy;
+                if (x < minX || maxX < x) return 0;
+
+                return maxX + 1;
+            }
+        }
+
+        static Sensor[] LoadSensors(string filename)
+        {
+            return LoadFile(filename)
+                .Select(d => new Sensor(d.sensor, d.beacon))
+                .ToArray();
+        }
+
+        static int CheckPoint(Sensor[] sensors, int x, int y)
+        {
+            foreach (var sensor in sensors)
+            {
+                int r = sensor.CheckPoint(x, y);
+                if (r != 0) return r;
+            }
+            return 0;
+        }
+
+        [Theory]
+        [InlineData("Data/Day15_Test.txt", 20, 56000011)]
+        [InlineData("Data/Day15.txt", 4000000, 10996191429555)]
+        public void Part2_Alternative(string filename, int extent, long expectedAnswer)
+        {
+            long result = 0;
+            var seonsors = LoadSensors(filename);
+
+            // Gamble on the answer being closer to the extent rather than the start
+            for (int y = extent; y >= -1; y--)
+            {
+                int x = 0;
+                while (x < extent)
+                {
+                    var r = CheckPoint(seonsors, x, y);
+                    if (r == 0)
+                    {
+                        result = (x * 4000000L) + y;
+                        goto END;
+                    }
+                    x = r;
+                }
+            }
+
+            END:
             result.Should().Be(expectedAnswer);
         }
     }
