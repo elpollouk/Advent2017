@@ -220,5 +220,30 @@ namespace Utils
                 output(builder.ToString());
             }
         }
+
+        public static IEnumerable<T[]> Combinations<T>(this T[] a, int size, T[] buffer = null)
+        {
+            buffer ??= new T[size];
+            return CombinationsInternal(a, 0, buffer, 0);
+        }
+
+        private static IEnumerable<T[]> CombinationsInternal<T>(T[] src, int srcIndex, T[] buffer, int bufferIndex)
+        {
+            if (bufferIndex == buffer.Length)
+            {
+                yield return buffer;
+                yield break;
+            }
+
+            int maxSourceIndex = src.Length - (buffer.Length - bufferIndex);
+            for (; srcIndex <= maxSourceIndex; srcIndex++)
+            {
+                buffer[bufferIndex] = src[srcIndex];
+                foreach (var t in CombinationsInternal(src, srcIndex+1, buffer, bufferIndex+1))
+                {
+                    yield return t;
+                }
+            }
+        }
     }
 }
