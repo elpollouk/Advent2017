@@ -26,6 +26,7 @@ namespace Utils
         }
 
         public static T GetAtMod<T>(this IList<T> a, int index) => a[index % a.Count];
+        public static char GetAtMod(this string s, int index) => s[index % s.Length];
 
         public static void SetAtMod<T>(this IList<T> a, int index, T value) => a[index % a.Count] = value;
 
