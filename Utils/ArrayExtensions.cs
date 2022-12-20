@@ -25,10 +25,21 @@ namespace Utils
             return builder.ToString();
         }
 
-        public static T GetAtMod<T>(this IList<T> a, int index) => a[index % a.Count];
+        public static T GetAtMod<T>(this IList<T> a, int index)
+        {
+            var i = index % a.Count;
+            if (i < 0) i = a.Count + i;
+            return a[i];
+        }
+
         public static char GetAtMod(this string s, int index) => s[index % s.Length];
 
-        public static void SetAtMod<T>(this IList<T> a, int index, T value) => a[index % a.Count] = value;
+        public static void SetAtMod<T>(this IList<T> a, int index, T value)
+        {
+            var i = index % a.Count;
+            if (i < 0) i = a.Count + i;
+            a[i] = value;
+        }
 
         public static void SetAll<T>(this T[] a, T value)
         {

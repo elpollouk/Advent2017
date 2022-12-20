@@ -7,6 +7,30 @@ namespace Utils
     public class ArrayExtensionsTests
     {
         [Fact]
+        public void TestGetAtMod_Negative()
+        {
+            var a = new int[]{ 3, 5, 7, 11 };
+            a.GetAtMod(-1).Should().Be(11);
+            a.GetAtMod(-2).Should().Be(7);
+            a.GetAtMod(-3).Should().Be(5);
+            a.GetAtMod(-4).Should().Be(3);
+            a.GetAtMod(-5).Should().Be(11);
+            a.GetAtMod(-16).Should().Be(3);
+        }
+
+        [Fact]
+        public void TestSetAtMod_Negative()
+        {
+            var a = new int[] { 0, 0, 0, 0 };
+            a.SetAtMod(-1, 31);
+            a.SetAtMod(-6, 29);
+            a.SetAtMod(-11, 23);
+            a.SetAtMod(-16, 19);
+
+            a.Should().BeEquivalentTo(new int[] { 19, 23, 29, 31 });
+        }
+
+        [Fact]
         public void TestCombinations_1from4()
         {
             char[] source = { 'a', 'b', 'c', 'd' };
