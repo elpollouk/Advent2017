@@ -125,7 +125,7 @@ namespace Advent2022
             }
 
             Action move;
-            while(rounds --> 0)
+            while (rounds --> 0)
             {
                 foreach (var entry in entries)
                 {
