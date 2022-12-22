@@ -27,6 +27,13 @@ namespace Utils
             return this;
         }
 
+        public XY Set((int x, int y) other)
+        {
+            x = other.x;
+            y = other.y;
+            return this;
+        }
+
         public XY Clone()
         {
             return new(x, y);

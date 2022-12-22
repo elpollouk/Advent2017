@@ -1,9 +1,10 @@
 ﻿using FluentAssertions;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Utils;
 using Xunit;
+
+using WrapMap = System.Collections.Generic.Dictionary<((int x, int y) pos, (int x, int y) facing), ((int x, int y) pos, (int x, int y) facing)>;
 
 namespace Advent2022
 {
@@ -108,16 +109,8 @@ namespace Advent2022
             return instructions.ToArray();
         }
 
-        void Exec(Cell[,] grid, XY pos, XY facing, Instruction instruction)
+        void Step(Cell[,] grid, Action<XY, XY> wrap, XY pos, XY facing, Instruction instruction)
         {
-            var Wrap = (XY pos) =>
-            {
-                if (pos.x == grid.GetLength(0)) pos.x = 0;
-                else if (pos.x == -1) pos.x = grid.GetLength(0) - 1;
-                else if (pos.y == grid.GetLength(1)) pos.y = 0;
-                else if (pos.y == -1) pos.y = grid.GetLength(1) - 1;
-            };
-
             switch (instruction.Op)
             {
                 case Op.LEFT:
@@ -132,12 +125,12 @@ namespace Advent2022
                     for (int i = 0; i < instruction.Operand; i++)
                     {
                         var peek = pos.Clone().Add(facing);
-                        Wrap(peek);
+                        wrap(peek, facing);
                         var c = grid[peek.x, peek.y];
                         while (c == Cell.VOID)
                         {
                             peek.Add(facing);
-                            Wrap(peek);
+                            wrap(peek, facing);
                             c = grid[peek.x, peek.y];
                         }
 
@@ -156,6 +149,34 @@ namespace Advent2022
             return 3;
         }
 
+        long Exec(Cell[,] grid, Action<XY, XY> wrap, Instruction[] instructions)
+        {
+            int x = 0;
+            while (grid[x, 0] != Cell.OPEN) x++;
+            XY pos = (x, 0);
+            XY facing = (1, 0);
+
+            foreach (var instruction in instructions)
+                Step(grid, wrap, pos, facing, instruction);
+
+            long result = (pos.y + 1) * 1000;
+            result += (pos.x + 1) * 4;
+            result += FacingValue(facing);
+
+            return result;
+        }
+
+        Action<XY, XY> WrapPart1(Cell[,] grid)
+        {
+            return (pos, facing) =>
+            {
+                if (pos.x == grid.GetLength(0)) pos.x = 0;
+                else if (pos.x == -1) pos.x = grid.GetLength(0) - 1;
+                else if (pos.y == grid.GetLength(1)) pos.y = 0;
+                else if (pos.y == -1) pos.y = grid.GetLength(1) - 1;
+            };
+        }
+
         [Theory]
         [InlineData("Data/Day22_Test.txt", 6032)]
         [InlineData("Data/Day22.txt", 95358)]
@@ -164,33 +185,103 @@ namespace Advent2022
             var reader = FileIterator.CreateLineReader(filename);
             var grid = ParseMap(reader);
             var instructions = ParseInstructions(reader());
+            var wrap = WrapPart1(grid);
 
-            int x = 0;
-            while (grid[x, 0] != Cell.OPEN)
-            {
-                x++;
-            }
-            XY pos = (x, 0);
-            XY facing = (1, 0);
-
-            foreach (var instruction in instructions)
-            {
-                Exec(grid, pos, facing, instruction);
-            }
-
-            long result = (pos.y + 1) * 1000;
-            result += (pos.x + 1) * 4;
-            result += FacingValue(facing);
+            var result = Exec(grid, wrap, instructions);
 
             result.Should().Be(expectedAnswer);
         }
 
+        void WrapSeam(Cell[,] grid, WrapMap wrappings, int length, Func<int, (int x, int y)> fnFromPos, Func<int, (int x, int y)> fnToPos, (int, int) fromFacing, (int, int) toFacing)
+        {
+            for (int i = 0; i < length; i++)
+            {
+                var fromPos = fnFromPos(i);
+                var toPos = fnToPos(i);
+                var cell = grid[toPos.x, toPos.y];
+                var facing = cell == Cell.OPEN ? toFacing : fromFacing;
+                wrappings[(fromPos, fromFacing)] = (toPos, facing);
+            }
+        }
+
+        WrapMap BuildTestWrappingMap(Cell[,] grid)
+        {
+            WrapMap wrappings = new();
+
+            WrapSeam(grid, wrappings, 4, i => (8 + i, -1), i => (3 - i, 4), (0, -1), (0, 1));
+            WrapSeam(grid, wrappings, 4, i => (12, i), i => (15, 11 - i), (1, 0), (-1, 0));
+            WrapSeam(grid, wrappings, 4, i => (12, 4 + i), i => (15 - i, 8), (1, 0), (0, 1));
+
+            WrapSeam(grid, wrappings, 4, i => (12 + i, 7), i => (11, 7 - i), (0, -1), (-1, 0));
+            WrapSeam(grid, wrappings, 4, i => (16, 8 + i), i => (11, 3 - i), (1, 0), (-1, 0));
+            WrapSeam(grid, wrappings, 4, i => (12 + i, 12), i => (0, 7 - i), (0, 1), (1, 0));
+
+            WrapSeam(grid, wrappings, 4, i => (8 + i, 12), i => (3 - i, 7), (0, 1), (0, -1));
+            WrapSeam(grid, wrappings, 4, i => (7, 8 + i), i => (7 - i, 7), (-1, 0), (0, -1));
+            WrapSeam(grid, wrappings, 4, i => (4 + i, 8), i => (8, 11 - i), (0, 1), (1, 0));
+
+            WrapSeam(grid, wrappings, 4, i => (i, 8), i => (11 - i, 11), (0, 1), (0, -1));
+            WrapSeam(grid, wrappings, 4, i => (-1, 4 + i), i => (15 - i, 11), (-1, 0), (0, -1));
+            WrapSeam(grid, wrappings, 4, i => (i, 3), i => (11 - i, 0), (0, -1), (0, 1));
+
+            WrapSeam(grid, wrappings, 4, i => (4 + i, 3), i => (8, i), (0, -1), (1, 0));
+            WrapSeam(grid, wrappings, 4, i => (7, i), i => (4 + i, 4), (-1, 0), (0, 1));
+
+            return wrappings;
+        }
+
+        WrapMap BuildSolutionWrappingMap(Cell[,] grid)
+        {
+            WrapMap wrappings = new();
+
+            WrapSeam(grid, wrappings, 50, i => (50 + i, -1), i => (0, 150 + i), (0, -1), (1, 0));
+            WrapSeam(grid, wrappings, 50, i => (100 + i, -1), i => (i, 199), (0, -1), (0, -1));
+            WrapSeam(grid, wrappings, 50, i => (150, i), i => (99, 149 - i), (1, 0), (-1, 0));
+
+            WrapSeam(grid, wrappings, 50, i => (100 + i, 50), i => (99, 50 + i), (0, 1), (-1, 0));
+            WrapSeam(grid, wrappings, 50, i => (100, 50 + i), i => (100 + i, 49), (1, 0), (0, -1));
+            WrapSeam(grid, wrappings, 50, i => (100, 100 + i), i => (149, 49 - i), (1, 0), (-1, 0));
+
+            WrapSeam(grid, wrappings, 50, i => (50 + i, 150), i => (49, 150 + i), (0, 1), (-1, 0));
+            WrapSeam(grid, wrappings, 50, i => (50, 150 + i), i => (50 + i, 149), (1, 0), (0, -1));
+            WrapSeam(grid, wrappings, 50, i => (i, 200), i => (100 + i, 0), (0, 1), (0, 1));
+
+            WrapSeam(grid, wrappings, 50, i => (-1, 150 + i), i => (50 + i, 0), (-1, 0), (0, 1));
+            WrapSeam(grid, wrappings, 50, i => (-1, 100 + i), i => (50, 49 - i), (-1, 0), (1, 0));
+            WrapSeam(grid, wrappings, 50, i => (i, 99), i => (50, 50 + i), (0, -1), (1, 0));
+
+            WrapSeam(grid, wrappings, 50, i => (49, 50 + i), i => (i, 100), (-1, 0), (0, 1));
+            WrapSeam(grid, wrappings, 50, i => (49, i), i => (0, 149 - i), (-1, 0), (1, 0));
+
+            return wrappings;
+        }
+
+        Action<XY, XY> WrapPart2(WrapMap wrappings)
+        {
+            return (pos, facing) =>
+            {
+                if (wrappings.TryGetValue((pos.ToTuple(), facing.ToTuple()), out var dest))
+                {
+                    pos.Set(dest.pos);
+                    facing.Set(dest.facing);
+                }
+            };
+        }
+
         [Theory]
-        [InlineData("Data/Day22_Test.txt", 0)]
-        [InlineData("Data/Day22.txt", 0)]
+        [InlineData("Data/Day22_Test.txt", 5031)]
+        [InlineData("Data/Day22.txt", 144361)]
         public void Part2(string filename, long expectedAnswer)
         {
+            var reader = FileIterator.CreateLineReader(filename);
+            var grid = ParseMap(reader);
+            var instructions = ParseInstructions(reader());
+            WrapMap wrapping = filename.Contains("Test") ? BuildTestWrappingMap(grid) : BuildSolutionWrappingMap(grid);
+            var wrap = WrapPart2(wrapping);
 
+            var result = Exec(grid, wrap, instructions);
+
+            result.Should().Be(expectedAnswer);
         }
     }
 }
