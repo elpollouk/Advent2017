@@ -192,15 +192,20 @@ namespace Advent2022
             result.Should().Be(expectedAnswer);
         }
 
-        void WrapSeam(Cell[,] grid, WrapMap wrappings, int length, Func<int, (int x, int y)> fnFromPos, Func<int, (int x, int y)> fnToPos, (int, int) fromFacing, (int, int) toFacing)
+        void WrapSeam(Cell[,] grid, WrapMap wrappings, int length, Func<int, (int x, int y)> fnFromPos, Func<int, (int x, int y)> fnToPos, (int x, int y) fromFacing, (int x, int y) toFacing)
         {
             for (int i = 0; i < length; i++)
             {
                 var fromPos = fnFromPos(i);
                 var toPos = fnToPos(i);
+
                 var cell = grid[toPos.x, toPos.y];
-                var facing = cell == Cell.OPEN ? toFacing : fromFacing;
-                wrappings[(fromPos, fromFacing)] = (toPos, facing);
+                var facing = cell == Cell.OPEN ? (-toFacing.x, -toFacing.y) : fromFacing;
+                wrappings[((fromPos.x + fromFacing.x, fromPos.y + fromFacing.y), fromFacing)] = (toPos, facing);
+
+                cell = grid[fromPos.x, fromPos.y];
+                facing = cell == Cell.OPEN ? (-fromFacing.x, -fromFacing.y) : toFacing;
+                wrappings[((toPos.x + toFacing.x, toPos.y + toFacing.y), toFacing)] = (fromPos, facing);
             }
         }
 
@@ -208,24 +213,13 @@ namespace Advent2022
         {
             WrapMap wrappings = new();
 
-            WrapSeam(grid, wrappings, 4, i => (8 + i, -1), i => (3 - i, 4), (0, -1), (0, 1));
-            WrapSeam(grid, wrappings, 4, i => (12, i), i => (15, 11 - i), (1, 0), (-1, 0));
-            WrapSeam(grid, wrappings, 4, i => (12, 4 + i), i => (15 - i, 8), (1, 0), (0, 1));
-
-            WrapSeam(grid, wrappings, 4, i => (12 + i, 7), i => (11, 7 - i), (0, -1), (-1, 0));
-            WrapSeam(grid, wrappings, 4, i => (16, 8 + i), i => (11, 3 - i), (1, 0), (-1, 0));
-            WrapSeam(grid, wrappings, 4, i => (12 + i, 12), i => (0, 7 - i), (0, 1), (1, 0));
-
-            WrapSeam(grid, wrappings, 4, i => (8 + i, 12), i => (3 - i, 7), (0, 1), (0, -1));
-            WrapSeam(grid, wrappings, 4, i => (7, 8 + i), i => (7 - i, 7), (-1, 0), (0, -1));
-            WrapSeam(grid, wrappings, 4, i => (4 + i, 8), i => (8, 11 - i), (0, 1), (1, 0));
-
-            WrapSeam(grid, wrappings, 4, i => (i, 8), i => (11 - i, 11), (0, 1), (0, -1));
-            WrapSeam(grid, wrappings, 4, i => (-1, 4 + i), i => (15 - i, 11), (-1, 0), (0, -1));
-            WrapSeam(grid, wrappings, 4, i => (i, 3), i => (11 - i, 0), (0, -1), (0, 1));
-
-            WrapSeam(grid, wrappings, 4, i => (4 + i, 3), i => (8, i), (0, -1), (1, 0));
-            WrapSeam(grid, wrappings, 4, i => (7, i), i => (4 + i, 4), (-1, 0), (0, 1));
+            WrapSeam(grid, wrappings, 4, i => (8 + i, 0), i => (3 - i, 4), (0, -1), (0, -1));      // 1-12
+            WrapSeam(grid, wrappings, 4, i => (11, i), i => (15, 11 - i), (1, 0), (1, 0));         // 2-5
+            WrapSeam(grid, wrappings, 4, i => (11, 4 + i), i => (15 - i, 8), (1, 0), (0, -1));     // 3-4
+            WrapSeam(grid, wrappings, 4, i => (12 + i, 11), i => (0, 7 - i), (0, 1), (-1, 0));     // 6-11
+            WrapSeam(grid, wrappings, 4, i => (8 + i, 11), i => (3 - i, 7), (0, 1), (0, 1));       // 7-10
+            WrapSeam(grid, wrappings, 4, i => (8, 8 + i), i => (7 - i, 7), (-1, 0), (0, 1));       // 8-9
+            WrapSeam(grid, wrappings, 4, i => (4 + i, 4), i => (8, i), (0, -1), (-1, 0));          // 13-14
 
             return wrappings;
         }
@@ -234,24 +228,13 @@ namespace Advent2022
         {
             WrapMap wrappings = new();
 
-            WrapSeam(grid, wrappings, 50, i => (50 + i, -1), i => (0, 150 + i), (0, -1), (1, 0));
-            WrapSeam(grid, wrappings, 50, i => (100 + i, -1), i => (i, 199), (0, -1), (0, -1));
-            WrapSeam(grid, wrappings, 50, i => (150, i), i => (99, 149 - i), (1, 0), (-1, 0));
-
-            WrapSeam(grid, wrappings, 50, i => (100 + i, 50), i => (99, 50 + i), (0, 1), (-1, 0));
-            WrapSeam(grid, wrappings, 50, i => (100, 50 + i), i => (100 + i, 49), (1, 0), (0, -1));
-            WrapSeam(grid, wrappings, 50, i => (100, 100 + i), i => (149, 49 - i), (1, 0), (-1, 0));
-
-            WrapSeam(grid, wrappings, 50, i => (50 + i, 150), i => (49, 150 + i), (0, 1), (-1, 0));
-            WrapSeam(grid, wrappings, 50, i => (50, 150 + i), i => (50 + i, 149), (1, 0), (0, -1));
-            WrapSeam(grid, wrappings, 50, i => (i, 200), i => (100 + i, 0), (0, 1), (0, 1));
-
-            WrapSeam(grid, wrappings, 50, i => (-1, 150 + i), i => (50 + i, 0), (-1, 0), (0, 1));
-            WrapSeam(grid, wrappings, 50, i => (-1, 100 + i), i => (50, 49 - i), (-1, 0), (1, 0));
-            WrapSeam(grid, wrappings, 50, i => (i, 99), i => (50, 50 + i), (0, -1), (1, 0));
-
-            WrapSeam(grid, wrappings, 50, i => (49, 50 + i), i => (i, 100), (-1, 0), (0, 1));
-            WrapSeam(grid, wrappings, 50, i => (49, i), i => (0, 149 - i), (-1, 0), (1, 0));
+            WrapSeam(grid, wrappings, 50, i => (50 + i, 0), i => (0, 150 + i), (0, -1), (-1, 0));      // 1-10
+            WrapSeam(grid, wrappings, 50, i => (100 + i, 0), i => (i, 199), (0, -1), (0, 1));          // 2-9
+            WrapSeam(grid, wrappings, 50, i => (149, i), i => (99, 149 - i), (1, 0), (1, 0));          // 3-6
+            WrapSeam(grid, wrappings, 50, i => (100 + i, 49), i => (99, 50 + i), (0, 1), (1, 0));      // 4-5
+            WrapSeam(grid, wrappings, 50, i => (50 + i, 149), i => (49, 150 + i), (0, 1), (1, 0));     // 7-8
+            WrapSeam(grid, wrappings, 50, i => (0, 100 + i), i => (50, 49 - i), (-1, 0), (-1, 0));     // 11-14
+            WrapSeam(grid, wrappings, 50, i => (i, 100), i => (50, 50 + i), (0, -1), (-1, 0));         // 12-13
 
             return wrappings;
         }
