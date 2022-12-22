@@ -20,6 +20,13 @@ namespace Utils
             return new(value.x, value.y);
         }
 
+        public XY Set(XY other)
+        {
+            x = other.x;
+            y = other.y;
+            return this;
+        }
+
         public XY Clone()
         {
             return new(x, y);
@@ -29,6 +36,13 @@ namespace Utils
         {
             this.x += x;
             this.y += y;
+            return this;
+        }
+
+        public XY Add(XY other)
+        {
+            x += other.x;
+            y += other.y;
             return this;
         }
 
@@ -44,6 +58,17 @@ namespace Utils
             var dx = other.x - x;
             var dy = other.y - y;
             return Math.Abs(dx) + Math.Abs(dy);
+        }
+
+        public XY RotateRight()
+        {
+            (x, y) = (-y, x);
+            return this;
+        }
+        public XY RotateLeft()
+        {
+            (x, y) = (y, -x);
+            return this;
         }
 
         public (int x, int y) ToTuple() {
