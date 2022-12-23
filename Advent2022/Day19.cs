@@ -87,35 +87,37 @@ namespace Advent2022
                 var remainingTime = TIME_LIMIT - Time;
                 if (remainingTime != 0)
                 {
-                    int maxPotentialGeodes = GeodeCount + (remainingTime * GeodeCount);
+                    int maxPotentialGeodes = GeodeCount + (remainingTime * GeodeDelta);
                     maxPotentialGeodes += (remainingTime * (remainingTime + 1)) / 2;
                     if (maxPotentialGeodes < MaxGeodes)
                     {
                         return MaxGeodes* Id;
                     }
 
-                    SolveFor(NextOreRobotTime, s => s.BuildOreRobot());
-                    SolveFor(NextClayRobotTime, s => s.BuildClayRobot());
-                    SolveFor(NextObsidianRobotTime, s => s.BuildObsidianRobot());
-                    SolveFor(NextGeodeRobotTime, s => s.BuildGeodeRobot());
+                    bool acted = false;
+                    acted |= SolveFor(remainingTime, NextOreRobotTime, s => s.BuildOreRobot());
+                    acted |= SolveFor(remainingTime, NextClayRobotTime, s => s.BuildClayRobot());
+                    acted |= SolveFor(remainingTime, NextObsidianRobotTime, s => s.BuildObsidianRobot());
+                    acted |= SolveFor(remainingTime, NextGeodeRobotTime, s => s.BuildGeodeRobot());
 
-                    AdvanceTime(remainingTime);
+                    if (!acted) AdvanceTime(remainingTime);
                 }
                 return MaxGeodes * Id;
             }
 
-            private void SolveFor(Func<int> nextTime, Action<State> build)
+            private bool SolveFor(int remainingTime, Func<int, int> nextTime, Action<State> build)
             {
-                var t = nextTime();
-                if (t != - 1)
-                {
-                    if (Time + t >= TIME_LIMIT) return;
-                    var s = Clone();
-                    s.AdvanceTime(t);
-                    build(s);
-                    s.Solve();
-                    if (s.MaxGeodes > MaxGeodes) MaxGeodes = s.MaxGeodes;
-                }
+                var t = nextTime(remainingTime);
+                if (t == -1) return false;
+                if (Time + t >= TIME_LIMIT) return false;
+
+                var s = Clone();
+                s.AdvanceTime(t);
+                build(s);
+                s.Solve();
+                if (s.MaxGeodes > MaxGeodes) MaxGeodes = s.MaxGeodes;
+
+                return true;
             }
 
             public void AdvanceTime(int minutes)
@@ -128,25 +130,28 @@ namespace Advent2022
                 Time += minutes;
             }
 
-            public int NextOreRobotTime()
+            public int NextOreRobotTime(int remainingTime)
             {
                 if (OreDelta >= MaxOreUsage) return -1;
+                if (remainingTime * MaxOreUsage < OreCount + remainingTime * OreDelta) return -1;
                 if (OreCount >= OreRobotCost) return 0;
                 int t = TimeRequired(OreRobotCost - OreCount, OreDelta);
                 return t;
             }
 
-            public int NextClayRobotTime()
+            public int NextClayRobotTime(int remainingTime)
             {
+                if (remainingTime * ObsidianRobotCost.clay < ClayCount + remainingTime * ClayDelta) return -1;
                 if (ClayDelta >= ObsidianRobotCost.clay) return -1;
                 if (OreCount >= ClayRobotCost) return 0;
                 int t = TimeRequired(ClayRobotCost - OreCount, OreDelta);
                 return t;
             }
 
-            public int NextObsidianRobotTime()
+            public int NextObsidianRobotTime(int remainingTime)
             {
                 if (ClayDelta == 0) return -1;
+                if (remainingTime * GeodeRobotCost.obsidian < ObsidianCount + remainingTime * ObsidianDelta) return -1;
                 if (ObsidianDelta >= GeodeRobotCost.obsidian) return -1;
                 if (OreCount >= ObsidianRobotCost.ore && ClayCount >= ObsidianRobotCost.clay) return 0;
                 int t = TimeRequired(ObsidianRobotCost.ore - OreCount, OreDelta);
@@ -155,7 +160,7 @@ namespace Advent2022
                 return t;
             }
 
-            public int NextGeodeRobotTime()
+            public int NextGeodeRobotTime(int remainingTime)
             {
                 if (ObsidianDelta == 0) return -1;
                 if (OreCount >= GeodeRobotCost.ore && ObsidianCount >= GeodeRobotCost.obsidian) return 0;
@@ -219,10 +224,10 @@ namespace Advent2022
 
         [Theory]
         [InlineData("Data/Day19_Test.txt", 56 * 62)]
-        [InlineData("Data/Day19.txt", 0)]
+        [InlineData("Data/Day19.txt", 15939)]
         public void Part2(string filename, long expectedAnswer)
         {
-            /*State.TIME_LIMIT = 32;
+            State.TIME_LIMIT = 32;
             var states = new List<State>();
             foreach (var line in FileIterator.Lines(filename).Take(3))
             {
@@ -235,7 +240,7 @@ namespace Advent2022
                 state.Solve();
                 total *= state.MaxGeodes;
             }
-            total.Should().Be(expectedAnswer);*/
+            total.Should().Be(expectedAnswer);
         }
     }
 }
