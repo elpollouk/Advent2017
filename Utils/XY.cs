@@ -20,6 +20,16 @@ namespace Utils
             return new(value.x, value.y);
         }
 
+        public static bool operator ==(XY a, (int x, int y) b)
+        {
+            return a.x == b.x && a.y == b.y;
+        }
+
+        public static bool operator !=(XY a, (int x, int y) b)
+        {
+            return a.x != b.x || a.y != b.y;
+        }
+
         public XY Set(XY other)
         {
             x = other.x;
@@ -31,6 +41,13 @@ namespace Utils
         {
             x = other.x;
             y = other.y;
+            return this;
+        }
+
+        public XY Set(int x, int y)
+        {
+            this.x = x;
+            this.y = y;
             return this;
         }
 
@@ -85,6 +102,31 @@ namespace Utils
         public override string ToString()
         {
             return $"({x}, {y})";
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            if (obj is null)
+            {
+                return false;
+            }
+
+            if (obj.GetType() != GetType())
+            {
+                return false;
+            }
+
+            return x == ((XY)obj).x && y == ((XY)obj).y;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
     }
 }
