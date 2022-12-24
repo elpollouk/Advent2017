@@ -11,7 +11,7 @@ namespace Advent2022
     {
         class BlizzardAdapter : Astar.IGraphAdapter<(int x, int y, int state)>
         {
-            private readonly HashSet<(int x, int y)>[] AllStates;
+            public readonly HashSet<(int x, int y)>[] AllStates;
             private readonly int MaxX;
             private readonly int MaxY;
             public XY Exit;
@@ -31,9 +31,7 @@ namespace Advent2022
 
                 // Wait
                 if (!state.Contains((node.x, node.y)))
-                {
                     yield return (node.x, node.y, nextState);
-                }
 
                 // Down
                 (int x, int y) check = (node.x, node.y + 1);
@@ -57,9 +55,7 @@ namespace Advent2022
                 }
 
                 if (node.y > 1 && !state.Contains(check))
-                {
                     yield return (check.x, check.y, nextState);
-                }
 
                 if (node.y == MaxY + 1) // Up is the only valid move from the other start;
                     yield break;
@@ -167,21 +163,7 @@ namespace Advent2022
             return set;
         }
 
-        bool AreEqual((XY pos, Func<XY, XY> direction)[] a, (XY pos, Func<XY, XY> direction)[] b)
-        {
-            if (a.Length != b.Length) throw new Exception();
-            for (int i = 0; i < a.Length; i++)
-            {
-                if (a[i].direction != b[i].direction) throw new Exception();
-                if (a[i].pos != b[i].pos) return false;
-            }
-            return true;
-        }
-
-        [Theory]
-        [InlineData("Data/Day24_Test.txt", 18)]
-        [InlineData("Data/Day24.txt", 295)]
-        public void Part1(string filename, int expectedAnswer)
+        (BlizzardAdapter, XY) Load(string filename)
         {
             var blizzards = Parse(filename, out var exit);
             var width = exit.x;
@@ -195,10 +177,18 @@ namespace Advent2022
                 blizzards = Step(blizzards, exit);
             }
 
-            BlizzardAdapter adapter = new(allStates, exit.x, exit.y - 1)
-            {
-                Exit = exit
-            };
+            BlizzardAdapter adapter = new(allStates, exit.x, exit.y - 1);
+
+            return (adapter, exit);
+        }
+
+        [Theory]
+        [InlineData("Data/Day24_Test.txt", 18)]
+        [InlineData("Data/Day24.txt", 295)]
+        public void Part1(string filename, int expectedAnswer)
+        {
+            var (adapter, exit) = Load(filename);
+            adapter.Exit = exit;
             var path = Astar.FindPath(adapter, (1, 0, 0), (exit.x, exit.y, -1));
             (path.Count - 1).Should().Be(expectedAnswer);
         }
@@ -208,31 +198,18 @@ namespace Advent2022
         [InlineData("Data/Day24.txt", 851)]
         public void Part2(string filename, int expectedAnswer)
         {
-            var blizzards = Parse(filename, out var exit);
-            var width = exit.x;
-            var height = exit.y - 1;
+            var (adapter, exit) = Load(filename);
 
-            var allStates = new HashSet<(int x, int y)>[width * height];
-
-            for (int i = 0; i < width * height; i++)
-            {
-                allStates[i] = BuildMap(blizzards);
-                blizzards = Step(blizzards, exit);
-            }
-
-            BlizzardAdapter adapter = new(allStates, exit.x, exit.y - 1)
-            {
-                Exit = exit
-            };
+            adapter.Exit = exit;
             var path = Astar.FindPath(adapter, (1, 0, 0), (exit.x, exit.y, -1));
             var minutes = path.Count - 1;
 
             adapter.Exit = (1, 0);
-            path = Astar.FindPath(adapter, (exit.x, exit.y, minutes % allStates.Length), (1, 0, -1));
+            path = Astar.FindPath(adapter, (exit.x, exit.y, minutes % adapter.AllStates.Length), (1, 0, -1));
             minutes += path.Count - 1;
 
             adapter.Exit = exit;
-            path = Astar.FindPath(adapter, (1, 0, minutes % allStates.Length), (exit.x, exit.y, -1));
+            path = Astar.FindPath(adapter, (1, 0, minutes % adapter.AllStates.Length), (exit.x, exit.y, -1));
             minutes += path.Count - 1;
 
             minutes.Should().Be(expectedAnswer);
