@@ -6,6 +6,18 @@ namespace Advent2023
 {
     public class Day01
     {
+        private readonly TrieMatcher<int>.MatchFunc numberMatcher = new TrieMatcher<int>(-1)
+            .AddSequence("one",   1)
+            .AddSequence("two",   2)
+            .AddSequence("three", 3)
+            .AddSequence("four",  4)
+            .AddSequence("five",  5)
+            .AddSequence("six",   6)
+            .AddSequence("seven", 7)
+            .AddSequence("eight", 8)
+            .AddSequence("nine",  9)
+            .Build();
+
         int ExtractNumber1(string text)
         {
             int first = -1;
@@ -25,48 +37,6 @@ namespace Advent2023
             return (first * 10) + last;
         }
 
-        int ExtractWrittenNumber(string text, int index)
-        {
-            var substr = text.Substring(index);
-            if (substr.StartsWith("one"))
-            {
-                return 1;
-            }
-            else if (substr.StartsWith("two"))
-            {
-                return 2;
-            }
-            else if (substr.StartsWith("three"))
-            {
-                return 3;
-            }
-            else if (substr.StartsWith("four"))
-            {
-                return 4;
-            }
-            else if (substr.StartsWith("five"))
-            {
-                return 5;
-            }
-            else if (substr.StartsWith("six"))
-            {
-                return 6;
-            }
-            else if (substr.StartsWith("seven"))
-            {
-                return 7;
-            }
-            else if (substr.StartsWith("eight"))
-            {
-                return 8;
-            }
-            else if (substr.StartsWith("nine"))
-            {
-                return 9;
-            }
-            return -1;
-        }
-
         int ExtractNumber2(string text)
         {
             int first = -1;
@@ -77,7 +47,7 @@ namespace Advent2023
                     first = text[i] - '0';
                     break;
                 }
-                first = ExtractWrittenNumber(text, i);
+                first = numberMatcher(text, i);
                 if (first != -1)
                 {
                     break;
@@ -92,7 +62,7 @@ namespace Advent2023
                     last = text[i] - '0';
                     break;
                 }
-                last = ExtractWrittenNumber(text, i);
+                last = numberMatcher(text, i);
                 if (last != -1)
                 {
                     break;
