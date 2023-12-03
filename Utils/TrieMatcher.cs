@@ -8,8 +8,8 @@ namespace Utils
 
         private class Node
         {
-            public Dictionary<char, Node> Children = new();
-            public TMatchResult Match;
+            public readonly Dictionary<char, Node> Children = [];
+            public TMatchResult MatchValue;
         }
 
         private readonly Node root = new();
@@ -17,20 +17,20 @@ namespace Utils
 
         public TrieMatcher(TMatchResult notFoundResult = default)
         {
-            root.Match = notFoundResult;
+            root.MatchValue = notFoundResult;
             this.notFoundResult = notFoundResult;
         }
 
         public TrieMatcher<TMatchResult> AddSequence(string sequence, TMatchResult matchResult)
         {
-            Node node = root;
+            var node = root;
 
             foreach (var c in sequence)
             {
-                node = node.Children.GetOrCreate(c, () => new() { Match = notFoundResult });
+                node = node.Children.GetOrCreate(c, () => new() { MatchValue = notFoundResult });
             }
 
-            node.Match = matchResult;
+            node.MatchValue = matchResult;
             return this;
         }
 
@@ -46,7 +46,7 @@ namespace Utils
                 index++;
             }
 
-            return node.Match;
+            return node.MatchValue;
         }
 
         public MatchFunc Build()

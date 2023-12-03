@@ -7,6 +7,16 @@ namespace Advent2023
     public class Day01
     {
         private readonly TrieMatcher<int>.MatchFunc numberMatcher = new TrieMatcher<int>(-1)
+            .AddSequence("0",     0)
+            .AddSequence("1",     1)
+            .AddSequence("2",     2)
+            .AddSequence("3",     3)
+            .AddSequence("4",     4)
+            .AddSequence("5",     5)
+            .AddSequence("6",     6)
+            .AddSequence("7",     7)
+            .AddSequence("8",     8)
+            .AddSequence("9",     9)
             .AddSequence("one",   1)
             .AddSequence("two",   2)
             .AddSequence("three", 3)
@@ -42,11 +52,6 @@ namespace Advent2023
             int first = -1;
             for (int i = 0; i <  text.Length; i++)
             {
-                if ('0' <= text[i] && text[i] <= '9')
-                {
-                    first = text[i] - '0';
-                    break;
-                }
                 first = numberMatcher(text, i);
                 if (first != -1)
                 {
@@ -57,11 +62,6 @@ namespace Advent2023
             int last = -1;
             for (int i = text.Length - 1; i >= 0; i--)
             {
-                if ('0' <= text[i] && text[i] <= '9')
-                {
-                    last = text[i] - '0';
-                    break;
-                }
                 last = numberMatcher(text, i);
                 if (last != -1)
                 {
