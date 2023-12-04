@@ -16,15 +16,15 @@ namespace Advent2023
             var have = match.Groups[2].Value;
 
             var winningNumbers = new HashSet<string>();
-            var parts = winning.Split(' ', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-            foreach (var number in parts)
+            var numbers = winning.Split(' ', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+            foreach (var number in numbers)
             {
                 winningNumbers.Add(number);
             }
 
             int count = 0;
-            parts = have.Split(' ', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-            foreach (var number in parts)
+            numbers = have.Split(' ', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+            foreach (var number in numbers)
             {
                 if (winningNumbers.Contains(number))
                 {
@@ -62,11 +62,12 @@ namespace Advent2023
         {
             var lines = FileIterator.Lines(filename).ToArray();
             var totals = new long[lines.Length];
+
             for (int i = 0; i < lines.Length; i++)
             {
                 var wins = CountWinningNumbers(lines[i]);
                 totals[i] += 1;
-                for (int j = i+1; j <= i + wins; j++)
+                for (int j = i+1; j <= i+wins; j++)
                 {
                     totals[j] += totals[i];
                 }
