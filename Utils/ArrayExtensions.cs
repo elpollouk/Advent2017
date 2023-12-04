@@ -137,36 +137,31 @@ namespace Utils
 
         public static IEnumerable<(int x, int y)> GetNeighbourPos<T>(this T[,] grid, int x, int y)
         {
-            if (1 <= y && y <= grid.GetLength(1))
+            if (0 < y)
             {
-                if (1 <= x && x <= grid.GetLength(0))
+                if (0 < x)
                     yield return (x - 1, y - 1);
 
-                if (0 <= x && x <= grid.GetLength(0) - 1)
-                    yield return (x, y - 1);
+                yield return (x, y - 1);
 
-                if (-1 <= x && x <= grid.GetLength(0) - 2)
+                if (x < grid.GetLength(0) - 1)
                     yield return (x + 1, y - 1);
             }
 
-            if (0 <= y && y <= grid.GetLength(1) - 1)
-            {
-                if (1 <= x && x <= grid.GetLength(0))
-                    yield return (x - 1, y);
+            if (0 < x)
+                yield return (x - 1, y);
 
-                if (-1 <= x && x <= grid.GetLength(0) - 2)
-                    yield return (x + 1, y);
-            }
+            if (x < grid.GetLength(0) - 1)
+                yield return (x + 1, y);
 
-            if (-1 <= y && y <= grid.GetLength(1) - 2)
+            if (y < grid.GetLength(1) - 1)
             {
-                if (1 <= x && x <= grid.GetLength(0))
+                if (0 < x)
                     yield return (x - 1, y + 1);
 
-                if (0 <= x && x <= grid.GetLength(0) - 1)
-                    yield return (x, y + 1);
+                yield return (x, y + 1);
 
-                if (-1 <= x && x <= grid.GetLength(0) - 2)
+                if (x < grid.GetLength(0) - 1)
                     yield return (x + 1, y + 1);
             }
         }
