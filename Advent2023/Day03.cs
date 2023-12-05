@@ -9,21 +9,9 @@ namespace Advent2023
 {
     public class Day03
     {
-        class Pos
-        {
-            public Pos(int x, int y)
-            {
-                this.x = x;
-                this.y = y;
-            }
-
-            public int x;
-            public int y;
-        }
-
         bool IsDigit(char c) => '0' <= c && c <= '9';
 
-        bool NextCell(char[,] grid, Pos pos)
+        bool NextCell(char[,] grid, XY pos)
         {
             if (pos.y >= grid.GetLength(1)) return false;
 
@@ -41,7 +29,7 @@ namespace Advent2023
             return true;
         }
 
-        bool ScanToNextNumber(char[,] grid, Pos start)
+        bool ScanToNextNumber(char[,] grid, XY start)
         {
             if (start.y >= grid.GetLength(1)) return false;
 
@@ -54,7 +42,7 @@ namespace Advent2023
             return true;
         }
 
-        string ReadNumberReportAdjecency(char[,] grid, Pos start, out bool adjecent)
+        string ReadNumberReportAdjecency(char[,] grid, XY start, out bool adjecent)
         {
             adjecent = false;
             string number = "";
@@ -84,7 +72,7 @@ namespace Advent2023
 
         long SumParts(char[,] grid)
         {
-            Pos pos = new(0, 0);
+            XY pos = new(0, 0);
             long sum = 0;
 
             while (ScanToNextNumber(grid, pos))
