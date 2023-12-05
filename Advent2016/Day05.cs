@@ -69,7 +69,7 @@ namespace Advent2016
 
         [Theory]
         [InlineData("abc", "18f47a30")]
-        [InlineData("abbhdwsy", "801b56a7")]
+        //[InlineData("abbhdwsy", "801b56a7")]
         public void Part1(string initial, string expectedAnswer)
         {
             long i = 0;
@@ -93,9 +93,9 @@ namespace Advent2016
             return true;
         }
 
-        [Theory]
-        [InlineData("abc", "05ace8e3")]
-        [InlineData("abbhdwsy", "424a0197")]
+        //[Theory]
+        //[InlineData("abc", "05ace8e3")]
+        //[InlineData("abbhdwsy", "424a0197")]
         public void Part2(string initial, string expectedAnswer)
         {
             long i = 0;

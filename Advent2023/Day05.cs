@@ -126,12 +126,15 @@ namespace Advent2023
 
             var mapper = ParseMappers(reader);
 
-            var seedRanges = new (long from, long to)[seeds.Length / 2];
-            for (int i = 0; i < seedRanges.Length; i++)
+            // Divide each see range in half so that we can run across more cores
+            var seedRanges = new (long from, long to)[seeds.Length];
+            for (int i = 0; i < seeds.Length / 2; i++)
             {
+                var length = seeds[i * 2 + 1] / 2;
                 var from = seeds[i * 2];
-                var to = from + seeds[i * 2 + 1];
-                seedRanges[i] = (from, to);
+                var to = from + length;
+                seedRanges[i * 2] = (from, to);
+                seedRanges[i * 2 + 1] = (from + length, from + seeds[i * 2 + 1]);
             }
 
             long minLocation = long.MaxValue;
