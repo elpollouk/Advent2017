@@ -9,18 +9,11 @@ namespace Advent2023
 {
     public class Day05
     {
-        //record Range(long start, long end, long destinationBase);
-        class Range
+        class Range(long start, long end)
         {
-            public readonly long start;
-            public readonly long end;
+            public readonly long start = start;
+            public readonly long end = end;
             public long length => end - start;
-
-            public Range(long start, long end)
-            {
-                this.start = start;
-                this.end = end;
-            }
 
             public bool Before(Range other)
             {
@@ -51,16 +44,10 @@ namespace Advent2023
             }
         }
 
-        class Mapping
+        class Mapping(Range range, long destinationBase)
         {
-            public readonly Range range;
-            public readonly long destinationBase;
-
-            public Mapping(Range range, long destinationBase)
-            {
-                this.range = range;
-                this.destinationBase = destinationBase;
-            }
+            public readonly Range range = range;
+            public readonly long destinationBase = destinationBase;
 
             public bool Before(Range other) => range.Before(other);
             public bool Contains(long value) => range.Contains(value);
@@ -113,7 +100,7 @@ namespace Advent2023
                 int mappingIndex = 0;
                 int rangeIndex = 0;
                 Range bufferedRange = null;
-                Mapping mapping = mappings[mappingIndex];
+                Mapping mapping = mappings[mappingIndex++];
 
                 // Pull house keeping logic into lambdas to keep the main loop logic as clean as possible
                 var NextRange = () =>
@@ -133,10 +120,9 @@ namespace Advent2023
 
                 var NextMapping = () =>
                 {
-                    mappingIndex++;
                     if (mappingIndex < mappings.Count)
                     {
-                        return mappings[mappingIndex];
+                        return mappings[mappingIndex++];
                     }
                     else
                     {
