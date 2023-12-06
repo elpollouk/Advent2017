@@ -183,7 +183,7 @@ namespace Advent2023
                     }
                     else
                     {
-                        // Range ends part way through the mapping
+                        // Range ends part way through or after the mapping
                         // Split the range and pass the non-mapped lower part through to the results
                         var (lower, upper) = range.Split(mapping.range.start);
                         result.Add(lower);
@@ -271,7 +271,7 @@ namespace Advent2023
             var reader = FileIterator.CreateLineReader(filename);
             var line = reader();
             line = line.Split(':')[1];
-            var seeds = line.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(v => long.Parse(v)).ToArray();
+            var seeds = line.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(long.Parse).ToArray();
             reader();
 
             var mapper = ParseMappers(reader);
@@ -296,7 +296,7 @@ namespace Advent2023
             var reader = FileIterator.CreateLineReader(filename);
             var line = reader();
             line = line.Split(':')[1];
-            var seeds = line.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(v => long.Parse(v)).ToArray();
+            var seeds = line.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(long.Parse).ToArray();
             reader();
 
             var mapper = ParseMappers2(reader);

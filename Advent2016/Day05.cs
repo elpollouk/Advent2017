@@ -96,7 +96,7 @@ namespace Advent2016
         //[Theory]
         //[InlineData("abc", "05ace8e3")]
         //[InlineData("abbhdwsy", "424a0197")]
-        public void Part2(string initial, string expectedAnswer)
+        void Part2(string initial, string expectedAnswer)
         {
             long i = 0;
             char[] password = new char[8];
