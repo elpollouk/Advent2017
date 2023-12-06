@@ -178,12 +178,13 @@ namespace Advent2023
                         result.Add(mapping.Map(lower));
                         // Buffer the upper part to re-evaluate on the next iteration
                         bufferedRange = upper;
+                        // Update the mapping as we've now consumed it via this range
                         mapping = NextMapping();
                     }
                     else
                     {
                         // Range ends part way through the mapping
-                        // Split the range and pass the non-mapped lower part through the the results
+                        // Split the range and pass the non-mapped lower part through to the results
                         var (lower, upper) = range.Split(mapping.range.start);
                         result.Add(lower);
                         // Buffer the overlapping upper part for re-evaluation on the next iteration
