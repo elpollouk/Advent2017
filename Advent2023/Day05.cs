@@ -49,7 +49,6 @@ namespace Advent2023
             public readonly Range range = range;
             public readonly long destinationBase = destinationBase;
 
-            public bool Before(Range other) => range.Before(other);
             public bool Contains(long value) => range.Contains(value);
             public bool Contains(Range other) => range.Contains(other);
 
@@ -103,7 +102,7 @@ namespace Advent2023
                 Mapping mapping = mappings[mappingIndex++];
 
                 // Pull house keeping logic into lambdas to keep the main loop logic as clean as possible
-                var NextRange = () =>
+                Range NextRange()
                 {
                     // Consume either a bufferd half of a split range or a new range from the input list
                     Range range = bufferedRange;
@@ -116,9 +115,9 @@ namespace Advent2023
                         bufferedRange = null;
                     }
                     return range;
-                };
+                }
 
-                var NextMapping = () =>
+                Mapping NextMapping()
                 {
                     if (mappingIndex < mappings.Count)
                     {
@@ -128,7 +127,7 @@ namespace Advent2023
                     {
                         return null;
                     }
-                };
+                }
 
                 while (rangeIndex < ranges.Count || bufferedRange != null)
                 {
@@ -192,8 +191,8 @@ namespace Advent2023
         {
             RangeMapper mapper = new();
 
+            reader();
             var line = reader();
-            line = reader();
             while (line != null && line.Length > 0)
             {
                 var numbers = line.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
@@ -205,9 +204,9 @@ namespace Advent2023
             return mapper;
         }
 
-        Func<long, long> ParseMappers(Func<string> reader)
+        RangeMapper[] ParseMappers(Func<string> reader)
         {
-            RangeMapper[] mappers = {
+            return [
                 ParseMapper(reader), // seed-to-soil
                 ParseMapper(reader), // soil-to-fertilizer
                 ParseMapper(reader), // fertilizer-to-water
@@ -215,7 +214,12 @@ namespace Advent2023
                 ParseMapper(reader), // light-to-temperature
                 ParseMapper(reader), // temperature-to-humidity
                 ParseMapper(reader)  // humidity-to-location
-            };
+            ];
+        }
+
+        Func<long, long> BuildPipeline1(Func<string> reader)
+        {
+            var mappers = ParseMappers(reader);
 
             return value =>
             {
@@ -227,17 +231,9 @@ namespace Advent2023
             };
         }
 
-        Func<List<Range>, List<Range>> ParseMappers2(Func<string> reader)
+        Func<List<Range>, List<Range>> BuildPipeline2(Func<string> reader)
         {
-            RangeMapper[] mappers = {
-                ParseMapper(reader), // seed-to-soil
-                ParseMapper(reader), // soil-to-fertilizer
-                ParseMapper(reader), // fertilizer-to-water
-                ParseMapper(reader), // water-to-light
-                ParseMapper(reader), // light-to-temperature
-                ParseMapper(reader), // temperature-to-humidity
-                ParseMapper(reader)  // humidity-to-location
-            };
+            var mappers = ParseMappers(reader);
 
             return ranges =>
             {
@@ -260,7 +256,7 @@ namespace Advent2023
             var seeds = line.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(long.Parse).ToArray();
             reader();
 
-            var mapper = ParseMappers(reader);
+            var mapper = BuildPipeline1(reader);
 
             long minLocation = long.MaxValue;
 
@@ -285,7 +281,7 @@ namespace Advent2023
             var seeds = line.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(long.Parse).ToArray();
             reader();
 
-            var mapper = ParseMappers2(reader);
+            var mapper = BuildPipeline2(reader);
 
             List<Range> seedRanges = [];
             for (int i = 0; i < seeds.Length / 2; i++)
