@@ -14,7 +14,7 @@ namespace Advent2023
 
         class RangeMapper
         {
-            private readonly List<Range> ranges = new();
+            private readonly List<Range> ranges = [];
 
             public void AddRange(long source, long desitination, long length)
             {
@@ -139,7 +139,7 @@ namespace Advent2023
 
             long minLocation = long.MaxValue;
 
-            List<Task<long>> tasks = new();
+            List<Task<long>> tasks = [];
 
             foreach (var range in seedRanges)
             {
