@@ -124,10 +124,6 @@ namespace Advent2023
                 }
                 if (count == 3)
                 {
-                    if (rank == HandRank.ONE_PAIR)
-                    {
-                        return HandRank.FULL_HOUSE;
-                    }
                     rank = HandRank.THREE_OF_A_KIND;
                 }
                 else if (count == 2)
