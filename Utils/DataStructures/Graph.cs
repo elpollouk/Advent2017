@@ -115,6 +115,17 @@ namespace Utils.DataStructures
             return node.Links.Contains(toItem);
         }
 
+        public int GetNumLinks(T fromItem)
+        {
+            return GetNode(fromItem).Links.Count;
+        }
+
+        public T GetLinkedItem(T fromItem, int index)
+        {
+            var node = GetNode(fromItem);
+            return node.Links[index];
+        }
+
         public IEnumerable<T> GetLinked(T fromItem)
         {
             var node = GetNode(fromItem);

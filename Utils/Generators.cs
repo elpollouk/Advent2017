@@ -11,6 +11,20 @@ namespace Utils
             return () => current++ % range;
         }
 
+        public static Func<T> CreateCycler<T>(this IEnumerable<T> collection)
+        {
+            var enumerator = collection.GetEnumerator();
+            return () =>
+            {
+                if (!enumerator.MoveNext())
+                {
+                    enumerator.Reset();
+                    enumerator.MoveNext();
+                }
+                return enumerator.Current;
+            };
+        }
+
         public static IEnumerable<T> Cycle<T>(this IEnumerable<T> range)
         {
             while (true)
