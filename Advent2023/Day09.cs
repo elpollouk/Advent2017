@@ -26,24 +26,22 @@ namespace Advent2023
             return (output, allEqual);
         }
 
-        long Predict(string sequence, Func<long[],long> GetRollupValue, Func<long, long, long> UpdateRollupValue)
+        long Predict(long[] data)
         {
             Stack<long> rollupValues = new();
             bool allEqual = false;
-            var data = sequence.Split(' ').Select(long.Parse).ToArray();
 
-            rollupValues.Push(GetRollupValue(data));
+            rollupValues.Push(data[0]);
             while (!allEqual)
             {
                 (data, allEqual) = Reduce(data);
-                var rollupValue = GetRollupValue(data);
-                rollupValues.Push(rollupValue);
+                rollupValues.Push(data[0]);
             }
 
             var value = rollupValues.Pop();
             while (rollupValues.Count > 0)
             {
-                value = UpdateRollupValue(value, rollupValues.Pop());
+                value = rollupValues.Pop() - value;
             }
 
             return value;
@@ -57,11 +55,8 @@ namespace Advent2023
             long total = 0;
             foreach (var line in FileIterator.Lines(filename))
             {
-                total += Predict(
-                    line,
-                    values => values.Last(),
-                    (rollup, sequenceValue) => sequenceValue + rollup
-                );
+                var data = line.Split(' ').Select(long.Parse).Reverse().ToArray();
+                total += Predict(data);
             }
             total.Should().Be(expectedAnswer);
         }
@@ -74,11 +69,8 @@ namespace Advent2023
             long total = 0;
             foreach (var line in FileIterator.Lines(filename))
             {
-                total += Predict(
-                    line,
-                    values => values[0],
-                    (rollup, sequenceValue) => sequenceValue - rollup
-                );
+                var data = line.Split(' ').Select(long.Parse).ToArray();
+                total += Predict(data);
             }
             total.Should().Be(expectedAnswer);
         }
