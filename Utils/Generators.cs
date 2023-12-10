@@ -57,6 +57,13 @@ namespace Utils
                     yield return (x, y);
         }
 
+        public static IEnumerable<(int x, int y)> Rectangle((int x, int y) from, (int x, int y) to)
+        {
+            for (var y = from.y; y < to.y; y++)
+                for (var x = from.x; x < to.x; x++)
+                    yield return (x, y);
+        }
+
         public static IEnumerable<(int x, int y)> Rectangle(this Array array) => Rectangle(array.GetLength(0), array.GetLength(1));
     }
 }

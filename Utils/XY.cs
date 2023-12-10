@@ -2,18 +2,12 @@
 
 namespace Utils
 {
-    public class XY
+    public class XY(int x, int y)
     {
-        public int x;
-        public int y;
+        public int x = x;
+        public int y = y;
 
         public XY() : this(0, 0) { }
-
-        public XY(int x, int y)
-        {
-            this.x = x;
-            this.y = y;
-        }
 
         public static implicit operator XY((int x, int y) value)
         {
