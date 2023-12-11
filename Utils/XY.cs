@@ -71,7 +71,7 @@ namespace Utils
             return this;
         }
 
-        public int ManhattenDistanceTo(XY other)
+        public int ManhattanDistanceTo(XY other)
         {
             var dx = other.x - x;
             var dy = other.y - y;

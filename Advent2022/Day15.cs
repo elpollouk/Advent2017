@@ -84,7 +84,7 @@ namespace Advent2022
 
             foreach (var (sensor, beacon) in data)
             {
-                var distanceToBeacon = sensor.ManhattenDistanceTo(beacon);
+                var distanceToBeacon = sensor.ManhattanDistanceTo(beacon);
                 var distanceToY = Math.Abs(sensor.y - y);
 
                 var dy = distanceToBeacon - distanceToY;
@@ -155,7 +155,7 @@ namespace Advent2022
             public Sensor(XY pos, XY beacon)
             {
                 Pos = pos;
-                Range = pos.ManhattenDistanceTo(beacon);
+                Range = pos.ManhattanDistanceTo(beacon);
             }
 
             // Return 0 if point is not in range, otherwise return the next x value that would be outside of the range of this sensor on this row

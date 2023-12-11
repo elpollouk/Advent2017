@@ -24,18 +24,16 @@ namespace Advent2023
             Dictionary<int, List<XY>> galByRow = [];
             Dictionary<int, List<XY>> galByCol = [];
 
-            foreach (var pos in grid.Rectangle())
+            foreach (var (x, y) in grid.Rectangle())
             {
-                if (grid[pos.x, pos.y] == '.') continue;
+                if (grid[x, y] == '.') continue;
 
-                maxX = Math.Max(maxX, pos.x);
-                maxY = Math.Max(maxY, pos.y);
+                maxX = Math.Max(maxX, x);
+                maxY = Math.Max(maxY, y);
 
-                var gal = new XY(pos.x, pos.y);
-                var list = galByRow.GetOrCreate(pos.y, () => []);
-                list.Add(gal);
-                list = galByCol.GetOrCreate(pos.x, () => []);
-                list.Add(gal);
+                var gal = new XY(x, y);
+                galByRow.GetOrCreate(y, () => []).Add(gal);
+                galByCol.GetOrCreate(x, () => []).Add(gal);
             }
 
             // Expand horizontally
@@ -68,16 +66,16 @@ namespace Advent2023
                 }
             }
 
-            // Flatten the collections and get the Mahatten distances
+            // Flatten the collections and get the Manhattan distances
             long total = 0;
             var galaxies = galByRow.Values.SelectMany(l => l).ToArray();
-            for (int i = 0; i <  galaxies.Length - 1; i++)
+            for (int i = 0; i < galaxies.Length - 1; i++)
             {
                 var gal1 = galaxies[i];
-                for (int j = i+1;  j < galaxies.Length; j++)
+                for (int j = i + 1; j < galaxies.Length; j++)
                 {
                     var gal2 = galaxies[j];
-                    total += gal1.ManhattenDistanceTo(gal2);
+                    total += gal1.ManhattanDistanceTo(gal2);
                 }
             }
 
