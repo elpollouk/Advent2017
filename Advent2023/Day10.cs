@@ -288,5 +288,60 @@ namespace Advent2023
             int total = grid.Items().Where(v => v == 'I').Count();
             total.Should().Be(expectedAnswer);
         }
+
+        [Theory]
+        [InlineData("Data/Day10_Test2.txt", 4)]
+        [InlineData("Data/Day10_Test3.txt", 8)]
+        [InlineData("Data/Day10_Test4.txt", 10)]
+        [InlineData("Data/Day10.txt", 511)]
+        public void Part2_Scanline(string filename, int expectedAnswer)
+        {
+            // Repeat part one to find all the tiles in the loop
+            var (graph, start) = ParseGraph(filename);
+            var scores = Score(graph, start);
+            var grid = FileIterator.LoadGrid(filename);
+
+            // Scrub out tiles that aren't part of the loop
+            CleanGrid(grid, scores);
+            // Replace the start tile with its actual reprisenation
+            UpdateStartType(grid, start);
+
+            // Scan across the grid detecting when we cross a loop edge
+            for (int y = 0; y < grid.GetLength(1); y++)
+            {
+                bool isOuter = true;
+                char prevEdge = ' ';
+                for (int x = 0; x < grid.GetLength(0); x++)
+                {
+                    switch(grid[x, y])
+                    {
+                        case '.':
+                            grid[x, y] = isOuter ? 'O' : 'I';
+                            break;
+
+                        case '|':
+                            isOuter = !isOuter;
+                            break;
+
+                        case 'F':
+                        case 'L':
+                            prevEdge = grid[x, y];
+                            break;
+
+                        case '7':
+                            if (prevEdge == 'L') isOuter = !isOuter;
+                            break;
+
+                        case 'J':
+                            if (prevEdge == 'F') isOuter = !isOuter;
+                            break;
+                    }
+                }
+            }
+
+            // Count how many inner tiles we have
+            int total = grid.Items().Where(v => v == 'I').Count();
+            total.Should().Be(expectedAnswer);
+        }
     }
 }
