@@ -18,8 +18,8 @@ namespace Advent2023
         public void Solve(string filename, int expansionFactor, long expectedAnswer)
         {
             var grid = FileIterator.LoadGrid(filename);
-            var maxX = 0;
-            var maxY = 0;
+            var maxX = grid.GetLength(0) - 1;
+            var maxY = grid.GetLength(1) - 1;
 
             Dictionary<int, List<XY>> galByRow = [];
             Dictionary<int, List<XY>> galByCol = [];
@@ -27,9 +27,6 @@ namespace Advent2023
             foreach (var (x, y) in grid.Rectangle())
             {
                 if (grid[x, y] == '.') continue;
-
-                maxX = Math.Max(maxX, x);
-                maxY = Math.Max(maxY, y);
 
                 var gal = new XY(x, y);
                 galByRow.GetOrCreate(y, () => []).Add(gal);
