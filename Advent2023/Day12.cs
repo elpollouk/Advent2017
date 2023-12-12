@@ -29,23 +29,14 @@ namespace Advent2023
             }
         }
 
-        class CheckContext
+        class CheckContext(string input, string groups)
         {
-            readonly CheckGroup checks;
-            readonly string original;
-            readonly char[] currentState;
+            readonly CheckGroup checks = new CheckGroup(groups);
+            readonly char[] currentState = [.. input];
             readonly Dictionary<(int, int, int), long> cache = [];
-
-            public CheckContext(string input, string groups)
-            { 
-                checks = new CheckGroup(groups);
-                original = input;
-                currentState = [.. original];
-            }
 
             public long CountValid(int checkIndex, int currentGroupSize, int group)
             {
-                long count = 0;
                 while (checkIndex < currentState.Length)
                 {
                     var c = currentState[checkIndex];
@@ -56,27 +47,28 @@ namespace Advent2023
                             break;
 
                         case '?':
+                            // Cache the result of both branch traversals rather than the individual calls
                             var key = (checkIndex, currentGroupSize, group);
-                            if (cache.TryGetValue(key, out var value))
-                            {
-                                return count + value;
-                            }
+                            if (cache.TryGetValue(key, out var count)) return count;
 
                             currentState[checkIndex] = '.';
-                            value = CountValid(checkIndex, currentGroupSize, group);
+                            count = CountValid(checkIndex, currentGroupSize, group);
                             currentState[checkIndex] = '#';
-                            value += CountValid(checkIndex, currentGroupSize, group);
+                            count += CountValid(checkIndex, currentGroupSize, group);
                             currentState[checkIndex] = '?';
-                            cache[key] = value;
-                            return count + value;
+
+                            cache[key] = count;
+                            return count;
 
                         case '.':
                             if (currentGroupSize != 0)
                             {
+                                // Group has just ended, check if it was valid
                                 if (!checks.IsValid(group, currentGroupSize))
                                 {
-                                    return count;
+                                    return 0;
                                 }
+                                // Group was valid so move to the next one and reset the size count
                                 group++;
                                 currentGroupSize = 0;
                             }
@@ -87,18 +79,21 @@ namespace Advent2023
 
                 if (currentGroupSize != 0)
                 {
+                    // Trailing group, so do final checks
                     if (!checks.IsValid(group, currentGroupSize))
                     {
-                        return count;
+                        return 0;
                     }
                     group++;
                 }
 
-                if (checks.HasCompleted(group))
+                if (!checks.HasCompleted(group))
                 {
-                    count++;
+                    return 0;
                 }
-                return count;
+
+                // We reached the end of the input with the required number of groups checked
+                return 1;
             }
         }
 
@@ -119,7 +114,7 @@ namespace Advent2023
                 newGroups += ',' + groups;
             }
 
-            return(newPattern, newGroups);
+            return (newPattern, newGroups);
         }
 
         [Theory]
