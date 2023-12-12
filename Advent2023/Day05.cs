@@ -76,9 +76,9 @@ namespace Advent2023
         {
             private readonly List<Mapping> mappings = [];
 
-            public void AddRange(long source, long desitination, long length)
+            public void AddRange(long source, long destination, long length)
             {
-                mappings.Add(new(new(source, source + length), desitination));
+                mappings.Add(new(new(source, source + length), destination));
             }
 
             public long Map(long value)
@@ -104,7 +104,7 @@ namespace Advent2023
                 // Pull house keeping logic into lambdas to keep the main loop logic as clean as possible
                 Range NextRange()
                 {
-                    // Consume either a bufferd half of a split range or a new range from the input list
+                    // Consume either a buffered half of a split range or a new range from the input list
                     Range range = bufferedRange;
                     if (range == null)
                     {

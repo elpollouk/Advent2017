@@ -42,22 +42,22 @@ namespace Advent2023
             return true;
         }
 
-        string ReadNumberReportAdjecency(char[,] grid, XY start, out bool adjecent)
+        string ReadNumberReportAdjacency(char[,] grid, XY start, out bool adjacent)
         {
-            adjecent = false;
+            adjacent = false;
             string number = "";
 
             while (IsDigit(grid[start.x, start.y]))
             {
                 number += grid[start.x, start.y];
 
-                if (adjecent == false)
+                if (adjacent == false)
                 {
                     foreach (var c in grid.GetNeighbours(start.x, start.y))
                     {
                         if (!IsDigit(c) && c != '.')
                         {
-                            adjecent = true;
+                            adjacent = true;
                             break;
                         }
                     }
@@ -77,8 +77,8 @@ namespace Advent2023
 
             while (ScanToNextNumber(grid, pos))
             {
-                string number = ReadNumberReportAdjecency(grid, pos, out bool hasAdjancency);
-                if (hasAdjancency)
+                string number = ReadNumberReportAdjacency(grid, pos, out bool hasAdjacency);
+                if (hasAdjacency)
                 {
                     sum += int.Parse(number);
                 }

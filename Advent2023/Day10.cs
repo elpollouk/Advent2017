@@ -129,7 +129,7 @@ namespace Advent2023
                 queue.Enqueue((x + 1, y));
                 queue.Enqueue((x, y - 1));
                 queue.Enqueue((x, y + 1));
-                grid[x, y] = '?'; // Substitue in a value to replace once we know the replacement type
+                grid[x, y] = '?'; // Substitute in a value to replace once we know the replacement type
             }
 
             var replacement = isOuter ? 'O' : 'I';
@@ -261,7 +261,7 @@ namespace Advent2023
 
             // Scrub out tiles that aren't part of the loop
             CleanGrid(grid, scores);
-            // Replace the start tile with its actual reprisenation
+            // Replace the start tile with its actual representation
             UpdateStartType(grid, start);
 
             // Find an outer corner to start tracing from
@@ -303,7 +303,7 @@ namespace Advent2023
 
             // Scrub out tiles that aren't part of the loop
             CleanGrid(grid, scores);
-            // Replace the start tile with its actual reprisenation
+            // Replace the start tile with its actual representation
             UpdateStartType(grid, start);
 
             // Scan across the grid detecting when we cross a loop edge
