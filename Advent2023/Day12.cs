@@ -8,14 +8,9 @@ namespace Advent2023
 {
     public class Day12
     {
-        class CheckGroup
+        class CheckGroup(string groups)
         {
-            readonly int[] counts;
-
-            public CheckGroup(string groups)
-            {
-                counts = groups.Split(',').Select(int.Parse).ToArray();
-            }
+            readonly int[] counts = groups.Split(',').Select(int.Parse).ToArray();
 
             public bool IsValid(int group, int checkSize)
             {
@@ -31,7 +26,7 @@ namespace Advent2023
 
         class CheckContext(string input, string groups)
         {
-            readonly CheckGroup checks = new CheckGroup(groups);
+            readonly CheckGroup checks = new(groups);
             readonly char[] currentState = [.. input];
             readonly Dictionary<(int, int, int), long> cache = [];
 
