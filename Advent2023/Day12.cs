@@ -1,8 +1,6 @@
 ﻿using FluentAssertions;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using Utils;
 using Xunit;
 
@@ -36,6 +34,7 @@ namespace Advent2023
             readonly CheckGroup checks;
             readonly string original;
             readonly char[] currentState;
+            readonly Dictionary<(int, int, int), long> cache = [];
 
             public CheckContext(string input, string groups)
             { 
@@ -57,12 +56,19 @@ namespace Advent2023
                             break;
 
                         case '?':
+                            var key = (checkIndex, currentGroupSize, group);
+                            if (cache.TryGetValue(key, out var value))
+                            {
+                                return count + value;
+                            }
+
                             currentState[checkIndex] = '.';
-                            count += CountValid(checkIndex, currentGroupSize, group);
+                            value = CountValid(checkIndex, currentGroupSize, group);
                             currentState[checkIndex] = '#';
-                            count += CountValid(checkIndex, currentGroupSize, group);
+                            value += CountValid(checkIndex, currentGroupSize, group);
                             currentState[checkIndex] = '?';
-                            return count;
+                            cache[key] = value;
+                            return count + value;
 
                         case '.':
                             if (currentGroupSize != 0)
@@ -164,7 +170,7 @@ namespace Advent2023
 
         [Theory]
         [InlineData("Data/Day12_Test.txt", 525152)]
-        //[InlineData("Data/Day12.txt", 0)]
+        [InlineData("Data/Day12.txt", 33992866292225)]
         public void Part2(string filename, long expectedAnswer)
         {
             long total = 0;
