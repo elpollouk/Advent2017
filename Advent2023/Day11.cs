@@ -23,9 +23,9 @@ namespace Advent2023
             Dictionary<int, List<XY>> galByRow = [];
             Dictionary<int, List<XY>> galByCol = [];
 
-            foreach (var (x, y) in grid.Rectangle())
+            foreach (var ((x, y), c) in grid.Iterate())
             {
-                if (grid[x, y] == '.') continue;
+                if (c == '.') continue;
 
                 var gal = new XY(x, y);
                 galByRow.GetOrCreate(y, () => []).Add(gal);

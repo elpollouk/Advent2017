@@ -65,5 +65,11 @@ namespace Utils
         }
 
         public static IEnumerable<(int x, int y)> Rectangle(this Array array) => Rectangle(array.GetLength(0), array.GetLength(1));
+
+        public static IEnumerable<((int x, int y) pos, T item)> Iterate<T>(this T[,] array)
+        {
+            foreach (var pos in array.Rectangle())
+                yield return (pos, array[pos.x, pos.y]);
+        }
     }
 }
