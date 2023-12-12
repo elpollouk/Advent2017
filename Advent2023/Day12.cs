@@ -12,13 +12,13 @@ namespace Advent2023
         {
             readonly int[] counts = groups.Split(',').Select(int.Parse).ToArray();
 
-            public bool IsValid(int group, int checkSize)
+            public bool IsGroupValid(int group, int checkSize)
             {
                 if (counts.Length <= group) return false;
                 return checkSize == counts[group];
             }
 
-            public bool HasCompleted(int group)
+            public bool HasCheckedAllGroups(int group)
             {
                 return group == counts.Length;
             }
@@ -30,59 +30,49 @@ namespace Advent2023
             readonly char[] currentState = [.. input];
             readonly Dictionary<(int, int, int), long> cache = [];
 
-            public long CountValid(int checkIndex, int currentGroupSize, int group)
+            public long CountValid(int inputIndex, int groupIndex, int groupSize)
             {
-                while (checkIndex < currentState.Length)
+                while (inputIndex < currentState.Length)
                 {
-                    var c = currentState[checkIndex];
+                    var c = currentState[inputIndex];
                     switch (c)
                     {
                         case '#':
-                            currentGroupSize++;
+                            groupSize++;
                             break;
 
                         case '?':
                             // Cache the result of both branch traversals rather than the individual calls
-                            var key = (checkIndex, currentGroupSize, group);
+                            var key = (inputIndex, groupIndex, groupSize);
                             if (cache.TryGetValue(key, out var count)) return count;
 
-                            currentState[checkIndex] = '.';
-                            count = CountValid(checkIndex, currentGroupSize, group);
-                            currentState[checkIndex] = '#';
-                            count += CountValid(checkIndex, currentGroupSize, group);
-                            currentState[checkIndex] = '?';
+                            currentState[inputIndex] = '.';
+                            count = CountValid(inputIndex, groupIndex, groupSize);
+                            currentState[inputIndex] = '#';
+                            count += CountValid(inputIndex, groupIndex, groupSize);
+                            currentState[inputIndex] = '?';
 
                             cache[key] = count;
                             return count;
 
                         case '.':
-                            if (currentGroupSize != 0)
+                            if (groupSize != 0)
                             {
                                 // Group has just ended, check if it was valid
-                                if (!checks.IsValid(group, currentGroupSize))
+                                if (!checks.IsGroupValid(groupIndex, groupSize))
                                 {
                                     return 0;
                                 }
                                 // Group was valid so move to the next one and reset the size count
-                                group++;
-                                currentGroupSize = 0;
+                                groupIndex++;
+                                groupSize = 0;
                             }
                             break;
                     }
-                    checkIndex++;
+                    inputIndex++;
                 }
 
-                if (currentGroupSize != 0)
-                {
-                    // Trailing group, so do final checks
-                    if (!checks.IsValid(group, currentGroupSize))
-                    {
-                        return 0;
-                    }
-                    group++;
-                }
-
-                if (!checks.HasCompleted(group))
+                if (!checks.HasCheckedAllGroups(groupIndex))
                 {
                     return 0;
                 }
@@ -94,6 +84,8 @@ namespace Advent2023
 
         long CountValid(string input, string groups)
         {
+            // Force the last character to be a '.' to simplify the end of group handling logic
+            input += '.';
             CheckContext context = new(input, groups);
             return context.CountValid(0, 0, 0);
         }
