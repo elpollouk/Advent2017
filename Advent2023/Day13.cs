@@ -1,11 +1,8 @@
 ﻿using FluentAssertions;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
 using Utils;
 using Xunit;
-using Xunit.Sdk;
 
 namespace Advent2023
 {
@@ -52,108 +49,116 @@ namespace Advent2023
             }
         }
 
-        bool IsHorizontalReflectiveMatch(char[,] grid, int x, int y)
+        int HorizontalErrorCount(char[,] grid, int x, int y)
         {
             int maxX = grid.GetLength(0);
             int upperX = x + 1;
-
+            int errors = 0;
 
             while (0 <= x && upperX < maxX)
             {
-                if (grid[x, y] != grid[upperX, y]) return false;
+                if (grid[x, y] != grid[upperX, y])
+                {
+                    errors++;
+                    if (errors == 2) return 2;
+                }
                 x--;
                 upperX++;
             }
 
-            return true;
+            return errors;
         }
 
-        bool IsVerticalReflectiveMatch(char[,] grid, int x, int y)
+        int VerticalErrorCount(char[,] grid, int x, int y)
         {
             int maxY = grid.GetLength(1);
             int upperY = y + 1;
-
+            int errors = 0;
 
             while (0 <= y && upperY < maxY)
             {
-                if (grid[x, y] != grid[x, upperY]) return false;
+                if (grid[x, y] != grid[x, upperY])
+                {
+                    errors++;
+                    if (errors == 2) return 2;
+                }
                 y--;
                 upperY++;
             }
 
-            return true;
+            return errors;
         }
 
-        long GetHorizontalReflection(char[,] grid)
+        long GetHorizontalReflection(char[,] grid, int requiredErrors)
         {
-            long reflection = -2;
             for (int x = 0; x < grid.GetLength(0) - 1; x++)
             {
-                reflection = x;
+                int errors = 0;
                 for (int y = 0; y < grid.GetLength(1); y++)
                 {
-                    if (!IsHorizontalReflectiveMatch(grid, x, y))
+                    errors += HorizontalErrorCount(grid, x, y);
+                    if (requiredErrors < errors)
                     {
-                        reflection = -2;
                         break;
                     }
                 }
-                if (reflection != -2) break;
+
+                if (errors == requiredErrors)
+                {
+                    return x + 1;
+                }
             }
 
-            return reflection + 1;
+            return -1;
         }
 
-        long GetVerticalReflection(char[,] grid)
+        long GetVerticalReflection(char[,] grid, int requiredErrors)
         {
-            long reflection = -2;
             for (int y = 0; y < grid.GetLength(1) - 1; y++)
             {
-                reflection = y;
+                int errors = 0;
                 for (int x = 0; x < grid.GetLength(0); x++)
                 {
-                    if (!IsVerticalReflectiveMatch(grid, x, y))
+                    errors += VerticalErrorCount(grid, x, y);
+                    if (requiredErrors < errors)
                     {
-                        reflection = -2;
                         break;
                     }
                 }
-                if (reflection != -2) break;
+
+                if (errors == requiredErrors)
+                {
+                    return y + 1;
+                }
             }
 
-            return reflection + 1;
+            throw new Exception("Reflection not found");
         }
 
-        long FindReflection(char[,] grid)
+        long FindReflection(char[,] grid, int requiredErrors)
         {
-            var reflection = GetHorizontalReflection(grid);
+            var reflection = GetHorizontalReflection(grid, requiredErrors);
             if (reflection != - 1)
                 return reflection;
 
-            return GetVerticalReflection(grid) * 100;
+            return GetVerticalReflection(grid, requiredErrors) * 100;
         }
 
         [Theory]
-        [InlineData("Data/Day13_Test.txt", 405)]
-        [InlineData("Data/Day13.txt", 33780)]
-        public void Part1(string filename, long expectedAnswer)
+        [InlineData("Data/Day13_Test.txt", 0, 405)]
+        [InlineData("Data/Day13_Test.txt", 1, 400)]
+        [InlineData("Data/Day13.txt", 0, 33780)]
+        [InlineData("Data/Day13.txt", 1, 23479)]
+        public void Solve(string filename, int requiredErrors, long expectedAnswer)
         {
             long total = 0;
 
             foreach (var grid in LoadGrids(filename))
             {
-                total += FindReflection(grid);
+                total += FindReflection(grid, requiredErrors);
             }
 
             total.Should().Be(expectedAnswer);
-        }
-
-        [Theory]
-        [InlineData("Data/Day13_Test.txt", 0)]
-        [InlineData("Data/Day13.txt", 0)]
-        public void Part2(string filename, long expectedAnswer)
-        {
-
         }
     }
 }
