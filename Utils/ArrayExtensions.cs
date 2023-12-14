@@ -192,6 +192,14 @@ namespace Utils
             return (array.GetLength(0), array.GetLength(1));
         }
 
+        public static bool IsInBounds<T>(this T[,] array, int x, int y)
+        {
+            return 0 <= x
+                && 0 <= y
+                && x < array.GetLength(0)
+                && y < array.GetLength(1);
+        }
+
         public static IEnumerable<T> Items<T>(this T[,] array)
         {
             foreach (var (x, y) in array.Rectangle())
