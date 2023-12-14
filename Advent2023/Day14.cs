@@ -9,13 +9,14 @@ namespace Advent2023
     {
         void Roll(char[,] grid, int x, int y, int dX, int dY)
         {
+            grid[x, y] = '.';
             while (true)
             {
                 var nx = x + dX;
                 var ny = y + dY;
 
                 if (!grid.IsInBounds(nx, ny)) break;
-                if (grid[nx, ny] != 0) break;
+                if (grid[nx, ny] != '.') break;
 
                 x = nx;
                 y = ny;
@@ -23,109 +24,68 @@ namespace Advent2023
             grid[x, y] = 'O';
         }
 
-        char[,] RollNorth(char[,] grid)
+        void RollNorth(char[,] grid)
         {
-            var result = new char[grid.GetLength(0), grid.GetLength(1)];
-
             foreach (var ((x, y), item) in grid.Iterate())
             {
-                switch (item)
+                if (item == 'O')
                 {
-                    case '#':
-                        result[x, y] = '#';
-                        break;
-
-                    case 'O':
-                        Roll(result, x, y, 0, -1);
-                        break;
+                   Roll(grid, x, y, 0, -1);
                 }
             }
-
-            return result;
         }
 
-        char[,] RollWest(char[,] grid)
+        void RollWest(char[,] grid)
         {
-            var result = new char[grid.GetLength(0), grid.GetLength(1)];
-
             for (int x = 0; x < grid.GetLength(0); x++)
             {
                 for (int y = 0; y < grid.GetLength(1); y++)
                 {
                     var item = grid[x, y];
-                    switch (item)
+                    if (item == 'O')
                     {
-                        case '#':
-                            result[x, y] = '#';
-                            break;
-
-                        case 'O':
-                            Roll(result, x, y, -1, 0);
-                            break;
+                        Roll(grid, x, y, -1, 0);
                     }
                 }
             }
-
-            return result;
         }
 
-        char[,] RollSouth(char[,] grid)
+        void RollSouth(char[,] grid)
         {
-            var result = new char[grid.GetLength(0), grid.GetLength(1)];
-
             for (int y = grid.GetLength(1) - 1; y >= 0; y--)
             {
                 for (int x = 0; x < grid.GetLength(0); x++)
                 {
                     var item = grid[x, y];
-                    switch (item)
+                    if (item == 'O')
                     {
-                        case '#':
-                            result[x, y] = '#';
-                            break;
-
-                        case 'O':
-                            Roll(result, x, y, 0, 1);
-                            break;
+                        Roll(grid, x, y, 0, 1);
                     }
                 }
             }
-
-            return result;
         }
 
-        char[,] RollEast(char[,] grid)
+        void RollEast(char[,] grid)
         {
-            var result = new char[grid.GetLength(0), grid.GetLength(1)];
-
             for (int x = grid.GetLength(0) - 1; x>= 0; x--)
             {
                 for (int y = 0; y < grid.GetLength(1); y++)
                 {
                     var item = grid[x, y];
-                    switch (item)
+                    if (item == 'O')
                     {
-                        case '#':
-                            result[x, y] = '#';
-                            break;
-
-                        case 'O':
-                            Roll(result, x, y, 1, 0);
-                            break;
+                        Roll(grid, x, y, 1, 0);
                     }
                 }
             }
-
-            return result;
         }
 
-        char[,] Cycle(char[,] grid)
+        void Cycle(char[,] grid)
         {
-            grid = RollNorth(grid);
-            grid = RollWest(grid);
-            grid = RollSouth(grid);
-            grid = RollEast(grid);
-            return grid;
+            RollNorth(grid);
+            RollWest(grid);
+            RollSouth(grid);
+            RollEast(grid);
         }
 
         long CalcLoad(char[,] grid)
@@ -150,7 +110,7 @@ namespace Advent2023
         public void Part1(string filename, long expectedAnswer)
         {
             var grid = FileIterator.LoadGrid(filename);
-            grid = RollNorth(grid);
+            RollNorth(grid);
             var load = CalcLoad(grid);
             load.Should().Be(expectedAnswer);
         }
@@ -166,6 +126,7 @@ namespace Advent2023
             long offset = -1;
             long cycleLength = -1;
 
+            // Detect the cycle
             for (long i = 0; i < NUM_CYCLES; i++)
             {
                 var key = grid.FlattenToString(c => c == 0 ? '.' : c);
@@ -176,15 +137,17 @@ namespace Advent2023
                     break;
                 }
                 seen[key] = i;
-                grid = Cycle(grid);
+                Cycle(grid);
             }
 
+            // Calculate the remaining iterations required to align with the target number
             var remainingCycles = NUM_CYCLES - offset;
             remainingCycles %= cycleLength;
 
+            // Finished the required number of cycles for alignment
             for (long i = 0; i < remainingCycles; i++)
             {
-                grid = Cycle(grid);
+                Cycle(grid);
             }
 
             var load = CalcLoad(grid);
