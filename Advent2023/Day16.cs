@@ -11,7 +11,6 @@ namespace Advent2023
         const int ActivationNone = 0;
         const int ActivationHorizontal = 1;
         const int ActivationVertical = 2;
-        const int ActivationBoth = ActivationHorizontal | ActivationVertical;
 
         class Beam(int x, int y, int dX, int dY)
         {
@@ -114,15 +113,6 @@ namespace Advent2023
             }
 
             return activations.Count;
-        }
-
-        void DebugDump(char[,] grid, Dictionary<(int x, int y), int> activations)
-        {
-            foreach (var pos in activations.Keys)
-            {
-                grid[pos.x, pos.y] = '#';
-            }
-            grid.DebugDump(c => c);
         }
 
         [Theory]
