@@ -134,21 +134,23 @@ namespace Advent2023
         public void Part2(string filename, long expectedAnswer)
         {
             var grid = FileIterator.LoadGrid(filename);
-            List<Beam> beams = [];
-
-            for (var x = 0; x < grid.GetLength(0); x++)
+            
+            IEnumerable<Beam> Beams()
             {
-                beams.Add(new(x, 0, 0, 1));
-                beams.Add(new(x, grid.GetLength(0) - 1, 0, -1));
+                for (var x = 0; x < grid.GetLength(0); x++)
+                {
+                    yield return new(x, 0, 0, 1);
+                    yield return new(x, grid.GetLength(0) - 1, 0, -1);
+                }
+
+                for (var y = 0; y < grid.GetLength(1); y++)
+                {
+                    yield return new(0, y, 1, 0);
+                    yield return new(grid.GetLength(1) - 1, y, -1, 0);
+                }
             }
 
-            for (var y = 0; y < grid.GetLength(1); y++)
-            {
-                beams.Add(new(0, y, 1, 0));
-                beams.Add(new(grid.GetLength(1) - 1, y, -1, 0));
-            }
-
-            beams.AsParallel()
+            Beams().AsParallel()
                 .Select(b => Simulate(grid, b))
                 .Max()
                 .Should().Be(expectedAnswer);
