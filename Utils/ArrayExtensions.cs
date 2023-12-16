@@ -129,6 +129,11 @@ namespace Utils
             (a[i2], a[i1]) = (a[i1], a[i2]);
         }
 
+        public static T GetAt<T>(this T[,] array, XY pos)
+        {
+            return array[pos.x, pos.y];
+        }
+
         public static IEnumerable<T> GetNeighbours<T>(this T[,] grid, int x, int y)
         {
             foreach (var pos in grid.GetNeighbourPos(x, y))
@@ -198,6 +203,11 @@ namespace Utils
                 && 0 <= y
                 && x < array.GetLength(0)
                 && y < array.GetLength(1);
+        }
+
+        public static bool IsInBounds<T>(this T[,] array, XY pos)
+        {
+            return IsInBounds(array, pos.x, pos.y);
         }
 
         public static IEnumerable<T> Items<T>(this T[,] array)

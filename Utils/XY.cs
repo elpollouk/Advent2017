@@ -120,7 +120,7 @@ namespace Utils
 
         public override int GetHashCode()
         {
-            return base.GetHashCode();
+            return (x, y).GetHashCode();
         }
     }
 }
