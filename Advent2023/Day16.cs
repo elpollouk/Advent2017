@@ -1,6 +1,8 @@
 ﻿using FluentAssertions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Utils;
 using Xunit;
 
@@ -131,27 +133,25 @@ namespace Advent2023
         [InlineData("Data/Day16.txt", 7896)]
         public void Part2(string filename, long expectedAnswer)
         {
-            long maxEnergisation = 0;
-
             var grid = FileIterator.LoadGrid(filename);
+            List<Beam> beams = [];
 
             for (var x = 0; x < grid.GetLength(0); x++)
             {
-                var energisation = Simulate(grid, new(x, 0, 0, 1));
-                maxEnergisation = Math.Max(maxEnergisation, energisation);
-                energisation = Simulate(grid, new(x, grid.GetLength(0) - 1, 0, -1));
-                maxEnergisation = Math.Max(maxEnergisation, energisation);
+                beams.Add(new(x, 0, 0, 1));
+                beams.Add(new(x, grid.GetLength(0) - 1, 0, -1));
             }
 
             for (var y = 0; y < grid.GetLength(1); y++)
             {
-                var energisation = Simulate(grid, new(0, y, 1, 0));
-                maxEnergisation = Math.Max(maxEnergisation, energisation);
-                energisation = Simulate(grid, new(grid.GetLength(1) - 1, y, -1, 0));
-                maxEnergisation = Math.Max(maxEnergisation, energisation);
+                beams.Add(new(0, y, 1, 0));
+                beams.Add(new(grid.GetLength(1) - 1, y, -1, 0));
             }
 
-            maxEnergisation.Should().Be(expectedAnswer);
+            beams.AsParallel()
+                .Select(b => Simulate(grid, b))
+                .Max()
+                .Should().Be(expectedAnswer);
         }
     }
 }
