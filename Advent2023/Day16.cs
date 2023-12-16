@@ -38,78 +38,79 @@ namespace Advent2023
         long Simulate(char[,] grid, Beam initialBeam)
         {
             Dictionary<(int x, int y), int> activations = [];
-            List<Beam> beams = [initialBeam];
+            Queue<Beam> beams = [];
+            beams.Enqueue(initialBeam);
+
+            void Split(Beam beam)
+            {
+                var newBeam = beam.Split();
+                newBeam.Update();
+                beams.Enqueue(newBeam);
+            }
 
             while (beams.Count > 0)
             {
-                List<Beam> surviving = [];
-                foreach (var beam in beams)
+                var beam = beams.Dequeue();
+
+                if (!grid.IsInBounds(beam.pos))
                 {
-                    if (!grid.IsInBounds(beam.pos))
-                    {
-                        // Beam has left the grid so it can be discarded
-                        continue;
-                    }
-
-                    var c = grid.GetAt(beam.pos);
-                    var state = activations.GetOrDefault(beam.pos.ToTuple(), ActivationNone);
-
-                    switch (c)
-                    {
-                        case '.':
-                            if ((state & beam.ActivationPlane) != 0)
-                            {
-                                // This cell has already been traversed so this beam can also be discarded
-                                continue;
-                            }
-                            break;
-
-                        case '-':
-                            if (beam.ActivationPlane == ActivationVertical)
-                            {
-                                var newBeam = beam.Split();
-                                newBeam.Update();
-                                surviving.Add(newBeam);
-                            }
-                            break;
-
-                        case '|':
-                            if (beam.ActivationPlane == ActivationHorizontal)
-                            {
-                                var newBeam = beam.Split();
-                                newBeam.Update();
-                                surviving.Add(newBeam);
-                            }
-                            break;
-
-                        case '\\':
-                            if (beam.ActivationPlane == ActivationHorizontal)
-                            {
-                                beam.RotateRight();
-                            }
-                            else
-                            {
-                                beam.RotateLeft();
-                            }
-                            break;
-
-                        case '/':
-                            if (beam.ActivationPlane == ActivationHorizontal)
-                            {
-                                beam.RotateLeft();
-                            }
-                            else
-                            {
-                                beam.RotateRight();
-                            }
-                            break;
-                    }
-
-                    activations[beam.pos.ToTuple()] = state | beam.ActivationPlane;
-                    beam.Update();
-                    surviving.Add(beam);
+                    // Beam has left the grid so it can be discarded
+                    continue;
                 }
-                beams = surviving;
+
+                var c = grid.GetAt(beam.pos);
+                var state = activations.GetOrDefault(beam.pos.ToTuple(), ActivationNone);
+
+                switch (c)
+                {
+                    case '.':
+                        if ((state & beam.ActivationPlane) != 0)
+                        {
+                            // This cell has already been traversed so this beam can also be discarded
+                            continue;
+                        }
+                        break;
+
+                    case '-':
+                        if (beam.ActivationPlane == ActivationVertical)
+                        {
+                            Split(beam);
+                        }
+                        break;
+
+                    case '|':
+                        if (beam.ActivationPlane == ActivationHorizontal)
+                        {
+                            Split(beam);
+                        }
+                        break;
+
+                    case '\\':
+                        if (beam.ActivationPlane == ActivationHorizontal)
+                        {
+                            beam.RotateRight();
+                        }
+                        else
+                        {
+                            beam.RotateLeft();
+                        }
+                        break;
+
+                    case '/':
+                        if (beam.ActivationPlane == ActivationHorizontal)
+                        {
+                            beam.RotateLeft();
+                        }
+                        else
+                        {
+                            beam.RotateRight();
+                        }
+                        break;
+                }
+
+                activations[beam.pos.ToTuple()] = state | beam.ActivationPlane;
+                beam.Update();
+                beams.Enqueue(beam);
             }
 
             return activations.Count;
@@ -149,7 +150,6 @@ namespace Advent2023
                 energisation = Simulate(grid, new(grid.GetLength(1) - 1, y, -1, 0));
                 maxEnergisation = Math.Max(maxEnergisation, energisation);
             }
-
 
             maxEnergisation.Should().Be(expectedAnswer);
         }
