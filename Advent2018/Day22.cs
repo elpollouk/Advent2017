@@ -126,7 +126,8 @@ namespace Advent2018
 
             public int GetScore((int x, int y, Item item) from, (int x, int y, Item item) to)
             {
-                return Math.Abs(from.x - to.x) + Math.Abs(from.y - to.y);
+                var distance = Math.Abs(from.x - to.x) + Math.Abs(from.y - to.y);
+                return from.item == to.item ? distance : distance + 1;
             }
         }
 

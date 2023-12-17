@@ -13,13 +13,13 @@ namespace Utils.Alogrithms
             // Usually 1 for simple grids
             int GetMoveCost(Node from, Node to);
             // Get rough estimated score for navigating from one node to another
-            // Lower is better, Manhatten distance is a suitable score for simple grids
+            // Lower is better, Manhattan distance is a suitable score for simple grids
+            // A score of 0 means the nodes are equal
             int GetScore(Node from, Node to);
         }
 
         public static IList<Node> FindPath<Node>(IGraphAdapter<Node> graph, Node start, Node goal)
         {
-            var comparer = EqualityComparer<Node>.Default;
             var searchSpace = new PriorityQueue<Node>();
             var pathMap = new Dictionary<Node, Node>();
             var costSoFar = new Dictionary<Node, int>();
@@ -30,7 +30,14 @@ namespace Utils.Alogrithms
             while (searchSpace.Count != 0)
             {
                 var current = searchSpace.Dequeue();
-                if (comparer.Equals(current, goal)) break;
+                if (graph.GetScore(current, goal) == 0)
+                {
+                    // We need to substitute the current node for the goal as although the current node might be
+                    // equivalent to the goal, the goal itself might not be in the path map if reaching it only
+                    // requires partial matching of the node state.
+                    goal = current;
+                    break;
+                }
 
                 var linked = graph.GetLinked(current);
                 foreach (var linkedNode in linked)
