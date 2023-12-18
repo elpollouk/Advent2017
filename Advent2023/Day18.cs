@@ -451,5 +451,66 @@ namespace Advent2023
             var total = SplitVertical(part);
             total.Should().Be(expectedAnswer);
         }
+
+
+        //---------------------------------------------------------------------------------------//
+        // Shoelace Formula
+        // https://www.themathdoctors.org/polygon-coordinates-and-areas/
+        //---------------------------------------------------------------------------------------//
+
+        List<(long x, long y)> LoadVertices(string filename)
+        {
+            XY pos = new(0, 0);
+            List<(long x, long y)> verts = [pos.ToTuple()];
+
+            foreach (var line in FileIterator.Lines(filename))
+            {
+                var match = line.Match(@"#(.....)(\d)\)$");
+                var distance = FromHex(match.Groups[1].Value);
+                var direction = match.Groups[2].Value[0];
+
+                // R:0, D:1, L:2, U:3
+                var (dX, dy) = direction switch
+                {
+                    '0' => (distance, 0),
+                    '1' => (0, distance),
+                    '2' => (-distance, 0),
+                    '3' => (0, -distance),
+                    _ => throw new Exception()
+                };
+
+                var from = pos.ToTuple();
+                pos.Add(dX, dy);
+                verts.Add(pos.ToTuple());
+            }
+
+            return verts;
+        }
+
+        [Theory]
+        [InlineData("Data/Day18_TestSimple.txt", 20)]
+        [InlineData("Data/Day18_TestComplex.txt", 44)]
+        [InlineData("Data/Day18_Test.txt", 952408144115)]
+        [InlineData("Data/Day18.txt", 104454050898331)]
+        public void Part2_Shoelace(string filename, long expectedAnswer)
+        {
+            var verts = LoadVertices(filename);
+            long s1 = 0;
+            long s2 = 0;
+            long length = 0;
+
+            for (int i = 0; i <  verts.Count - 1; i++)
+            {
+                s1 += verts[i].x * verts[i + 1].y;
+                s2 += verts[i].y * verts[i + 1].x;
+                length += long.Abs((verts[i].x - verts[i+1].x) + (verts[i].y - verts[i+1].y));
+            }
+
+            // We need to factor in the volume of the line itself as well
+            // https://www.reddit.com/r/adventofcode/comments/18l2nk2/2023_day_18_easiest_way_to_solve_both_parts/kdv9bfk/
+            var area = ((s1 - s2 + length) / 2) + 1;
+
+            area.Should().Be(expectedAnswer);
+        }
     }
 }
