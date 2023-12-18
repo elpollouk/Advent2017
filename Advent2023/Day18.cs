@@ -16,15 +16,6 @@ namespace Advent2023
 
         record Instruction(char Direction, int Distance, int Colour);
 
-        static (int r, int g, int b) ToColour(int colour)
-        {
-            return (
-                (colour >> 16) & 0xFF,
-                (colour >>  8) & 0xFF,
-                (colour >>  0) & 0xFF
-            );
-        }
-
         static int FromHex(string hex)
         {
             int value = 0;
@@ -98,44 +89,6 @@ namespace Advent2023
             }
         }
 
-        ((int x, int y) min, (int x, int y) max) GetExtents(Dictionary<(int x, int y), int> surface)
-        {
-            int minX = int.MaxValue;
-            int minY = int.MaxValue;
-            int maxX = int.MinValue;
-            int maxY = int.MinValue;
-
-            foreach (var pos in surface.Keys)
-            {
-                minX = Math.Min(minX, pos.x);
-                minY = Math.Min(minY, pos.y);
-                maxX = Math.Max(maxX, pos.x);
-                maxY = Math.Max(maxY, pos.y);
-            }
-
-            return (
-                (minX, minY),
-                (maxX, maxY)
-            );
-        }
-
-        void Render(Dictionary<(int x, int y), int> surface)
-        {
-            var (min, max) = GetExtents(surface);
-            var bitmap = new int[(max.x - min.x) + 1, (max.y - min.y) + 1];
-
-            foreach (var ((x, y), colour) in surface)
-            {
-                bitmap[x - min.x, y - min.y] = colour;
-            }
-
-            Renderer.RenderGrid("C:/Temp/test.png", bitmap, c =>
-            {
-                var (r, g, b) = ToColour(c);
-                return Renderer.Colour((byte)r, (byte)g, (byte)b);
-            });
-        }
-
         [Theory]
         [InlineData("Data/Day18_Test.txt", 62)]
         [InlineData("Data/Day18.txt", 40131)]
@@ -144,7 +97,6 @@ namespace Advent2023
             var instructions = Load(filename);
             var surface = Execute(instructions);
             Fill(surface, 1, 1, 0xC4C4C4);
-            Render(surface);
             surface.Count.Should().Be(expectedAnswer);
         }
 
@@ -152,6 +104,7 @@ namespace Advent2023
         //---------------------------------------------------------------------------------------//
         // Part 2
         //---------------------------------------------------------------------------------------//
+
         record Line((long x, long y) from, (long x, long y) to);
         record Partition((long x, long y) min, (long x, long y) max, List<Line> shape);
 
@@ -176,6 +129,24 @@ namespace Advent2023
             );
         }
 
+        static bool IsOneByOne(Line line)
+        {
+            return line.from == line.to;
+        }
+
+        static bool IsL(Partition part)
+        {
+            HashSet<(long x, long y)> vertices = [];
+            foreach (var line in part.shape)
+            {
+                vertices.Add(line.from);
+                vertices.Add(line.to);
+            }
+
+            return vertices.Count == 3;
+        }
+
+        // Cap of open parts of the shape so that we still have a continuous line
         void CreateVerticalSeals(Partition part, IEnumerable<(long x, long y)> exits, bool ascending)
         {
             (exits.Count() % 2).Should().Be(0);
@@ -222,24 +193,7 @@ namespace Advent2023
             }
         }
 
-        static bool IsOneByOne(Line line)
-        {
-            return line.from == line.to;
-        }
-
-        static bool IsL(Partition part)
-        {
-            HashSet<(long x, long y)> vertices = [];
-            foreach (var line in part.shape)
-            {
-                vertices.Add(line.from);
-                vertices.Add(line.to);
-            }
-
-            return vertices.Count == 3;
-        }
-
-        Partition FilterOneByOne(Partition part)
+        Partition FilterOneByOne(Partition part, ref long count)
         {
             List<Line> newShape = [];
             HashSet<(long x, long y)> seen = [];
@@ -270,7 +224,7 @@ namespace Advent2023
                 }
 
                 seen.Add(point);
-                newShape.Add(new(point, point));
+                count += 1;
             }
 
             return new Partition(part.min, part.max, newShape);
@@ -278,17 +232,9 @@ namespace Advent2023
 
         long SplitVertical(Partition part)
         {
-            //(part.shape.Count % 2).Should().Be(0);
-
             if (part.shape.Count == 0)
             {
                 return 0;
-            }
-
-            if (part.shape.Count == 1)
-            {
-                IsOneByOne(part.shape[0]).Should().BeTrue();
-                return 1;
             }
 
             if (part.shape.Count <= 4)
@@ -349,11 +295,13 @@ namespace Advent2023
             }
 
             CreateVerticalSeals(left, leftExits, true);
-            left = FilterOneByOne(left);
             CreateVerticalSeals(right, rightExits, false);
-            right = FilterOneByOne(right);
 
-            var area = SplitHorizontal(left);
+            long area = 0;
+            left = FilterOneByOne(left, ref area);
+            right = FilterOneByOne(right, ref area);
+
+            area += SplitHorizontal(left);
             area += SplitHorizontal(right);
 
             return area;
@@ -366,13 +314,7 @@ namespace Advent2023
                 return 0;
             }
 
-            if (part.shape.Count == 1)
-            {
-                IsOneByOne(part.shape[0]).Should().BeTrue();
-                return 1;
-            }
-
-            if (part.shape.Count == 4 || part.shape.Count == 2)
+            if (part.shape.Count <= 4)
             {
                 var (min, max) = GetExtents(part.shape);
                 if (IsL(part))
@@ -430,11 +372,13 @@ namespace Advent2023
             }
 
             CreateHorizontalSeals(top, topExits, false);
-            top = FilterOneByOne(top);
             CreateHorizontalSeals(bottom, bottomExits, true);
-            bottom = FilterOneByOne(bottom);
 
-            var area = SplitVertical(top);
+            long area = 0;
+            top = FilterOneByOne(top, ref area);
+            bottom = FilterOneByOne(bottom, ref area);
+
+            area += SplitVertical(top);
             area += SplitVertical(bottom);
 
             return area;
