@@ -92,7 +92,7 @@ namespace Advent2023
                     foreach (var step in steps)
                     {
                         var result = step(w);
-                        switch (step(w))
+                        switch (result)
                         {
                             case Result.Accept:
                             case Result.Reject:
