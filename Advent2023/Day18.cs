@@ -146,7 +146,7 @@ namespace Advent2023
             return vertices.Count == 3;
         }
 
-        // Cap of open parts of the shape so that we still have a continuous line
+        // Cap off open parts of the shape so that we still have a continuous line
         void CreateVerticalSeals(Partition part, IEnumerable<(long x, long y)> exits, bool ascending)
         {
             (exits.Count() % 2).Should().Be(0);
@@ -495,20 +495,18 @@ namespace Advent2023
         public void Part2_Shoelace(string filename, long expectedAnswer)
         {
             var verts = LoadVertices(filename);
-            long s1 = 0;
-            long s2 = 0;
-            long length = 0;
+            long area = 0;
 
             for (int i = 0; i <  verts.Count - 1; i++)
             {
-                s1 += verts[i].x * verts[i + 1].y;
-                s2 += verts[i].y * verts[i + 1].x;
-                length += long.Abs((verts[i].x - verts[i+1].x) + (verts[i].y - verts[i+1].y));
+                area += (verts[i].x * verts[i + 1].y) - (verts[i].y * verts[i + 1].x);
+
+                // We need to factor in the volume of the line itself as well
+                // https://www.reddit.com/r/adventofcode/comments/18l2nk2/2023_day_18_easiest_way_to_solve_both_parts/kdv9bfk/
+                area += long.Abs(verts[i].x - verts[i+1].x + verts[i].y - verts[i+1].y);
             }
 
-            // We need to factor in the volume of the line itself as well
-            // https://www.reddit.com/r/adventofcode/comments/18l2nk2/2023_day_18_easiest_way_to_solve_both_parts/kdv9bfk/
-            var area = ((s1 - s2 + length) / 2) + 1;
+            area = (area / 2) + 1;
 
             area.Should().Be(expectedAnswer);
         }
